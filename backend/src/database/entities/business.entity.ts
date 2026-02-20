@@ -4,16 +4,16 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
   OneToOne,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
+import { BusinessCategory } from './business-category.entity';
 import { FileEntity } from './file.entity';
 
-@Entity('taxi_drivers')
-export class TaxiDriver {
+@Entity('businesses')
+export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -24,31 +24,40 @@ export class TaxiDriver {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
+  @Column({ type: 'varchar', length: 150 })
+  business_name: string;
 
-  @Column({ type: 'varchar', length: 15 })
-  phone: string;
+  @Column({ type: 'uuid', nullable: true })
+  category_id: string;
+
+  @ManyToOne(() => BusinessCategory, { nullable: true })
+  @JoinColumn({ name: 'category_id' })
+  category: BusinessCategory;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  plaka: string;
+  tax_number: string;
 
-  @Column({ type: 'varchar', length: 200, nullable: true })
-  vehicle_info: string;
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
+  @Column({ type: 'varchar', length: 15, nullable: true })
+  phone: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  email: string;
+
+  @Column({ type: 'text', nullable: true })
+  website_url: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  instagram_handle: string;
 
   @Column({ type: 'uuid', nullable: true })
-  license_file_id: string;
+  logo_file_id: string;
 
   @ManyToOne(() => FileEntity, { nullable: true })
-  @JoinColumn({ name: 'license_file_id' })
-  license_file: FileEntity;
-
-  @Column({ type: 'uuid', nullable: true })
-  registration_file_id: string;
-
-  @ManyToOne(() => FileEntity, { nullable: true })
-  @JoinColumn({ name: 'registration_file_id' })
-  registration_file: FileEntity;
+  @JoinColumn({ name: 'logo_file_id' })
+  logo: FileEntity;
 
   @Column({ type: 'boolean', default: false })
   is_verified: boolean;
@@ -59,18 +68,9 @@ export class TaxiDriver {
   @Column({ type: 'timestamp', nullable: true })
   verified_at: Date;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean;
-
-  @Column({ type: 'int', default: 0 })
-  total_calls: number;
-
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
 }

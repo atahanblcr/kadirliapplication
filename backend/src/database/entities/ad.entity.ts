@@ -11,6 +11,10 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { AdCategory } from './ad-category.entity';
+import { AdImage } from './ad-image.entity';
+import { AdFavorite } from './ad-favorite.entity';
+import { AdExtension } from './ad-extension.entity';
+import { AdPropertyValue } from './ad-property-value.entity';
 
 @Entity('ads')
 export class Ad {
@@ -82,6 +86,18 @@ export class Ad {
 
   @Column({ type: 'int', default: 0 })
   whatsapp_click_count: number;
+
+  @OneToMany(() => AdImage, (img) => img.ad, { cascade: true })
+  images: AdImage[];
+
+  @OneToMany(() => AdFavorite, (fav) => fav.ad)
+  favorites: AdFavorite[];
+
+  @OneToMany(() => AdExtension, (ext) => ext.ad)
+  extensions: AdExtension[];
+
+  @OneToMany(() => AdPropertyValue, (val) => val.ad, { cascade: true })
+  property_values: AdPropertyValue[];
 
   @CreateDateColumn()
   created_at: Date;

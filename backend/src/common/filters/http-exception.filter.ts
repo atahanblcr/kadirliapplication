@@ -44,7 +44,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error: {
         code,
         message: Array.isArray(message) ? message[0] : message,
-        ...(details && { details }),
+        ...(details ? { details } : {}),
       },
       meta: {
         timestamp: new Date().toISOString(),

@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Brackets } from 'typeorm';
+import { Repository, Brackets, DeepPartial } from 'typeorm';
 import { Announcement } from '../database/entities/announcement.entity';
 import { AnnouncementType } from '../database/entities/announcement-type.entity';
 import { User } from '../database/entities/user.entity';
@@ -135,9 +135,9 @@ export class AnnouncementsService {
       sent_at: sentAt,
       has_pdf: !!dto.pdf_file_id,
       has_link: !!dto.external_link,
-      scheduled_for: dto.scheduled_for ? new Date(dto.scheduled_for) : null,
-      visible_until: dto.visible_until ? new Date(dto.visible_until) : null,
-    });
+      scheduled_for: dto.scheduled_for ? new Date(dto.scheduled_for) : undefined,
+      visible_until: dto.visible_until ? new Date(dto.visible_until) : undefined,
+    } as DeepPartial<Announcement>);
 
     const saved = await this.announcementRepository.save(announcement);
 
@@ -175,7 +175,7 @@ export class AnnouncementsService {
       has_link: dto.external_link !== undefined ? !!dto.external_link : announcement.has_link,
       scheduled_for: dto.scheduled_for ? new Date(dto.scheduled_for) : announcement.scheduled_for,
       visible_until: dto.visible_until ? new Date(dto.visible_until) : announcement.visible_until,
-    });
+    } as DeepPartial<Announcement>);
 
     return this.announcementRepository.save(updated);
   }

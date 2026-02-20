@@ -121,7 +121,7 @@ export class AuthService {
       // Yeni kullanıcı - temp token
       const tempToken = this.jwtService.sign(
         { phone, type: 'registration' },
-        { expiresIn: '30m', secret: this.configService.get('JWT_SECRET') },
+        { expiresIn: '30m' as any, secret: this.configService.get('JWT_SECRET') },
       );
       return { is_new_user: true, temp_token: tempToken };
     }
@@ -212,7 +212,7 @@ export class AuthService {
         { user_id: user.id, role: user.role, phone: user.phone },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '30d'),
+          expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d') as any,
         },
       );
 
@@ -226,7 +226,7 @@ export class AuthService {
 
   async logout(userId: string, fcmToken?: string): Promise<void> {
     if (fcmToken) {
-      await this.userRepository.update(userId, { fcm_token: null });
+      await this.userRepository.update(userId, { fcm_token: null as any });
     }
   }
 
@@ -251,11 +251,11 @@ export class AuthService {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '30d'),
+        expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d') as any,
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '90d'),
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '90d') as any,
       }),
     ]);
 
