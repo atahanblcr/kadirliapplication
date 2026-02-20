@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: kadirliapp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kadirliapp
+      POSTGRES_USER: kadirliapp_user
+      POSTGRES_PASSWORD: your_strong_password_here
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docs/01_DATABASE_SCHEMA_FULL.sql:/docker-entrypoint-initdb.d/01_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kadirliapp_user -d kadirliapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: kadirliapp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kadirliapp-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: kadirliapp
+      DATABASE_USER: kadirliapp_user
+      DATABASE_PASSWORD: your_strong_password_here
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: kadirliapp-admin
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000/v1
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_logs:

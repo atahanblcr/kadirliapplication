@@ -1,0 +1,206 @@
+# Issues & Problems - Sorunlar ve Çözümler
+
+**Amaç:** Karşılaşılan sorunları ve çözümlerini kaydetmek
+
+---
+
+## 🐛 Sorun Formatı
+
+```markdown
+## [ID] [Tarih] - [Başlık]
+
+**Durum:** 🔴 Açık / 🟡 Devam ediyor / 🟢 Çözüldü
+
+**Modül:** [Hangi modülde]
+
+**Açıklama:**
+[Sorunun detaylı açıklaması]
+
+**Hata Mesajı:**
+```
+[Hata kodu/mesajı]
+```
+
+**Denenen Çözümler:**
+1. [Çözüm 1] - Sonuç: Başarısız
+2. [Çözüm 2] - Sonuç: Kısmi çözüm
+
+**Nihai Çözüm:**
+[Nasıl çözüldü]
+
+**Önleme:**
+[Gelecekte nasıl önlenir]
+```
+
+---
+
+## #001 16 Şubat 2026 - Redis Connection Timeout
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Auth (OTP Storage)
+
+**Açıklama:**
+Backend başlatıldığında Redis'e bağlanamıyor. 5 saniye sonra timeout hatası veriyor.
+
+**Hata Mesajı:**
+```
+Error: connect ETIMEDOUT
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1144:16)
+```
+
+**Denenen Çözümler:**
+1. Redis restart - Başarısız
+2. Port değiştirme (6380) - Başarısız
+3. localhost yerine 127.0.0.1 - Başarısız
+
+**Nihai Çözüm:**
+docker-compose.yml'de Redis host'u değiştirdim:
+```yaml
+# ESKI:
+REDIS_HOST: localhost
+
+# YENİ:
+REDIS_HOST: redis  # Container name
+```
+
+Backend de Redis container'ına bağlandı.
+
+**Önleme:**
+Docker Compose kullanırken container name'leri kullan, localhost değil.
+
+---
+
+## #002 17 Şubat 2026 - TypeORM Entity Not Found
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Database
+
+**Açıklama:**
+TypeORM `User` entity'sini bulamıyor. `EntityNotFoundError` hatası veriyor.
+
+**Hata Mesajı:**
+```
+Error: No metadata for "User" was found
+```
+
+**Denenen Çözümler:**
+1. Entity import kontrol - Doğru
+2. @Entity() decorator kontrol - Var
+
+**Nihai Çözüm:**
+`app.module.ts`'de entities array'e ekledim:
+```typescript
+TypeOrmModule.forRoot({
+  // ...
+  entities: [User, Announcement, Ad, /* ... */],
+  // VEYA:
+  entities: ['dist/**/*.entity.js'],
+})
+```
+
+**Önleme:**
+Yeni entity oluşturduktan sonra mutlaka entities array'e ekle veya glob pattern kullan.
+
+---
+
+## #003 18 Şubat 2026 - OTP Rate Limiting Çalışmıyor
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Auth
+
+**Açıklama:**
+10 OTP/hour limiti uygulanmıyor. Kullanıcı sınırsız OTP alabiliyordu.
+
+**Hata Mesajı:**
+[Hata yok, iş mantığı hatası]
+
+**Denenen Çözümler:**
+1. Redis key kontrolü - Doğru
+2. TTL kontrolü - 3600 saniye (1 saat) ✓
+
+**Nihai Çözüm:**
+Redis key format'ı yanlıştı:
+```typescript
+// YANLIŞ:
+const key = `otp:${phone}`;
+
+// DOĞRU:
+const key = `otp_count:${phone}`;
+```
+
+Her OTP isteğinde count arttırılıyor, 10'dan fazlaysa reject ediliyor.
+
+**Önleme:**
+Redis key naming convention belirle ve dokümante et.
+
+---
+
+## #004 20 Şubat 2026 - File Upload 10MB Üzeri Hata
+
+**Durum:** 🟡 Devam ediyor
+
+**Modül:** Files
+
+**Açıklama:**
+10MB'dan büyük dosyalar upload edilemiyor. NGINX 413 (Payload Too Large) hatası veriyor.
+
+**Hata Mesajı:**
+```
+413 Request Entity Too Large
+```
+
+**Denenen Çözümler:**
+1. NestJS body-parser limit arttırıldı - Başarısız (NGINX blokluyordu)
+2. NGINX config değiştirildi - Test ediliyor
+
+**Mevcut Çalışma:**
+```nginx
+# /etc/nginx/nginx.conf
+client_max_body_size 20M;
+```
+
+**Sonraki Adımlar:**
+- NGINX restart
+- Test et
+- CloudFlare R2'ye direkt upload stratejisi düşün
+
+---
+
+## #005 [YENİ SORUN ŞABLONU]
+
+**Durum:** 🔴 Açık
+
+**Modül:**
+
+**Açıklama:**
+
+**Hata Mesajı:**
+```
+```
+
+**Denenen Çözümler:**
+
+**Nihai Çözüm:**
+
+**Önleme:**
+
+---
+
+## 📊 İstatistikler
+
+**Toplam Sorun:** 5  
+**Çözülmüş:** 3 (60%)  
+**Devam Eden:** 1 (20%)  
+**Açık:** 1 (20%)
+
+**En Sık Sorun Kategorileri:**
+1. Database/ORM (2 sorun)
+2. Configuration (2 sorun)
+3. File Upload (1 sorun)
+
+---
+
+**NOT:** Her sorunla karşılaştığında buraya ekle, çözüm bulunca güncelle!
