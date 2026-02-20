@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { FileEntity } from '../database/entities/file.entity';
 import { UploadFileDto } from './dto/upload-file.dto';
 
@@ -46,19 +46,20 @@ export class FilesService {
       throw new BadRequestException('Dosya boyutu 10 MB sınırını aşıyor');
     }
 
-    const fileEntity = this.fileRepository.create({
+    const fileData: DeepPartial<FileEntity> = {
       original_name: file.originalname,
       file_name: file.filename,
       mime_type: file.mimetype,
       size_bytes: file.size,
       storage_path: file.path,
       cdn_url: `/uploads/${file.filename}`,
-      thumbnail_url: null,
+      thumbnail_url: undefined,
       module_type: dto.module_type,
-      module_id: dto.module_id ?? null,
+      module_id: dto.module_id ?? undefined,
       uploaded_by: userId,
-      metadata: null,
-    });
+      metadata: undefined,
+    };
+    const fileEntity = this.fileRepository.create(fileData);
 
     const saved = await this.fileRepository.save(fileEntity);
     return { file: saved };

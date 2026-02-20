@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -45,35 +43,62 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
+      PORT: 3000
+      API_PREFIX: v1
+      # Database
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_NAME: kadirliapp
       DATABASE_USER: kadirliapp_user
       DATABASE_PASSWORD: your_strong_password_here
+      DATABASE_SYNCHRONIZE: "false"
+      DATABASE_LOGGING: "false"
+      DATABASE_SSL: "false"
+      # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      # JWT (override in .env or secrets)
+      JWT_SECRET: your_very_long_and_secure_jwt_secret_here_min_64_chars
+      JWT_EXPIRES_IN: 30d
+      JWT_REFRESH_SECRET: your_very_long_and_secure_refresh_secret_here_min_64_chars
+      JWT_REFRESH_EXPIRES_IN: 90d
+      # OTP
+      OTP_TTL_SECONDS: 300
+      OTP_RATE_LIMIT_PER_HOUR: 10
+      OTP_MAX_ATTEMPTS: 3
+      OTP_BLOCK_DURATION_MINUTES: 5
+      OTP_DEV_MODE: "true"
+      # CORS
+      CORS_ORIGINS: "http://localhost:3001,http://localhost:3002"
+      # Rate Limiting
+      THROTTLE_TTL: 60
+      THROTTLE_LIMIT: 100
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
+      - backend_uploads:/app/uploads
       - backend_logs:/app/logs
 
-  admin:
-    build:
-      context: ./admin
-      dockerfile: Dockerfile
-    container_name: kadirliapp-admin
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3000/v1
-    depends_on:
-      - backend
+  # Admin - ŞİMDİLİK KAPALI (Henüz başlamadı)
+  # admin:
+  #   build:
+  #     context: ./admin
+  #     dockerfile: Dockerfile
+  #   container_name: kadirliapp-admin
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://localhost:3000/v1
+  #   depends_on:
+  #     - backend
 
 volumes:
   postgres_data:
   redis_data:
+  backend_uploads:
   backend_logs:

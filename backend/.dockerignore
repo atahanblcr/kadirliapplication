@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# Environment files (NEVER include in image)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test files
+test/
+**/*.spec.ts
+**/*.e2e-spec.ts
+
+# Dev tools
+.eslintrc*
+.prettierrc*
+.editorconfig
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Uploads (runtime volume)
+uploads/

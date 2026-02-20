@@ -43,7 +43,7 @@ import { FilesModule } from './files/files.module';
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('DATABASE_LOGGING') === 'true',
-        ssl: configService.get<string>('NODE_ENV') === 'production'
+        ssl: configService.get<string>('DATABASE_SSL') === 'true'
           ? { rejectUnauthorized: false }
           : false,
       }),
