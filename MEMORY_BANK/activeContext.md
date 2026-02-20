@@ -6,8 +6,8 @@
 
 ## 🎯 Şu Anki Görev
 
-**Modül:** Backend Setup
-**Alt Görev:** Temel yapı kurulumu tamamlandı, Auth Module'e geçilecek
+**Modül:** Announcements Module (sıradaki)
+**Alt Görev:** Auth testleri tamamlandı, Announcements'a geçmeye hazır
 **Başlangıç:** 20 Şubat 2026
 
 ---
@@ -26,16 +26,22 @@ backend/
 ├── ✅ database/entities/ (user, neighborhood, file, announcement, ad, taxi-driver, death-notice, pharmacy, notification)
 ├── ✅ auth/ modülü (service, controller, strategy, guards, DTOs)
 ├── ✅ users/ modülü (service, controller, DTOs)
-└── ✅ 13 modül placeholder (announcements, ads, deaths, pharmacy, events, campaigns, guide, places, transport, notifications, taxi, admin, files)
+├── ✅ 13 modül placeholder (announcements, ads, deaths, pharmacy, events, campaigns, guide, places, transport, notifications, taxi, admin, files)
+└── ✅ Auth Unit Testleri (4 dosya, 69 test, %85+ coverage)
+    ├── auth.service.spec.ts     (100% Stmts, 90% Branch, 100% Funcs, 100% Lines)
+    ├── auth.controller.spec.ts  (100% Stmts, 79% Branch, 100% Funcs, 100% Lines)
+    ├── jwt.strategy.spec.ts     (100% Stmts, 86% Branch, 100% Funcs, 100% Lines)
+    └── roles.guard.spec.ts      (100% Stmts, 83% Branch, 100% Funcs, 100% Lines)
 ```
 
 ---
 
 ## 📊 Genel Durum
 
-**Backend Setup:** %50 tamamlandı
+**Backend:** %25 tamamlandı
 - ✅ Proje iskeleti hazır
 - ✅ Auth + Users modülleri yazıldı
+- ✅ Auth unit testleri yazıldı (%85+ coverage)
 - ⏳ Diğer 11 modül placeholder (içleri boş)
 
 ---
@@ -53,8 +59,8 @@ backend/
 
 ## 📌 Sonraki Adımlar (Sırayla - ONAY BEKLE)
 
-1. [ ] Auth Module Unit Testleri
-2. [ ] Announcements Module (tam implementasyon)
+1. [x] Auth Module Unit Testleri ✅ (69 test, %85+ coverage)
+2. [ ] Announcements Module (tam implementasyon) ← **SIRADAKI**
 3. [ ] Ads Module (en karmaşık)
 4. [ ] Deaths Module + cron job
 5. [ ] Taxi Module (RANDOM sıralama)

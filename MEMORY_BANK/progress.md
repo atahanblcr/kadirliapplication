@@ -8,14 +8,14 @@
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [██░░░░░░░░] 20% (Setup + Auth + Users tamamlandı)
+Backend:      [██░░░░░░░░] 25% (Setup + Auth + Users + Tests tamamlandı)
 Admin Panel:  [░░░░░░░░░░]  0% (Başlanmadı)
 Flutter App:  [░░░░░░░░░░]  0% (Başlanmadı)
-Testing:      [░░░░░░░░░░]  0% (Başlanmadı)
+Testing:      [█░░░░░░░░░] 10% (Auth tests tamamlandı)
 Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~5%
+**Toplam İlerleme:** ~8%
 
 ---
 
@@ -92,7 +92,22 @@ Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 - ✅ `users/users.controller.ts` (3 endpoint)
 - ✅ `users/users.module.ts`
 
-#### 6. Module Placeholders ✅
+#### 6. Auth Module Unit Testleri ✅
+**Tamamlanma:** 20 Şubat 2026
+**Süre:** ~30 dakika
+**Git Commit:** `test: add auth module unit tests with 85%+ coverage`
+
+**Test Dosyaları:**
+- ✅ `auth/auth.service.spec.ts` (Stmts: 100%, Branch: 90%, Funcs: 100%, Lines: 100%)
+- ✅ `auth/auth.controller.spec.ts` (Stmts: 100%, Branch: 79%, Funcs: 100%, Lines: 100%)
+- ✅ `auth/strategies/jwt.strategy.spec.ts` (Stmts: 100%, Branch: 86%, Funcs: 100%, Lines: 100%)
+- ✅ `auth/guards/roles.guard.spec.ts` (Stmts: 100%, Branch: 83%, Funcs: 100%, Lines: 100%)
+
+**Toplam:** 69 test, Auth klasörü: Stmts: 88.88%, Branch: 85.71%, Funcs: 88.23%, Lines: 89.85%
+
+---
+
+#### 7. Module Placeholders ✅
 **Tamamlanma:** 20 Şubat 2026
 **Süre:** ~5 dakika
 **Git Commit:** `feat: create module placeholders`
