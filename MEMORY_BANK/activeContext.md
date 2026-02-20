@@ -1,18 +1,20 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 20 Şubat 2026
+**Son Güncelleme:** 20 Şubat 2026 (Rapor yapılıyor, başka işe gidiyor, sonra devam)
 
 ---
 
-## 🎯 Şu Anki Görev
+## 🎯 Şu Anki Durum
 
-**Modül:** Ads Module (sıradaki - en karmaşık)
-**Alt Görev:** Announcements tamamlandı, Ads'e geçmeye hazır
-**Başlangıç:** 20 Şubat 2026
+**Modül:** Rapor ve Kontrol (Taxi Module sonra)
+**Durum:** Backend %60 tamamlandı, tüm testler geçti (227 test, 13 suite)
+**Model:** Claude Haiku (hızlı rapor için geçildi)
+**Başlangıç:** 20 Şubat 2026, 13:XX
+**Yapıldıktan Sonra:** Başka işe gidiyor, sonra Taxi Module'e başlayacak
 
 ---
 
-## 📝 Yapılan Çalışmalar (Bu Session)
+## 📝 Yapılan Çalışmalar (20 Şubat 2026)
 
 ```
 backend/
@@ -23,7 +25,7 @@ backend/
 ├── ✅ src/main.ts güncellendi (ValidationPipe, CORS, GlobalFilters)
 ├── ✅ src/app.module.ts güncellendi (tüm modüller bağlandı)
 ├── ✅ common/ klasörü (filters, interceptors, decorators, utils, enums)
-├── ✅ database/entities/ (user, neighborhood, file, announcement, ad, taxi-driver, death-notice, pharmacy, notification)
+├── ✅ database/entities/ (30+ entity - TÜM tablolar tamamlandı, TypeScript hataları düzeltildi)
 ├── ✅ auth/ modülü (service, controller, strategy, guards, DTOs)
 ├── ✅ users/ modülü (service, controller, DTOs)
 ├── ✅ 13 modül placeholder (announcements, ads, deaths, pharmacy, events, campaigns, guide, places, transport, notifications, taxi, admin, files)
@@ -66,17 +68,27 @@ backend/
 
 ---
 
-## 📌 Sonraki Adımlar (Sırayla - ONAY BEKLE)
+## 📌 Tamamlanan + Sonraki Adımlar
 
-1. [x] Auth Module Unit Testleri ✅ (69 test, %85+ coverage)
-2. [x] Announcements Module ✅ (48 test, 7 endpoint, %90+ coverage)
-3. [ ] Ads Module (en karmaşık) ← **SIRADAKI**
-3. [ ] Ads Module (en karmaşık)
-4. [ ] Deaths Module + cron job
-5. [ ] Taxi Module (RANDOM sıralama)
-6. [ ] Pharmacy, Events, Campaigns, Guide, Places, Transport
-7. [ ] Notifications Module (FCM)
-8. [ ] Admin Module
+### ✅ Tamamlananlar (20 Şub 2026)
+1. [x] Auth Module ✅ (69 test, 88.88% coverage)
+2. [x] Users Module ✅ (30 test, 88.75% coverage)
+3. [x] Announcements Module ✅ (48 test, 90.35% coverage)
+4. [x] Entity Schema ✅ (30+ entity)
+5. [x] Ads Module ✅ (61 test, 92.92% coverage)
+6. [x] Deaths Module ✅ (22 test, cron job)
+
+### 🔄 Yapılacaklar (Sıra)
+1. [ ] Taxi Module (RANDOM sıralama, docs/04 "7. TAXI")
+2. [ ] Pharmacy Module
+3. [ ] Events Module
+4. [ ] Campaigns Module
+5. [ ] Guide Module
+6. [ ] Places Module
+7. [ ] Transport Module
+8. [ ] Notifications Module (FCM)
+9. [ ] Admin Module
+10. [ ] Files Module (upload/delete)
 
 ---
 

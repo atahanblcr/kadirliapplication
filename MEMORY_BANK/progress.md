@@ -1,21 +1,21 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 20 Şubat 2026
+**Son Güncelleme:** 20 Şubat 2026 (rapor için son kontrol)
 
 ---
 
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [████░░░░░░] 35% (Setup + Auth + Users + Tests + Announcements tamamlandı)
+Backend:      [██████░░░░] 60% (Setup + Auth + Users + Announcements + Ads + Deaths + Entity Schema)
 Admin Panel:  [░░░░░░░░░░]  0% (Başlanmadı)
 Flutter App:  [░░░░░░░░░░]  0% (Başlanmadı)
-Testing:      [██░░░░░░░░] 15% (Auth + Announcements tests tamamlandı)
+Testing:      [████░░░░░░] 35% (Auth + Announcements + Users + Ads + Deaths tests tamamlandı)
 Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~12%
+**Toplam İlerleme:** ~25%
 
 ---
 
@@ -134,6 +134,119 @@ Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 - ✅ `auth/guards/roles.guard.spec.ts` (Stmts: 100%, Branch: 83%, Funcs: 100%, Lines: 100%)
 
 **Toplam:** 69 test, Auth klasörü: Stmts: 88.88%, Branch: 85.71%, Funcs: 88.23%, Lines: 89.85%
+
+---
+
+#### 11. Deaths Module ✅ (Cron Auto-Archive + Testler)
+**Tamamlanma:** 20 Şubat 2026
+**Git Commit:** `feat: implement Deaths module with cron auto-archive + tests`
+
+**5 Endpoint:**
+- ✅ `GET /deaths` → onaylı ilanlar, funeral_date filtresi, pagination
+- ✅ `GET /deaths/:id` → detay (cemetery, mosque, photo_file relations)
+- ✅ `POST /deaths` → oluştur (status=pending, auto_archive_at=funeral+7gün, 2/gün limit)
+- ✅ `GET /deaths/cemeteries` → aktif mezarlıklar (public)
+- ✅ `GET /deaths/mosques` → aktif camiler (public)
+
+**Cron Job:**
+- ✅ `@Cron(EVERY_DAY_AT_3AM)` → `auto_archive_at <= NOW()` soft delete
+
+**İş Kuralları:**
+- auto_archive_at = funeral_date + 7 gün
+- cemetery_id veya mosque_id en az biri zorunlu
+- Günlük limit: 2 vefat ilanı/user
+- @nestjs/schedule + ScheduleModule.forRoot() eklendi
+
+**Test:** 22 test, service: 100% Stmts / 86% Branch, controller: 100% Stmts
+
+---
+
+#### 10. Ads Module ✅ (En Karmaşık Modül + Testler)
+**Tamamlanma:** 20 Şubat 2026
+**Git Commit:** `feat: implement Ads module with full CRUD, favorites, extensions, search`
+
+**14 Endpoint:**
+- ✅ `GET /ads` → filtreleme (kategori, fiyat aralığı), ILIKE search, sıralama, pagination
+- ✅ `GET /ads/:id` → detay + view_count increment
+- ✅ `GET /ads/categories` → hiyerarşik kategoriler (parent_id)
+- ✅ `GET /ads/categories/:id/properties` → dinamik kategori özellikleri
+- ✅ `POST /ads` → ilan oluştur (status=pending, expires_at=+7gün, 10/gün limit, 1-5 fotoğraf)
+- ✅ `PATCH /ads/:id` → güncelle (owner only, approved→pending re-moderation)
+- ✅ `DELETE /ads/:id` → soft delete (owner only)
+- ✅ `POST /ads/:id/extend` → reklam izle uzat (1 reklam=1 gün, max 3 uzatma)
+- ✅ `POST /ads/:id/favorite` → favoriye ekle (max 30)
+- ✅ `DELETE /ads/:id/favorite` → favoriden çıkar
+- ✅ `GET /users/me/ads` → benim ilanlarım (status filtresi)
+- ✅ `GET /users/me/favorites` → favorilerim
+- ✅ `POST /ads/:id/track-phone` → telefon tıklama sayacı
+- ✅ `POST /ads/:id/track-whatsapp` → WhatsApp tıklama + URL
+
+**İş Kuralları:**
+- expires_at = NOW() + 7 gün (yeni ilan)
+- 1 reklam izleme = 1 gün uzatma, extension_count++, max_extensions=3
+- Günlük limit: 10 ilan/user (createQueryBuilder count)
+- Fotoğraf: 1-5 adet, cover_image_id in image_ids
+- Moderation: create→pending, approved güncelleme→pending
+- Favoriler: max 30, unique constraint
+- Leaf category zorunlu (childCount === 0)
+- Plain text description (HTML yasak)
+
+**Test Sonuçları (ads klasörü):**
+- `ads.service.ts`: Stmts: 98.8%, Branch: 92.15%, Funcs: 90%, Lines: 98.79%
+- `ads.controller.ts`: Stmts: 100%, Branch: 75%, Funcs: 100%, Lines: 100%
+- Toplam: 61 test
+
+---
+
+#### 9. Users Module ✅ (Tam + Testler)
+**Tamamlanma:** 20 Şubat 2026
+**Git Commit:** `feat: complete Users module with tests (100% Stmts, 91% Branch coverage)`
+
+**Endpoint'ler:**
+- ✅ `GET /users/me` → JWT'den gelen user + primary_neighborhood relation
+- ✅ `PATCH /users/me` → username (30 gün kısıtlama), mahalle (30 gün kısıtlama), age, location_type
+- ✅ `PATCH /users/me/notifications` → kısmi/tam bildirim tercihi güncelleme
+
+**İş Kuralları:**
+- username değişikliği: 30 gün kısıtlama (BadRequestException), unique kontrol (ConflictException)
+- mahalle değişikliği: 30 gün kısıtlama
+- updateProfile sonrası `primary_neighborhood` relation ile reload (düzeltildi)
+
+**Test Sonuçları (users klasörü):**
+- `users.service.ts`: Stmts: 100%, Branch: 91.66%, Funcs: 100%, Lines: 100%
+- `users.controller.ts`: Stmts: 100%, Branch: 75%, Funcs: 100%, Lines: 100%
+- Toplam: 30 test (service: 20, controller: 10)
+
+---
+
+#### 8. Database Entity Schema (Tam) ✅
+**Tamamlanma:** 20 Şubat 2026
+**Git Commit:** `feat: add complete database entity schema (30+ entities) + fix TypeScript errors`
+
+**Yeni Entity Dosyaları (18 yeni dosya, 30+ entity):**
+- ✅ `ad-extension.entity.ts`, `ad-favorite.entity.ts`, `ad-image.entity.ts`, `ad-property-value.entity.ts`
+- ✅ `announcement-view.entity.ts`, `audit-log.entity.ts`
+- ✅ `business-category.entity.ts`, `business.entity.ts`
+- ✅ `campaign.entity.ts` (Campaign + CampaignImage + CampaignCodeView)
+- ✅ `category-property.entity.ts` (CategoryProperty + PropertyOption)
+- ✅ `complaint.entity.ts`, `event-category.entity.ts`, `event.entity.ts`
+- ✅ `guide.entity.ts` (GuideCategory + GuideItem)
+- ✅ `permission.entity.ts` (Permission + RolePermission)
+- ✅ `place.entity.ts` (PlaceCategory + Place + PlaceImage)
+- ✅ `power-outage.entity.ts`, `scraper-log.entity.ts`, `taxi-call.entity.ts`
+- ✅ `transport.entity.ts` (IntercityRoute + IntercitySchedule + IntracityRoute + IntracityStop)
+- ✅ `user-neighborhood.entity.ts`
+- ✅ `ad.entity.ts` güncellendi (4 OneToMany relation eklendi)
+- ✅ `taxi-driver.entity.ts` güncellendi (registration_file eklendi)
+
+**TypeScript Düzeltmeleri:**
+- ✅ JWT expiresIn: string → `as any` cast (auth.module, auth.service x4)
+- ✅ secretOrKey undefined fallback: `?? ''` (jwt.strategy)
+- ✅ Spread `false | object` → `details ? { details } : {}` (http-exception.filter)
+- ✅ DTO→Entity type mismatch: `DeepPartial<Announcement>` cast (announcements.service)
+- ✅ `null` → `null as any` for fcm_token (auth.service)
+
+**Sonuç:** 0 TypeScript hatası, 117 test geçti
 
 ---
 

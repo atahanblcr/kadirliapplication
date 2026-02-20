@@ -189,12 +189,54 @@ client_max_body_size 20M;
 
 ---
 
+---
+
+## #006 20 Şubat 2026 - Placeholder Modüller Tamamlanmamış
+
+**Durum:** 🔴 Açık / Yapılacak
+
+**Modül:** 10 placeholder modül
+
+**Açıklama:**
+Aşağıdaki 10 modül henüz placeholder durumunda. Service, Controller, Test yazılmadı:
+1. admin - Admin panel CRUD (Rollback, User management)
+2. campaigns - Marketing campaigns
+3. events - Şehir etkinlikleri
+4. files - File upload/delete management
+5. guide - Rehber modülü
+6. notifications - FCM push notifications
+7. pharmacy - Eczane modülü
+8. places - Yerler rehberi (Sokaklar, Meydanlar)
+9. taxi - Taksi modülü (RANDOM sıralama)
+10. transport - Şehirlerarası taşıma
+
+**İş Sırası:**
+1. Taxi (DONE oldu 60% oluş sürdür)
+2. Pharmacy
+3. Events
+4. Campaigns
+5. Guide
+6. Places
+7. Transport
+8. Notifications (FCM)
+9. Admin Panel
+10. Files
+
+**Sonraki Adımlar:**
+- Taxi Module: docs/04 "7. TAXI" bölümünü oku ve implement et
+- Her modül: DTOs → Service (CRUD + business rules) → Controller (endpoints) → Tests (%85+ coverage)
+- Tamamlanan modüller: Auth (88.88%), Users (88.75%), Announcements (90.35%), Ads (92.92%), Deaths (100%)
+
+**NOT:** Şu an "Haiku" modeline geçildi, sonrası devam edecek başka işi var.
+
+---
+
 ## 📊 İstatistikler
 
-**Toplam Sorun:** 5  
-**Çözülmüş:** 3 (60%)  
-**Devam Eden:** 1 (20%)  
-**Açık:** 1 (20%)
+**Toplam Sorun:** 6
+**Çözülmüş:** 3 (50%)
+**Devam Eden:** 1 (16%)
+**Açık:** 2 (34%)
 
 **En Sık Sorun Kategorileri:**
 1. Database/ORM (2 sorun)
