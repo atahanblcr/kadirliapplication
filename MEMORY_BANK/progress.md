@@ -8,14 +8,14 @@
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [███░░░░░░░] 30% (Setup + Auth + Users + Auth Tests tamamlandı)
+Backend:      [████░░░░░░] 35% (Setup + Auth + Users + Tests + Announcements tamamlandı)
 Admin Panel:  [░░░░░░░░░░]  0% (Başlanmadı)
 Flutter App:  [░░░░░░░░░░]  0% (Başlanmadı)
-Testing:      [█░░░░░░░░░] 10% (Auth tests tamamlandı)
+Testing:      [██░░░░░░░░] 15% (Auth + Announcements tests tamamlandı)
 Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~8%
+**Toplam İlerleme:** ~12%
 
 ---
 
@@ -97,7 +97,32 @@ Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 - ✅ `users/users.controller.ts` (3 endpoint)
 - ✅ `users/users.module.ts`
 
-#### 6. Auth Module Unit Testleri ✅
+#### 6. Announcements Module ✅
+**Tamamlanma:** 20 Şubat 2026
+**Süre:** ~45 dakika
+**Git Commit:** `feat: implement announcements module with full CRUD and targeting`
+
+**Dosyalar:**
+- ✅ `announcements/dto/create-announcement.dto.ts` (plain text validation, array targeting)
+- ✅ `announcements/dto/update-announcement.dto.ts` (PartialType + status)
+- ✅ `announcements/dto/query-announcement.dto.ts` (sayfalama + filtreler)
+- ✅ `announcements/announcements.service.ts` (7 metod: findAll, findTypes, findOne, create, update, remove, send)
+- ✅ `announcements/announcements.controller.ts` (7 endpoint)
+- ✅ `announcements/announcements.module.ts`
+- ✅ `announcements/announcements.service.spec.ts` (Stmts: 97.26%)
+- ✅ `announcements/announcements.controller.spec.ts` (Stmts: 100%)
+
+**Test Sonuçları:** 48 test, Stmts: 90.35%, Branch: 79.16%, Funcs: 94.44%, Lines: 91.66%
+
+**Önemli İş Kuralları:**
+- Manuel duyuru → status='published' otomatik
+- Plain text body (HTML yasak - Matches regex ile)
+- Mahalle hedefleme → string[] array (JSONB @> operatörü)
+- Soft delete (deleted_at)
+
+---
+
+#### 7. Auth Module Unit Testleri ✅
 **Tamamlanma:** 20 Şubat 2026
 **Süre:** ~30 dakika
 **Git Commit:** `test: add auth module unit tests with 85%+ coverage`
