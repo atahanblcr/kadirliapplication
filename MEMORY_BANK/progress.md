@@ -8,7 +8,7 @@
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [██░░░░░░░░] 25% (Setup + Auth + Users + Tests tamamlandı)
+Backend:      [███░░░░░░░] 30% (Setup + Auth + Users + Auth Tests tamamlandı)
 Admin Panel:  [░░░░░░░░░░]  0% (Başlanmadı)
 Flutter App:  [░░░░░░░░░░]  0% (Başlanmadı)
 Testing:      [█░░░░░░░░░] 10% (Auth tests tamamlandı)
@@ -66,9 +66,10 @@ Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 - ✅ `database/entities/pharmacy.entity.ts`
 - ✅ `database/entities/notification.entity.ts`
 
-#### 4. Auth Module ✅
+#### 4. Auth Module ✅ (100% Test Coverage)
 **Tamamlanma:** 20 Şubat 2026
-**Süre:** ~25 dakika
+**Süre:** ~25 dakika + ~30 dakika testler
+**Test Coverage:** 88.88% (69 test geçti)
 
 **Dosyalar:**
 - ✅ `auth/dto/request-otp.dto.ts`
@@ -80,6 +81,10 @@ Deployment:   [░░░░░░░░░░]  0% (Başlanmadı)
 - ✅ `auth/auth.service.ts` (OTP Redis, rate limiting, JWT)
 - ✅ `auth/auth.controller.ts` (5 endpoint)
 - ✅ `auth/auth.module.ts`
+- ✅ `auth/auth.service.spec.ts` (100% coverage)
+- ✅ `auth/auth.controller.spec.ts` (100% coverage)
+- ✅ `auth/strategies/jwt.strategy.spec.ts` (100% coverage)
+- ✅ `auth/guards/roles.guard.spec.ts` (100% coverage)
 
 #### 5. Users Module ✅
 **Tamamlanma:** 20 Şubat 2026
