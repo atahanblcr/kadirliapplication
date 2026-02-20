@@ -97,7 +97,10 @@ export class UsersService {
       user.location_type = dto.location_type;
     }
 
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    // Relation'larla birlikte döndür (primary_neighborhood dahil)
+    return this.findById(userId);
   }
 
   async updateNotificationPreferences(
