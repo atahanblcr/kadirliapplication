@@ -30,6 +30,9 @@ export class AdCategory {
   @OneToMany(() => AdCategory, (cat) => cat.parent)
   children: AdCategory[];
 
+  @OneToMany('Ad', 'category')
+  ads: any[];
+
   @Column({ type: 'varchar', length: 50, nullable: true })
   icon: string;
 

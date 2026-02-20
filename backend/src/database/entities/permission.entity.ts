@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   Unique,
 } from 'typeorm';
@@ -23,6 +24,9 @@ export class Permission {
 
   @Column({ type: 'text', nullable: true })
   description: string;
+
+  @OneToMany(() => RolePermission, (rp) => rp.permission)
+  role_permissions: RolePermission[];
 
   @CreateDateColumn()
   created_at: Date;

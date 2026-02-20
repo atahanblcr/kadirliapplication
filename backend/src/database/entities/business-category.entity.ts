@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 
@@ -21,9 +22,15 @@ export class BusinessCategory {
   @Column({ type: 'uuid', nullable: true })
   parent_id: string;
 
-  @ManyToOne(() => BusinessCategory, { nullable: true })
+  @ManyToOne(() => BusinessCategory, (cat) => cat.children, { nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: BusinessCategory;
+
+  @OneToMany(() => BusinessCategory, (cat) => cat.parent)
+  children: BusinessCategory[];
+
+  @OneToMany('Business', 'category')
+  businesses: any[];
 
   @Column({ type: 'int', default: 0 })
   display_order: number;

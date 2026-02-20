@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -31,6 +32,9 @@ export class Cemetery {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
+  @OneToMany(() => DeathNotice, (dn) => dn.cemetery)
+  death_notices: DeathNotice[];
+
   @CreateDateColumn()
   created_at: Date;
 }
@@ -54,6 +58,9 @@ export class Mosque {
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  @OneToMany(() => DeathNotice, (dn) => dn.mosque)
+  death_notices: DeathNotice[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -3,6 +3,7 @@ import {
   IsInt,
   IsUUID,
   IsOptional,
+  IsNotEmpty,
   IsDateString,
   IsMilitaryTime,
   MaxLength,
@@ -13,6 +14,7 @@ import {
 
 export class CreateDeathNoticeDto {
   @IsString()
+  @IsNotEmpty({ message: 'Vefat eden ismi boş olamaz' })
   @MaxLength(150, { message: 'İsim en fazla 150 karakter olabilir' })
   deceased_name: string;
 
@@ -27,9 +29,11 @@ export class CreateDeathNoticeDto {
   photo_file_id?: string;
 
   @IsDateString({}, { message: 'Geçerli bir cenaze tarihi girin (YYYY-MM-DD)' })
+  @IsNotEmpty({ message: 'Cenaze tarihi boş olamaz' })
   funeral_date: string;
 
   @IsMilitaryTime({ message: 'Geçerli bir saat girin (HH:mm)' })
+  @IsNotEmpty({ message: 'Cenaze saati boş olamaz' })
   funeral_time: string;
 
   // En az biri zorunlu: cemetery_id veya mosque_id

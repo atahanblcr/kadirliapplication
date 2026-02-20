@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 
@@ -36,6 +37,9 @@ export class Pharmacy {
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  @OneToMany(() => PharmacySchedule, (s) => s.pharmacy)
+  schedules: PharmacySchedule[];
 
   @CreateDateColumn()
   created_at: Date;

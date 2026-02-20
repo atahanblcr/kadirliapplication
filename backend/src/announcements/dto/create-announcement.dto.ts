@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsBoolean,
   IsOptional,
+  IsNotEmpty,
   IsArray,
   IsUrl,
   IsDateString,
@@ -16,15 +17,18 @@ import {
 
 export class CreateAnnouncementDto {
   @IsUUID('4', { message: 'Geçerli bir duyuru tipi seçin' })
+  @IsNotEmpty({ message: 'Duyuru tipi boş olamaz' })
   type_id: string;
 
   @IsString()
+  @IsNotEmpty({ message: 'Başlık boş olamaz' })
   @MinLength(5, { message: 'Başlık en az 5 karakter olmalıdır' })
   @MaxLength(200, { message: 'Başlık en fazla 200 karakter olabilir' })
   title: string;
 
   // Kritik: Plain text, HTML içermemeli (docs/10_CORRECTIONS_AND_UPDATES.md)
   @IsString()
+  @IsNotEmpty({ message: 'İçerik boş olamaz' })
   @MinLength(10, { message: 'İçerik en az 10 karakter olmalıdır' })
   @MaxLength(2000, { message: 'İçerik en fazla 2000 karakter olabilir' })
   @Matches(/^[^<>]*$/, { message: 'İçerik HTML içeremez (düz metin kullanın)' })
@@ -39,6 +43,7 @@ export class CreateAnnouncementDto {
   @IsEnum(['all', 'neighborhoods', 'users'], {
     message: 'Hedef tipi: all, neighborhoods veya users olmalıdır',
   })
+  @IsNotEmpty({ message: 'Hedef tipi boş olamaz' })
   target_type: 'all' | 'neighborhoods' | 'users';
 
   // Kritik: Mahalle hedefleme → Array (docs/10_CORRECTIONS_AND_UPDATES.md)

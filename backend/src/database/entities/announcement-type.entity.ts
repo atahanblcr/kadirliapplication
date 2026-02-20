@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('announcement_types')
@@ -13,6 +14,9 @@ export class AnnouncementType {
 
   @Column({ type: 'varchar', length: 100, unique: true })
   name: string;
+
+  @OneToMany('Announcement', 'type')
+  announcements: any[];
 
   @Column({ type: 'varchar', length: 100, unique: true })
   slug: string;

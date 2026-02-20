@@ -24,7 +24,7 @@ export class Ad {
   @Column({ type: 'uuid' })
   category_id: string;
 
-  @ManyToOne(() => AdCategory)
+  @ManyToOne(() => AdCategory, (cat) => cat.ads, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'category_id' })
   category: AdCategory;
 

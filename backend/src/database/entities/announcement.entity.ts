@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { AnnouncementType } from './announcement-type.entity';
@@ -116,6 +117,12 @@ export class Announcement {
 
   @Column({ type: 'uuid', nullable: true })
   approved_by: string;
+
+  @OneToMany('AnnouncementView', 'announcement')
+  views: any[];
+
+  @OneToMany('PowerOutage', 'announcement')
+  power_outages: any[];
 
   @CreateDateColumn()
   created_at: Date;

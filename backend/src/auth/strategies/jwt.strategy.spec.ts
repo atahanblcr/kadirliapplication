@@ -15,6 +15,10 @@ const mockConfigService = {
     if (key === 'JWT_SECRET') return 'test-jwt-secret';
     return null;
   }),
+  getOrThrow: jest.fn((key: string) => {
+    if (key === 'JWT_SECRET') return 'test-jwt-secret';
+    throw new Error(`Missing config: ${key}`);
+  }),
 };
 
 describe('JwtStrategy', () => {

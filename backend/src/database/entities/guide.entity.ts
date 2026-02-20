@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { FileEntity } from './file.entity';
@@ -23,9 +24,15 @@ export class GuideCategory {
   @Column({ type: 'uuid', nullable: true })
   parent_id: string;
 
-  @ManyToOne(() => GuideCategory, { nullable: true })
+  @ManyToOne(() => GuideCategory, (cat) => cat.children, { nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: GuideCategory;
+
+  @OneToMany(() => GuideCategory, (cat) => cat.parent)
+  children: GuideCategory[];
+
+  @OneToMany(() => GuideItem, (item) => item.category)
+  items: GuideItem[];
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   icon: string;

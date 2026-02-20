@@ -5,6 +5,7 @@ import {
   ConflictException,
   Logger,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -62,7 +63,8 @@ export class AuthService {
     if (!devMode) {
       await this.sendSms(phone, otp);
     } else {
-      this.logger.warn(`[DEV MODE] OTP for ${phone}: ${otp}`);
+      const maskedPhone = phone.slice(0, 4) + '****' + phone.slice(-2);
+      this.logger.warn(`[DEV MODE] OTP for ${maskedPhone}: ${otp}`);
     }
 
     return { message: 'OTP gönderildi', expires_in: ttl, retry_after: 60 };
@@ -104,7 +106,11 @@ export class AuthService {
       throw new UnauthorizedException('Çok fazla hatalı deneme. 5 dakika beklemeniz gerekiyor.');
     }
 
-    if (storedOtp !== otp) {
+    const otpMatch = crypto.timingSafeEqual(
+      Buffer.from(storedOtp),
+      Buffer.from(otp.padEnd(storedOtp.length)),
+    );
+    if (!otpMatch) {
       throw new UnauthorizedException('Geçersiz OTP');
     }
 
@@ -238,7 +244,8 @@ export class AuthService {
 
   private async sendSms(phone: string, otp: string): Promise<void> {
     // TODO: SMS provider entegrasyonu (Netgsm, İleti365, vb.)
-    this.logger.log(`SMS gönderiliyor: ${phone} → ${otp}`);
+    const maskedPhone = phone.slice(0, 4) + '****' + phone.slice(-2);
+    this.logger.log(`SMS gönderiliyor: ${maskedPhone}`);
   }
 
   async generateTokens(user: User): Promise<{

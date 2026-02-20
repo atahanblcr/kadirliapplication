@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToOne,
+  OneToMany,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -64,6 +65,9 @@ export class TaxiDriver {
 
   @Column({ type: 'int', default: 0 })
   total_calls: number;
+
+  @OneToMany('TaxiCall', 'driver')
+  taxi_calls: any[];
 
   @CreateDateColumn()
   created_at: Date;

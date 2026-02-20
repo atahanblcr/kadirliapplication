@@ -39,6 +39,9 @@ export class Neighborhood {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
+  @OneToMany('User', 'primary_neighborhood')
+  users: any[];
+
   @CreateDateColumn()
   created_at: Date;
 

@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('event_categories')
@@ -12,6 +13,9 @@ export class EventCategory {
 
   @Column({ type: 'varchar', length: 100 })
   name: string;
+
+  @OneToMany('Event', 'category')
+  events: any[];
 
   @Column({ type: 'varchar', length: 100, unique: true })
   slug: string;

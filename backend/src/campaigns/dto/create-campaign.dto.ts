@@ -1,6 +1,7 @@
 import {
   IsString,
   IsOptional,
+  IsNotEmpty,
   IsInt,
   IsNumber,
   IsDateString,
@@ -15,6 +16,7 @@ import {
 
 export class CreateCampaignDto {
   @IsString()
+  @IsNotEmpty({ message: 'Kampanya başlığı boş olamaz' })
   @MaxLength(200)
   title: string;
 
@@ -50,12 +52,15 @@ export class CreateCampaignDto {
   stock_limit?: number;
 
   @IsDateString()
+  @IsNotEmpty({ message: 'Başlangıç tarihi boş olamaz' })
   start_date: string;
 
   @IsDateString()
+  @IsNotEmpty({ message: 'Bitiş tarihi boş olamaz' })
   end_date: string;
 
   @IsArray()
+  @IsNotEmpty({ message: 'Fotoğraf listesi boş olamaz' })
   @ArrayMinSize(1)
   @ArrayMaxSize(3)
   @IsUUID('4', { each: true })

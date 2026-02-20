@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  OneToMany,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -67,6 +68,9 @@ export class Business {
 
   @Column({ type: 'timestamp', nullable: true })
   verified_at: Date;
+
+  @OneToMany('Campaign', 'business')
+  campaigns: any[];
 
   @CreateDateColumn()
   created_at: Date;

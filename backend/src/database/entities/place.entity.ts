@@ -31,6 +31,9 @@ export class PlaceCategory {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
+  @OneToMany(() => Place, (p) => p.category)
+  places: Place[];
+
   @CreateDateColumn()
   created_at: Date;
 }
