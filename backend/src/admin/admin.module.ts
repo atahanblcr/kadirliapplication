@@ -7,6 +7,7 @@ import { Campaign } from '../database/entities/campaign.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
 import { ScraperLog } from '../database/entities/scraper-log.entity';
+import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 
@@ -20,6 +21,8 @@ import { AdminController } from './admin.controller';
       Announcement,
       Notification,
       ScraperLog,
+      Pharmacy,
+      PharmacySchedule,
     ]),
   ],
   controllers: [AdminController],

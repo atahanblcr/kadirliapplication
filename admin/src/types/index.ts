@@ -423,3 +423,29 @@ export interface UserFilters {
   page?: number;
   limit?: number;
 }
+
+// ─── Pharmacy ─────────────────────────────────────────────────────────────────
+
+export interface Pharmacy {
+  id: string;
+  name: string;
+  address: string;
+  phone?: string;
+  latitude?: number;
+  longitude?: number;
+  working_hours?: string;
+  pharmacist_name?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PharmacySchedule {
+  id: string;
+  pharmacy_id: string;
+  pharmacy_name: string;
+  duty_date: string;
+  start_time: string;
+  end_time: string;
+  source: 'manual' | 'scraping';
+  created_at: string;
+}
