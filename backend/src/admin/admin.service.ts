@@ -16,6 +16,7 @@ import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { BanUserDto } from './dto/ban-user.dto';
+import { ChangeRoleDto } from './dto/change-role.dto';
 import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 
 @Injectable()
@@ -296,6 +297,60 @@ export class AdminService {
 
     const [users, total] = await qb.getManyAndCount();
     return { users, total, page, limit };
+  }
+
+  // ── KULLANICI DETAY ───────────────────────────────────────────────────────
+
+  async getUser(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['primary_neighborhood'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('Kullanıcı bulunamadı');
+    }
+
+    const total_ads = await this.adRepository.count({ where: { user_id: id } });
+
+    return { ...user, stats: { total_ads } };
+  }
+
+  // ── KULLANICI BAN KALDIR ──────────────────────────────────────────────────
+
+  async unbanUser(adminId: string, userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('Kullanıcı bulunamadı');
+    }
+
+    if (!user.is_banned) {
+      throw new BadRequestException('Kullanıcı zaten banlı değil');
+    }
+
+    await this.userRepository.update(userId, {
+      is_banned: false,
+      ban_reason: null as unknown as string,
+      banned_at: null as unknown as Date,
+      banned_by: null as unknown as string,
+    });
+
+    return { message: 'Ban kaldırıldı' };
+  }
+
+  // ── ROL DEĞİŞTİR ─────────────────────────────────────────────────────────
+
+  async changeUserRole(adminId: string, userId: string, dto: ChangeRoleDto) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('Kullanıcı bulunamadı');
+    }
+
+    await this.userRepository.update(userId, { role: dto.role });
+
+    return { message: 'Rol güncellendi', role: dto.role };
   }
 
   // ── KULLANICI BANLA ───────────────────────────────────────────────────────

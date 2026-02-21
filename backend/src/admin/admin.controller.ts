@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Param,
   Body,
   Query,
@@ -13,6 +14,7 @@ import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { BanUserDto } from './dto/ban-user.dto';
+import { ChangeRoleDto } from './dto/change-role.dto';
 import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -63,6 +65,12 @@ export class AdminController {
     return this.adminService.getUsers(dto);
   }
 
+  // GET /admin/users/:id
+  @Get('users/:id')
+  async getUser(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.getUser(id);
+  }
+
   // POST /admin/users/:id/ban
   @Post('users/:id/ban')
   async banUser(
@@ -71,6 +79,25 @@ export class AdminController {
     @Body() dto: BanUserDto,
   ) {
     return this.adminService.banUser(adminId, id, dto);
+  }
+
+  // POST /admin/users/:id/unban
+  @Post('users/:id/unban')
+  async unbanUser(
+    @CurrentUser('user_id') adminId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.adminService.unbanUser(adminId, id);
+  }
+
+  // PATCH /admin/users/:id/role
+  @Patch('users/:id/role')
+  async changeUserRole(
+    @CurrentUser('user_id') adminId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ChangeRoleDto,
+  ) {
+    return this.adminService.changeUserRole(adminId, id, dto);
   }
 
   // GET /admin/scrapers/logs

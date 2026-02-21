@@ -385,3 +385,41 @@ export interface CampaignFilters {
   page?: number;
   limit?: number;
 }
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+export type UserRole =
+  | 'user'
+  | 'taxi_driver'
+  | 'business'
+  | 'moderator'
+  | 'admin'
+  | 'super_admin';
+
+export interface User {
+  id: string;
+  phone: string;
+  email?: string;
+  username: string;
+  role: UserRole;
+  primary_neighborhood?: { id: string; name: string };
+  is_active: boolean;
+  is_banned: boolean;
+  ban_reason?: string;
+  banned_at?: string;
+  banned_by?: string;
+  created_at: string;
+  last_login?: string;
+  stats?: {
+    total_ads: number;
+  };
+}
+
+export interface UserFilters {
+  role?: UserRole;
+  is_banned?: boolean;
+  search?: string;
+  neighborhood_id?: string;
+  page?: number;
+  limit?: number;
+}
