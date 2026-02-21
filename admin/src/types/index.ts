@@ -371,6 +371,7 @@ export interface Campaign {
   status: 'pending' | 'approved' | 'rejected';
   views: number;
   code_views: number;
+  rejected_reason?: string;
   created_by: { id: string; username: string; business_name: string };
   created_at: string;
   updated_at: string;
@@ -448,4 +449,74 @@ export interface PharmacySchedule {
   end_time: string;
   source: 'manual' | 'scraping';
   created_at: string;
+}
+
+// ─── Transport ────────────────────────────────────────────────────────────────
+
+export interface IntercitySchedule {
+  id: string;
+  route_id: string;
+  departure_time: string; // "08:00"
+  days_of_week: number[]; // [1,2,3,4,5] (1=Pzt, 7=Paz)
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface IntercityRoute {
+  id: string;
+  company_name: string;
+  from_city: string;
+  to_city: string;
+  duration_minutes: number;
+  price: number;
+  contact_phone?: string;
+  contact_website?: string;
+  amenities?: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  schedules?: IntercitySchedule[];
+}
+
+export interface IntercityFilters {
+  company_name?: string;
+  from_city?: string;
+  to_city?: string;
+  is_active?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface IntracityStop {
+  id: string;
+  route_id: string;
+  stop_order: number;
+  name: string;
+  neighborhood_id?: string;
+  neighborhood_name?: string;
+  latitude?: number;
+  longitude?: number;
+  created_at: string;
+}
+
+export interface IntracityRoute {
+  id: string;
+  line_number: string;
+  name: string;
+  color?: string;
+  first_departure: string;
+  last_departure: string;
+  frequency_minutes: number;
+  fare: number;
+  is_active: boolean;
+  created_at: string;
+  stops?: IntracityStop[];
+}
+
+export interface IntracityFilters {
+  line_number?: string;
+  neighborhood?: string;
+  is_active?: boolean;
+  page?: number;
+  limit?: number;
 }

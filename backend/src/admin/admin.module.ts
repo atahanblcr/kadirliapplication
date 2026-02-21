@@ -8,8 +8,18 @@ import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
 import { ScraperLog } from '../database/entities/scraper-log.entity';
 import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  IntercityRoute,
+  IntercitySchedule,
+  IntracityRoute,
+  IntracityStop,
+} from '../database/entities/transport.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
+import { CampaignAdminController } from './campaign-admin.controller';
+import { UsersAdminController } from './users-admin.controller';
+import { PharmacyAdminController } from './pharmacy-admin.controller';
+import { TransportAdminController } from './transport-admin.controller';
 
 @Module({
   imports: [
@@ -23,9 +33,19 @@ import { AdminController } from './admin.controller';
       ScraperLog,
       Pharmacy,
       PharmacySchedule,
+      IntercityRoute,
+      IntercitySchedule,
+      IntracityRoute,
+      IntracityStop,
     ]),
   ],
-  controllers: [AdminController],
+  controllers: [
+    AdminController,
+    CampaignAdminController,
+    UsersAdminController,
+    PharmacyAdminController,
+    TransportAdminController,
+  ],
   providers: [AdminService],
 })
 export class AdminModule {}

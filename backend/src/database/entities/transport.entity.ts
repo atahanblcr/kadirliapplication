@@ -16,8 +16,20 @@ export class IntercityRoute {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // Legacy column (kept for public API backward compatibility)
   @Column({ type: 'varchar', length: 100 })
   destination: string;
+
+  // Legacy column (kept for public API backward compatibility)
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  company: string;
+
+  // Admin fields
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  company_name: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  from_city: string;
 
   @Column({ type: 'decimal', precision: 8, scale: 2 })
   price: number;
@@ -25,8 +37,15 @@ export class IntercityRoute {
   @Column({ type: 'int', nullable: true })
   duration_minutes: number;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  company: string;
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  contact_phone: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  contact_website: string;
+
+  // Stored as comma-separated string: "WiFi,Klima,TV"
+  @Column({ type: 'simple-array', nullable: true })
+  amenities: string[];
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
@@ -56,6 +75,10 @@ export class IntercitySchedule {
   @Column({ type: 'time' })
   departure_time: string;
 
+  // Stored as comma-separated string: "1,2,3,4,5"
+  @Column({ type: 'simple-array', nullable: true })
+  days_of_week: number[];
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
@@ -76,6 +99,9 @@ export class IntracityRoute {
   @Column({ type: 'varchar', length: 200 })
   route_name: string;
 
+  @Column({ type: 'varchar', length: 7, nullable: true })
+  color: string;
+
   @Column({ type: 'time', nullable: true })
   first_departure: string;
 
@@ -84,6 +110,9 @@ export class IntracityRoute {
 
   @Column({ type: 'int', nullable: true })
   frequency_minutes: number;
+
+  @Column({ type: 'decimal', precision: 8, scale: 2, nullable: true })
+  fare: number;
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
@@ -118,6 +147,15 @@ export class IntracityStop {
 
   @Column({ type: 'int', nullable: true })
   time_from_start: number;
+
+  @Column({ type: 'uuid', nullable: true })
+  neighborhood_id: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude: number;
 
   @CreateDateColumn()
   created_at: Date;
