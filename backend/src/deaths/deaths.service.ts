@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, DeepPartial } from 'typeorm';
+import { Repository, LessThanOrEqual, DeepPartial, IsNull } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   DeathNotice,
@@ -143,6 +143,80 @@ export class DeathsService {
         message: 'Vefat ilanınız incelemeye alındı. Kısa sürede onaylanacak.',
       },
     };
+  }
+
+  // ── ADMIN: TÜM VEFAT İLANLARI ────────────────────────────────────────────
+
+  async findAllAdmin(dto: { page?: number; limit?: number; status?: string; search?: string }) {
+    const { page = 1, limit = 20, status, search } = dto;
+
+    const qb = this.noticeRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.cemetery', 'cemetery')
+      .leftJoinAndSelect('d.mosque', 'mosque')
+      .leftJoinAndSelect('d.adder', 'adder')
+      .leftJoinAndSelect('d.photo_file', 'photo_file')
+      .where('d.deleted_at IS NULL');
+
+    if (status) {
+      qb.andWhere('d.status = :status', { status });
+    }
+
+    if (search) {
+      qb.andWhere('d.deceased_name ILIKE :search', { search: `%${search}%` });
+    }
+
+    qb.orderBy('d.created_at', 'DESC')
+      .skip(getPaginationOffset(page, limit))
+      .take(limit);
+
+    const [notices, total] = await qb.getManyAndCount();
+    return { notices, meta: getPaginationMeta(total, page, limit) };
+  }
+
+  // ── ADMIN: ONAYLA ─────────────────────────────────────────────────────────
+
+  async approveNotice(id: string, adminId: string) {
+    const notice = await this.noticeRepository.findOne({
+      where: { id, status: 'pending' },
+    });
+    if (!notice) {
+      throw new NotFoundException('Vefat ilanı bulunamadı veya zaten işlenmiş');
+    }
+    await this.noticeRepository.update(id, {
+      status: 'approved',
+      approved_by: adminId,
+      approved_at: new Date(),
+    });
+    return { message: 'Vefat ilanı onaylandı' };
+  }
+
+  // ── ADMIN: REDDET ─────────────────────────────────────────────────────────
+
+  async rejectNotice(id: string, reason: string, note?: string) {
+    const notice = await this.noticeRepository.findOne({
+      where: { id, status: 'pending' },
+    });
+    if (!notice) {
+      throw new NotFoundException('Vefat ilanı bulunamadı veya zaten işlenmiş');
+    }
+    const fullReason = note ? `${reason} — ${note}` : reason;
+    await this.noticeRepository.update(id, {
+      status: 'rejected',
+      rejected_reason: fullReason,
+    });
+    return { message: 'Vefat ilanı reddedildi' };
+  }
+
+  // ── ADMIN: SİL ────────────────────────────────────────────────────────────
+
+  async adminDelete(id: string) {
+    const notice = await this.noticeRepository.findOne({ where: { id } });
+    if (!notice) {
+      throw new NotFoundException('Vefat ilanı bulunamadı');
+    }
+    await this.noticeRepository.softDelete(id);
+    return { message: 'Vefat ilanı silindi' };
   }
 
   // ── MEZARLIKLAR ────────────────────────────────────────────────────────────

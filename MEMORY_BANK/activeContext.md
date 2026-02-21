@@ -6,8 +6,8 @@
 
 ## 🎯 Şu Anki Durum
 
-**Modül:** Admin Login Sistemi ✅ + Deaths modülü hazır
-**Status:** Admin login çalışıyor, Deaths'e geçilebilir
+**Modül:** Deaths (Vefat İlanları) Admin Panel ✅ TAMAMLANDI
+**Status:** Backend admin endpoint'leri + Frontend sayfa/modal/hook/utils tamamen bitti
 **Son Kontrol:** 22 Şubat 2026
 
 ### Servis Durumu
@@ -26,37 +26,30 @@
 - ✅ Admin panel use-auth.ts + api.ts snake_case uyumlu düzeltildi
 - ✅ ONAYLANDI: curl testi ile JWT token başarıyla üretildi
 
-### Admin Panel İlerleme (%45 - 3 modules complete)
+### Admin Panel İlerleme (%55 - 4 modules complete)
 - ✅ Next.js 14 projesi (App Router + TypeScript + Tailwind CSS)
 - ✅ shadcn/ui (23 bileşen: Card, Button, Input, Badge, Avatar, DropdownMenu, Sheet, Table, Textarea, Dialog, Separator, ScrollArea, Tooltip, Select, Tabs, Switch, Skeleton, Alert, Popover, Command, MultiSelect custom, AlertDialog, Sonner Toast)
 - ✅ Temel layout: Collapsible sidebar (15 menü) + Topbar (notifications + user dropdown)
 - ✅ Login sayfası (React Hook Form + Zod validation, email/password auth, show/hide password)
 - ✅ Dashboard sayfası (4 KPI kartları + Recharts LineChart/BarChart + aktivite feed + bekleyen onaylar)
 - ✅ API client (Axios + JWT interceptor + refresh token auto-retry + error handling)
-- ✅ React Query hooks (announcement, ads, auth modules - cache invalidation pattern)
-- ✅ Duyurular modülü TAMAMLANDI:
-   - Liste sayfası (tablo + 3 filtre + pagination + client-side arama)
-   - Detay Modal (tüm bilgiler + İşlemler: Onayla/Reddet/Sil)
-   - Create/Edit Form (Zod validation + multi-select mahalle + conditional fields)
-   - Plain text validation (HTML yasak: ^[^<>]*$ regex)
-   - Silme onay dialog
-- ✅ İlanlar modülü TAMAMLANDI:
-   - 2 Tab: Bekleyen (30sec auto-refresh) + Onaylı (kategori/sıralama filtresi)
-   - Hızlı aksiyon (inline ✓/✗ butonları)
-   - Detay Modal (fotoğraf galerisi + tüm detaylar + Onayla/Reddet/Sil)
-   - Reddet dialog (4 sabit neden)
-- ✅ 12 Placeholder sayfa (Vefat, Kampanya, Eczane, Rehber, Mekanlar, Ulaşım, Etkinlikler, Taksi, Kullanıcılar, Şikayetler, Scraper, Ayarlar)
+- ✅ React Query hooks (announcement, ads, deaths, auth modules - cache invalidation pattern)
+- ✅ Duyurular modülü TAMAMLANDI
+- ✅ İlanlar modülü TAMAMLANDI
+- ✅ **Vefat İlanları modülü TAMAMLANDI (22 Şubat 2026):**
+   - Backend: GET /deaths/admin, POST /deaths/:id/approve, POST /deaths/:id/reject, DELETE /deaths/:id
+   - Frontend hooks: useDeaths, useApproveDeath, useRejectDeath, useDeleteDeath
+   - Utils: DeathStatusBadge, DEATH_REJECTION_REASONS, formatFuneralDate, calculateArchiveDaysLeft
+   - Sayfa: 3 Tab (Bekleyen/Onaylı/Reddedilen), arama, pagination, acil uyarı (arşiv 1 gün kaldıysa turuncu satır)
+   - Detay Modal: Fotoğraf, bilgi grid, harita linki (lat/lon varsa), onayla/reddet(+not)/sil
+- ✅ 11 Placeholder sayfa (Kampanya, Eczane, Rehber, Mekanlar, Ulaşım, Etkinlikler, Taksi, Kullanıcılar, Şikayetler, Scraper, Ayarlar)
 
-### ➡️ Sonraki Adım: Deaths Module
+### ➡️ Sonraki Adım: Campaigns veya Users Modülü
 
-**Recommendation:** Deaths (Vefat İlanları) başlatılmaya hazır!
-- Why: Ads'e çok benzer (list + detail + approve/reject pattern)
-- Time: 2-3 saatte bitecek bir modül
-- Wireframe: Tam ve detaylı
-- Backend: Tüm endpoint'ler ready
-- Docs: `/MEMORY_BANK/NEXT_MODULE_RECOMMENDATION.md` → Tüm detaylar
-- ✅ Build: 0 hata, 17 rota kurulu
-- ✅ .env.local (NEXT_PUBLIC_API_URL=http://localhost:3000/v1)
+Önerilen sıra:
+1. **Campaigns** (4 saat) - onay listesi + istatistik dashboard
+2. **Users** (4-5 saat) - kullanıcı yönetimi + ban/unban
+3. **Pharmacy** (5-6 saat) - takvim görünümü + tabs
 
 ---
 
@@ -322,10 +315,10 @@ backend/
 
 ---
 
-## 📊 Module Priority Queue (After Deaths)
+## 📊 Module Priority Queue (Admin Panel)
 
-1. **Deaths** (2-3 hrs) ← START HERE
-2. **Campaigns** (4 hrs) - Admin approval list + statistics dashboard
+1. ~~**Deaths** (2-3 hrs)~~ ✅ TAMAMLANDI
+2. **Campaigns** (4 hrs) - Admin approval list + statistics dashboard ← SONRAKİ
 3. **Users** (4-5 hrs) - User management with action buttons
 4. **Pharmacy** (5-6 hrs) - Calendar view + tabs
 

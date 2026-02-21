@@ -303,3 +303,54 @@ export interface AdminApprovalsResponse {
     campaigns: unknown[];
   };
 }
+
+// ─── Deaths ────────────────────────────────────────────────────────────────
+
+export interface Cemetery {
+  id: string;
+  name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface Mosque {
+  id: string;
+  name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface DeathNotice {
+  id: string;
+  deceased_name: string;
+  age?: number;
+  photo_file_id?: string;
+  photo_file?: { id: string; url: string };
+  funeral_date: string;
+  funeral_time: string;
+  cemetery_id?: string;
+  cemetery?: Cemetery;
+  mosque_id?: string;
+  mosque?: Mosque;
+  condolence_address?: string;
+  added_by: string;
+  adder?: { id: string; username: string; full_name?: string; phone?: string };
+  status: 'pending' | 'approved' | 'rejected';
+  approved_by?: string;
+  approved_at?: string;
+  rejected_reason?: string;
+  auto_archive_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type DeathStatus = DeathNotice['status'];
+
+export interface DeathFilters {
+  page?: number;
+  limit?: number;
+  status?: DeathStatus;
+  search?: string;
+}

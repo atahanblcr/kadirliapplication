@@ -65,8 +65,26 @@ export default function DashboardPage() {
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
       try {
-        const { data } = await api.get<ApiResponse<DashboardStats>>('/admin/dashboard');
-        return data.data;
+        const { data } = await api.get<ApiResponse<{
+          stats: {
+            total_users: number;
+            pending_approvals: { ads: number; deaths: number; campaigns: number; total: number };
+            announcements_sent_today: number;
+            new_ads_today: number;
+          };
+          charts: { user_growth: { date: string; count: number }[] };
+        }>>('/admin/dashboard');
+        const s = data.data.stats;
+        return {
+          totalUsers: s.total_users,
+          activeAds: s.new_ads_today,
+          pendingApprovals: s.pending_approvals.total,
+          todayAnnouncements: s.announcements_sent_today,
+          userGrowth: 0,
+          adGrowth: 0,
+          approvalGrowth: 0,
+          announcementGrowth: 0,
+        } satisfies DashboardStats;
       } catch {
         return mockStats;
       }
@@ -78,8 +96,11 @@ export default function DashboardPage() {
     queryKey: ['user-growth'],
     queryFn: async () => {
       try {
-        const { data } = await api.get<ApiResponse<UserGrowthData[]>>('/admin/dashboard/user-growth');
-        return data.data;
+        const { data } = await api.get<ApiResponse<{
+          stats: unknown;
+          charts: { user_growth: { date: string; count: number }[] };
+        }>>('/admin/dashboard');
+        return data.data.charts.user_growth.map((r) => ({ date: r.date, users: r.count }));
       } catch {
         return mockUserGrowth;
       }
@@ -117,8 +138,17 @@ export default function DashboardPage() {
     queryKey: ['pending-approvals'],
     queryFn: async () => {
       try {
-        const { data } = await api.get<ApiResponse<PendingApproval[]>>('/admin/approvals');
-        return data.data;
+        const { data } = await api.get<ApiResponse<{
+          approvals: { id: string; type: 'ad' | 'death' | 'campaign'; content: { title: string; user: { id: string; username: string; phone: string } | null }; created_at: string }[];
+          total: number;
+        }>>('/admin/approvals');
+        return data.data.approvals.slice(0, 4).map((a) => ({
+          id: a.id,
+          type: a.type,
+          title: a.content.title,
+          created_at: a.created_at,
+          user: { id: a.content.user?.id ?? '', full_name: a.content.user?.username ?? 'Bilinmiyor' },
+        }));
       } catch {
         return mockPending;
       }

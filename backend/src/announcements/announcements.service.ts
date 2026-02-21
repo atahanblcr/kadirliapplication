@@ -9,6 +9,7 @@ import { Repository, Brackets, DeepPartial } from 'typeorm';
 import { Announcement } from '../database/entities/announcement.entity';
 import { AnnouncementType } from '../database/entities/announcement-type.entity';
 import { User } from '../database/entities/user.entity';
+import { UserRole } from '../common/enums/user-role.enum';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 import { QueryAnnouncementDto } from './dto/query-announcement.dto';
@@ -28,32 +29,39 @@ export class AnnouncementsService {
   // ── DUYURU LİSTESİ (Kullanıcı) ──────────────────────────────────────────────
 
   async findAll(user: User, dto: QueryAnnouncementDto) {
-    const { page = 1, limit = 20, type_id, priority } = dto;
+    const { page = 1, limit = 20, type_id, priority, status } = dto;
+    const adminRoles = [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR];
+    const isAdmin = adminRoles.includes(user.role);
 
     const qb = this.announcementRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect('a.type', 'type')
-      .where('a.status = :status', { status: 'published' })
-      .andWhere('(a.visible_until IS NULL OR a.visible_until > NOW())')
-      // Hedefleme filtresi (CLAUDE.md: neighborhood array ile)
-      .andWhere(
-        new Brackets((inner) => {
-          inner
-            .where("a.target_type = 'all'")
-            .orWhere(
-              "a.target_type = 'neighborhoods' AND a.target_neighborhoods @> :nbSlug::jsonb",
-              {
-                nbSlug: JSON.stringify([
-                  user.primary_neighborhood?.slug ?? '',
-                ]),
-              },
-            )
-            .orWhere(
-              "a.target_type = 'users' AND a.target_user_ids @> :userId::jsonb",
-              { userId: JSON.stringify([user.id]) },
-            );
-        }),
-      );
+      .where('a.deleted_at IS NULL');
+
+    if (isAdmin) {
+      // Admin: tüm statüsleri göster, isteğe bağlı status filtresi
+      if (status) {
+        qb.andWhere('a.status = :status', { status });
+      }
+    } else {
+      // Regular user: sadece published + görünürlük + hedefleme filtresi
+      qb.andWhere('a.status = :status', { status: 'published' })
+        .andWhere('(a.visible_until IS NULL OR a.visible_until > NOW())')
+        .andWhere(
+          new Brackets((inner) => {
+            inner
+              .where("a.target_type = 'all'")
+              .orWhere(
+                "a.target_type = 'neighborhoods' AND a.target_neighborhoods @> :nbSlug::jsonb",
+                { nbSlug: JSON.stringify([user.primary_neighborhood?.slug ?? '']) },
+              )
+              .orWhere(
+                "a.target_type = 'users' AND a.target_user_ids @> :userId::jsonb",
+                { userId: JSON.stringify([user.id]) },
+              );
+          }),
+        );
+    }
 
     if (type_id) {
       qb.andWhere('a.type_id = :typeId', { typeId: type_id });

@@ -9,13 +9,23 @@
 
 ```
 Backend:      [██████████] 100% ✅ (15 feature module + admin login, 492 test, 85.13% coverage)
-Admin Panel:  [████░░░░░░]  40% (Layout + Login ✅ + Dashboard + Duyurular + İlanlar)
+Admin Panel:  [█████░░░░░]  55% (Layout + Login ✅ + Dashboard + Duyurular + İlanlar + Vefat İlanları)
 Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
 Testing:      [██████████] 100% ✅ (492 test, 33 test suite)
 Deployment:   [░░░░░░░░░░]   0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~55% (Backend 100%, Admin Panel %40)
+**Toplam İlerleme:** ~60% (Backend 100%, Admin Panel %55)
+
+### Vefat İlanları Admin Panel Modülü (22 Şubat 2026) ✅
+- ✅ Backend: GET /deaths/admin (status/search filtreli, pagination)
+- ✅ Backend: POST /deaths/:id/approve, POST /deaths/:id/reject (reason+note), DELETE /deaths/:id
+- ✅ Frontend types: DeathNotice, Cemetery, Mosque, DeathFilters, DeathStatus → types/index.ts
+- ✅ Frontend hook: use-deaths.ts (useDeaths, useApproveDeath, useRejectDeath, useDeleteDeath)
+- ✅ Frontend utils: death-utils.tsx (DeathStatusBadge, DEATH_REJECTION_REASONS, formatFuneralDate, calculateArchiveDaysLeft)
+- ✅ Frontend sayfa: deaths/page.tsx - 3 sekme, arama, per-tab pagination, acil uyarı (arşiv 1 gün kaldıysa)
+- ✅ Frontend modal: deaths/death-detail-modal.tsx - fotoğraf, bilgi grid, harita linki, onayla/reddet/sil
+- ✅ Docker rebuild + restart: tüm deaths routes aktif
 
 ### Admin Login Fix (22 Şubat 2026) ✅
 - ✅ User entity: email + password kolonları eklendi

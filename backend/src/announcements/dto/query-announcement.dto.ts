@@ -31,6 +31,10 @@ export class QueryAnnouncementDto {
   @IsOptional()
   priority?: 'low' | 'normal' | 'high' | 'emergency';
 
+  @IsEnum(['draft', 'scheduled', 'published', 'archived'])
+  @IsOptional()
+  status?: 'draft' | 'scheduled' | 'published' | 'archived';
+
   // Mahalle slug'ına göre filtrele
   @IsString()
   @IsOptional()

@@ -51,9 +51,9 @@ export function useAnnouncements(filters: AnnouncementFilters = {}) {
       if (filters.neighborhood) params.set('neighborhood', filters.neighborhood);
 
       const { data } = await api.get<
-        ApiResponse<AnnouncementListResponse> & { meta: PaginatedMeta }
+        ApiResponse<AnnouncementListResponse & { meta: PaginatedMeta }>
       >(`/announcements?${params.toString()}`);
-      return { items: data.data.announcements, meta: data.meta };
+      return { items: data.data.announcements, meta: data.data.meta };
     },
   });
 }
