@@ -20,6 +20,12 @@ export class User {
   @Column({ type: 'varchar', length: 15, unique: true })
   phone: string;
 
+  @Column({ type: 'varchar', length: 100, unique: true, nullable: true })
+  email: string;
+
+  @Column({ type: 'text', nullable: true, select: false })
+  password: string;
+
   @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
   username: string;
 

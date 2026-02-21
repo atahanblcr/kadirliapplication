@@ -29,10 +29,10 @@ export function useAuth() {
 
   const login = useCallback(async (credentials: LoginRequest) => {
     const { data } = await api.post('/auth/admin/login', credentials);
-    const { accessToken, refreshToken, user: userData } = data.data;
+    const { access_token, refresh_token, user: userData } = data.data;
 
-    Cookies.set('accessToken', accessToken, { sameSite: 'strict' });
-    Cookies.set('refreshToken', refreshToken, { sameSite: 'strict' });
+    Cookies.set('accessToken', access_token, { sameSite: 'strict' });
+    Cookies.set('refreshToken', refresh_token, { sameSite: 'strict' });
     Cookies.set('user', JSON.stringify(userData), { sameSite: 'strict' });
 
     setUser(userData);

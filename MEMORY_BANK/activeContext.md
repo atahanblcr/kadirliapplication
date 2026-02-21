@@ -6,17 +6,25 @@
 
 ## 🎯 Şu Anki Durum
 
-**Modül:** Admin Panel - Sonraki Modul Analiz Tamamlandı ✅
-**Status:** Deaths (Vefat İlanları) başlatılmaya hazır
-**Hazırlık:** Detaylı recommendation doc oluşturuldu
-**Son Kontrol:** 21 Şubat 2026
+**Modül:** Admin Login Sistemi ✅ + Deaths modülü hazır
+**Status:** Admin login çalışıyor, Deaths'e geçilebilir
+**Son Kontrol:** 22 Şubat 2026
 
 ### Servis Durumu
-- ✅ Docker container'lar yeniden başlatıldı (Mac güncellemesi sonrası)
+- ✅ Docker container'lar başlatıldı
 - ✅ PostgreSQL: localhost:5432 (healthy)
 - ✅ Redis: localhost:6379 (healthy)
 - ✅ Backend: http://localhost:3000/v1 (çalışıyor)
-- ✅ Admin Panel: http://localhost:3001 (çalışıyor)
+- ✅ Admin Panel: http://localhost:3001 (npm run dev ile çalışıyor)
+
+### Admin Login Sistemi (22 Şubat 2026) ✅
+- ✅ User entity'ye email (VARCHAR 100, unique, nullable) + password (TEXT, nullable, select:false) eklendi
+- ✅ Migration: 1771708688909-AddEmailPasswordToUser (SQL ile uygulandı)
+- ✅ AdminLoginDto (email + password validation)
+- ✅ POST /v1/auth/admin/login endpoint - bcrypt doğrulama, rol kontrolü
+- ✅ İlk admin kullanıcısı: admin@kadirliapp.com / Admin123! (SUPER_ADMIN)
+- ✅ Admin panel use-auth.ts + api.ts snake_case uyumlu düzeltildi
+- ✅ ONAYLANDI: curl testi ile JWT token başarıyla üretildi
 
 ### Admin Panel İlerleme (%45 - 3 modules complete)
 - ✅ Next.js 14 projesi (App Router + TypeScript + Tailwind CSS)

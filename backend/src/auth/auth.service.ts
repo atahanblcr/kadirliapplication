@@ -3,8 +3,10 @@ import {
   BadRequestException,
   UnauthorizedException,
   ConflictException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +17,7 @@ import Redis from 'ioredis';
 import { User } from '../database/entities/user.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { RegisterDto } from './dto/register.dto';
+import { UserRole } from '../common/enums/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -194,6 +197,50 @@ export class AuthService {
         age: saved.age,
         role: saved.role,
         primary_neighborhood: neighborhood,
+      },
+    };
+  }
+
+  // ── ADMİN LOGİN ──────────────────────────────────────────────────────────────
+
+  async adminLogin(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string; refresh_token: string; expires_in: number; user: Partial<User> }> {
+    const allowedRoles = [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MODERATOR];
+
+    // Email ile kullanıcı bul, password alanını da dahil et (select: false)
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('Email veya şifre hatalı');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Email veya şifre hatalı');
+    }
+
+    if (!allowedRoles.includes(user.role)) {
+      throw new ForbiddenException('Bu panele erişim yetkiniz yok');
+    }
+
+    if (user.is_banned || !user.is_active) {
+      throw new ForbiddenException('Hesabınız askıya alınmış');
+    }
+
+    const tokens = await this.generateTokens(user);
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
       },
     };
   }

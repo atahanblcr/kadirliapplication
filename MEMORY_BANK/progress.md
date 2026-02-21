@@ -8,14 +8,20 @@
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [██████████] 100% ✅ (15 feature module, 492 test, 85.13% coverage)
-Admin Panel:  [███░░░░░░░]  35% (Layout + Login + Dashboard + Duyurular + İlanlar)
+Backend:      [██████████] 100% ✅ (15 feature module + admin login, 492 test, 85.13% coverage)
+Admin Panel:  [████░░░░░░]  40% (Layout + Login ✅ + Dashboard + Duyurular + İlanlar)
 Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
 Testing:      [██████████] 100% ✅ (492 test, 33 test suite)
 Deployment:   [░░░░░░░░░░]   0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~50% (Backend 100%, Admin Panel %35)
+**Toplam İlerleme:** ~55% (Backend 100%, Admin Panel %40)
+
+### Admin Login Fix (22 Şubat 2026) ✅
+- ✅ User entity: email + password kolonları eklendi
+- ✅ POST /auth/admin/login - email/password ile JWT token üretimi
+- ✅ Admin kullanıcısı: admin@kadirliapp.com / Admin123! (SUPER_ADMIN)
+- ✅ Admin panel API uyumu: snake_case (access_token/refresh_token) düzeltildi
 
 ---
 

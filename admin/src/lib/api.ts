@@ -35,13 +35,13 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken,
+            refresh_token: refreshToken,
           });
 
-          Cookies.set('accessToken', data.data.accessToken, { sameSite: 'strict' });
-          Cookies.set('refreshToken', data.data.refreshToken, { sameSite: 'strict' });
+          Cookies.set('accessToken', data.data.access_token, { sameSite: 'strict' });
+          Cookies.set('refreshToken', data.data.refresh_token, { sameSite: 'strict' });
 
-          originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${data.data.access_token}`;
           return api(originalRequest);
         } catch {
           Cookies.remove('accessToken');
