@@ -9,13 +9,56 @@
 
 ```
 Backend:      [██████████] 100% ✅ (15 feature module + admin login, 492 test, 85.13% coverage)
-Admin Panel:  [█████░░░░░]  55% (Layout + Login ✅ + Dashboard + Duyurular + İlanlar + Vefat İlanları)
+Admin Panel:  [█████████░]  95% (Layout + Login + Dashboard + 9 modül tamamlandı)
 Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
 Testing:      [██████████] 100% ✅ (492 test, 33 test suite)
 Deployment:   [░░░░░░░░░░]   0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~60% (Backend 100%, Admin Panel %55)
+**Toplam İlerleme:** ~80% (Backend 100%, Admin Panel %95)
+
+### Ulaşım (Transport) Admin Panel Modülü (22 Şubat 2026) ✅
+- ✅ Backend migration: 11 yeni kolon (company_name, from_city, contact_phone, contact_website, amenities, days_of_week, color, fare, neighborhood_id, latitude, longitude)
+- ✅ Backend: transport-admin.controller.ts (16 endpoint - intercity/intracity CRUD + schedules + stops + reorder)
+- ✅ Backend: AdminService'e transport repository + tüm metotlar eklendi
+- ✅ Frontend types: IntercitySchedule, IntercityRoute, IntercityFilters, IntracityStop, IntracityRoute, IntracityFilters
+- ✅ Frontend hooks: use-intercity.ts (7 hook) + use-intracity.ts (7 hook)
+- ✅ Frontend bileşenler: intercity-form, schedule-dialog, intercity-detail-modal, intracity-form, stop-dialog, intracity-detail-modal, intercity-page, intracity-page
+- ✅ @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities yüklendi (sürükle-bırak durak sıralama)
+- ✅ Docker rebuild + restart + API endpoint testleri hepsi geçti
+
+### Audit Düzeltmeleri + AdminController Refaktörü (22 Şubat 2026) ✅
+- ✅ Campaign backend endpoint eksikliği giderildi (GET/approve/reject/DELETE /admin/campaigns/*)
+- ✅ Campaign entity alan adı uyumsuzlukları düzeltildi (discount_percentage→discount_rate, start_date→valid_from, end_date→valid_until, discount_code→code, code_view_count→code_views)
+- ✅ Campaign image_urls doğru çekiliyor (campaign.images[].file.cdn_url)
+- ✅ Frontend Campaign tipine rejected_reason?: string eklendi
+- ✅ AdminController modülerleştirildi: campaign-admin.controller.ts, users-admin.controller.ts, pharmacy-admin.controller.ts
+- ✅ admin.controller.ts sadece core (dashboard/approvals/ads approve+reject/scrapers)
+- ✅ admin.controller.spec.ts güncellendi (taşınan metotlar çıkarıldı)
+- ✅ Backend TypeScript: 0 hata (bizimle ilgili), Frontend: 0 hata
+
+### Nöbetçi Eczane Admin Panel Modülü (22 Şubat 2026) ✅
+- ✅ Backend DTOs: create-pharmacy.dto.ts, update-pharmacy.dto.ts, assign-schedule.dto.ts
+- ✅ Backend: GET/POST/PATCH/DELETE /admin/pharmacy + GET/POST/DELETE /admin/pharmacy/schedule
+- ✅ Frontend hook: use-pharmacy.ts (7 hook)
+- ✅ Frontend sayfa: 2 Tab (Eczaneler + Nöbet Takvimi), özel aylık takvim bileşeni
+- ✅ PharmacyForm: Sheet form (controlled inputs, shadcn Form yok)
+- ✅ ScheduleDialog: nöbet ata/değiştir/sil
+
+### Kullanıcı Yönetimi Admin Panel Modülü (22 Şubat 2026) ✅
+- ✅ Backend: GET /admin/users, GET /admin/users/:id, POST ban/unban, PATCH role
+- ✅ Frontend hook: use-users.ts (5 hook)
+- ✅ Frontend utils: user-utils.tsx (UserRoleBadge, UserStatusBadge, BAN_REASONS, BAN_DURATIONS)
+- ✅ Frontend sayfa: Stats + filters + table + quick ban dialog
+- ✅ Frontend modal: user-detail-modal.tsx (ban/unban/rol değiştir)
+
+### Kampanyalar Admin Panel Modülü (22 Şubat 2026) ✅
+- ✅ Backend: campaign-admin.controller.ts (GET/approve/reject/DELETE)
+- ✅ Backend: campaign admin metotları AdminService'e eklendi
+- ✅ Frontend hook: use-campaigns.ts (useCampaigns 30s auto-refresh, approve/reject/delete)
+- ✅ Frontend utils: campaign-utils.tsx (CampaignStatusBadge, CAMPAIGN_REJECTION_REASONS, formatDiscountRate, formatValidityRange)
+- ✅ Frontend sayfa: Stats bar + 3 sekme (Bekleyen/Onaylı/Reddedilen) + arama + pagination
+- ✅ Frontend modal: campaign-detail-modal.tsx (image gallery, kod görüntüleme, onayla/reddet/sil)
 
 ### Vefat İlanları Admin Panel Modülü (22 Şubat 2026) ✅
 - ✅ Backend: GET /deaths/admin (status/search filtreli, pagination)

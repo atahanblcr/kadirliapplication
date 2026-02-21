@@ -181,6 +181,58 @@
 
 ---
 
+## 22 Şubat 2026 - AdminController Modülerleştirme
+
+**Durum:** ✅ Onaylandı ve uygulandı
+
+**Soru:** Tek büyük AdminController (170+ satır) sürdürülebilir mi?
+
+**Seçenekler:**
+1. **Tek büyük AdminController** — Tüm rotalar tek dosyada
+   - Artı: Basit
+   - Eksi: Bakımı zor, büyüdükçe sorun çıkar
+2. **Sub-controller'lara bölme** — Her domain için ayrı controller
+   - Artı: Tek sorumluluk, kolay büyüme, okunabilir
+   - Eksi: Daha fazla dosya
+
+**Karar:** Her domain için ayrı sub-controller, aynı AdminModule içinde
+
+**Gerekçe:**
+- Campaigns/Users/Pharmacy tamamen farklı domainler
+- AdminController core sorumluluğa odaklanmalı (dashboard/approvals/ads/scrapers)
+- Yeni modül eklemek artık admin.controller.ts'e dokunmayı gerektirmiyor
+
+**Sonuç:**
+- `campaign-admin.controller.ts` → /admin/campaigns/*
+- `users-admin.controller.ts` → /admin/users/*
+- `pharmacy-admin.controller.ts` → /admin/pharmacy/*
+- `admin.controller.ts` → 170 satırdan 62 satıra indi
+
+**Etkilenen Modüller:** Admin
+
+**Karar Veren:** Claude (Audit sonrası sürdürülebilirlik değerlendirmesi)
+
+---
+
+## 22 Şubat 2026 - shadcn Form Bileşeni Kullanılmıyor
+
+**Durum:** ✅ Onaylandı
+
+**Soru:** Admin panel formları için shadcn Form bileşeni kullanılmalı mı?
+
+**Karar:** HAYIR — `@/components/ui/form` projede kurulu değil
+
+**Gerekçe:**
+- shadcn Form bileşeni `react-hook-form` ile çalışır ve ayrıca yüklenmesi gerekir
+- Mevcut projede kurulmamış
+- Farmlar için plain controlled inputs + useState + manual validation yeterli
+
+**Etkilenen Modüller:** Tüm admin form bileşenleri (PharmacyForm, vb.)
+
+**Karar Veren:** Claude (hata keşfedilince)
+
+---
+
 ## [YENİ KARAR ŞABLONU]
 
 ## [Tarih] - [Başlık]
@@ -190,8 +242,8 @@
 **Soru:**
 
 **Seçenekler:**
-1. 
-2. 
+1.
+2.
 
 **Karar:**
 

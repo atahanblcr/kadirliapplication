@@ -2,8 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
-  Delete,
   Param,
   Body,
   Query,
@@ -13,13 +11,7 @@ import {
 import { AdminService } from './admin.service';
 import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
-import { QueryUsersDto } from './dto/query-users.dto';
-import { BanUserDto } from './dto/ban-user.dto';
-import { ChangeRoleDto } from './dto/change-role.dto';
 import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
-import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
-import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
-import { AssignScheduleDto } from './dto/assign-schedule.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -61,97 +53,6 @@ export class AdminController {
     @Body() dto: RejectAdDto,
   ) {
     return this.adminService.rejectAd(adminId, id, dto);
-  }
-
-  // GET /admin/users
-  @Get('users')
-  async getUsers(@Query() dto: QueryUsersDto) {
-    return this.adminService.getUsers(dto);
-  }
-
-  // GET /admin/users/:id
-  @Get('users/:id')
-  async getUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getUser(id);
-  }
-
-  // POST /admin/users/:id/ban
-  @Post('users/:id/ban')
-  async banUser(
-    @CurrentUser('user_id') adminId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: BanUserDto,
-  ) {
-    return this.adminService.banUser(adminId, id, dto);
-  }
-
-  // POST /admin/users/:id/unban
-  @Post('users/:id/unban')
-  async unbanUser(
-    @CurrentUser('user_id') adminId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    return this.adminService.unbanUser(adminId, id);
-  }
-
-  // PATCH /admin/users/:id/role
-  @Patch('users/:id/role')
-  async changeUserRole(
-    @CurrentUser('user_id') adminId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: ChangeRoleDto,
-  ) {
-    return this.adminService.changeUserRole(adminId, id, dto);
-  }
-
-  // ── PHARMACY ─────────────────────────────────────────────────────────────
-
-  // GET /admin/pharmacy/schedule  (BEFORE :id to avoid routing conflict)
-  @Get('pharmacy/schedule')
-  async getAdminSchedule(
-    @Query('start_date') start_date?: string,
-    @Query('end_date') end_date?: string,
-  ) {
-    return this.adminService.getAdminSchedule(start_date, end_date);
-  }
-
-  // POST /admin/pharmacy/schedule
-  @Post('pharmacy/schedule')
-  async assignSchedule(@Body() dto: AssignScheduleDto) {
-    return this.adminService.assignSchedule(dto);
-  }
-
-  // DELETE /admin/pharmacy/schedule/:id  (BEFORE pharmacy/:id)
-  @Delete('pharmacy/schedule/:id')
-  async deleteScheduleEntry(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteScheduleEntry(id);
-  }
-
-  // GET /admin/pharmacy
-  @Get('pharmacy')
-  async getAdminPharmacies() {
-    return this.adminService.getAdminPharmacies();
-  }
-
-  // POST /admin/pharmacy
-  @Post('pharmacy')
-  async createPharmacy(@Body() dto: CreatePharmacyDto) {
-    return this.adminService.createPharmacy(dto);
-  }
-
-  // PATCH /admin/pharmacy/:id
-  @Patch('pharmacy/:id')
-  async updatePharmacy(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdatePharmacyDto,
-  ) {
-    return this.adminService.updatePharmacy(id, dto);
-  }
-
-  // DELETE /admin/pharmacy/:id
-  @Delete('pharmacy/:id')
-  async deletePharmacy(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deletePharmacy(id);
   }
 
   // GET /admin/scrapers/logs

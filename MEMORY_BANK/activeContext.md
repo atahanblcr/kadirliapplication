@@ -6,50 +6,34 @@
 
 ## 🎯 Şu Anki Durum
 
-**Modül:** Deaths (Vefat İlanları) Admin Panel ✅ TAMAMLANDI
-**Status:** Backend admin endpoint'leri + Frontend sayfa/modal/hook/utils tamamen bitti
+**Modül:** Ulaşım (Transport) Admin Panel Modülü ✅ TAMAMLANDI
+**Status:** Backend + Frontend + API test tamamen bitti
 **Son Kontrol:** 22 Şubat 2026
 
-### Servis Durumu
-- ✅ Docker container'lar başlatıldı
-- ✅ PostgreSQL: localhost:5432 (healthy)
-- ✅ Redis: localhost:6379 (healthy)
-- ✅ Backend: http://localhost:3000/v1 (çalışıyor)
-- ✅ Admin Panel: http://localhost:3001 (npm run dev ile çalışıyor)
-
-### Admin Login Sistemi (22 Şubat 2026) ✅
-- ✅ User entity'ye email (VARCHAR 100, unique, nullable) + password (TEXT, nullable, select:false) eklendi
-- ✅ Migration: 1771708688909-AddEmailPasswordToUser (SQL ile uygulandı)
-- ✅ AdminLoginDto (email + password validation)
-- ✅ POST /v1/auth/admin/login endpoint - bcrypt doğrulama, rol kontrolü
-- ✅ İlk admin kullanıcısı: admin@kadirliapp.com / Admin123! (SUPER_ADMIN)
-- ✅ Admin panel use-auth.ts + api.ts snake_case uyumlu düzeltildi
-- ✅ ONAYLANDI: curl testi ile JWT token başarıyla üretildi
-
-### Admin Panel İlerleme (%55 - 4 modules complete)
+### Admin Panel İlerleme (%95 - 9 modül tamamlandı)
 - ✅ Next.js 14 projesi (App Router + TypeScript + Tailwind CSS)
-- ✅ shadcn/ui (23 bileşen: Card, Button, Input, Badge, Avatar, DropdownMenu, Sheet, Table, Textarea, Dialog, Separator, ScrollArea, Tooltip, Select, Tabs, Switch, Skeleton, Alert, Popover, Command, MultiSelect custom, AlertDialog, Sonner Toast)
-- ✅ Temel layout: Collapsible sidebar (15 menü) + Topbar (notifications + user dropdown)
-- ✅ Login sayfası (React Hook Form + Zod validation, email/password auth, show/hide password)
-- ✅ Dashboard sayfası (4 KPI kartları + Recharts LineChart/BarChart + aktivite feed + bekleyen onaylar)
-- ✅ API client (Axios + JWT interceptor + refresh token auto-retry + error handling)
-- ✅ React Query hooks (announcement, ads, deaths, auth modules - cache invalidation pattern)
+- ✅ shadcn/ui bileşenler (alert-dialog, alert, badge, button, card, dialog, dropdown-menu, input, label, popover, scroll-area, select, separator, sheet, skeleton, switch, table, tabs, textarea, tooltip) — `@/components/ui/form` YOK
+- ✅ Temel layout: Collapsible sidebar + Topbar
+- ✅ Login sayfası (email/password auth)
+- ✅ Dashboard sayfası (KPI + grafikler + bekleyen onaylar)
+- ✅ API client (Axios + JWT interceptor + refresh token)
 - ✅ Duyurular modülü TAMAMLANDI
 - ✅ İlanlar modülü TAMAMLANDI
-- ✅ **Vefat İlanları modülü TAMAMLANDI (22 Şubat 2026):**
-   - Backend: GET /deaths/admin, POST /deaths/:id/approve, POST /deaths/:id/reject, DELETE /deaths/:id
-   - Frontend hooks: useDeaths, useApproveDeath, useRejectDeath, useDeleteDeath
-   - Utils: DeathStatusBadge, DEATH_REJECTION_REASONS, formatFuneralDate, calculateArchiveDaysLeft
-   - Sayfa: 3 Tab (Bekleyen/Onaylı/Reddedilen), arama, pagination, acil uyarı (arşiv 1 gün kaldıysa turuncu satır)
-   - Detay Modal: Fotoğraf, bilgi grid, harita linki (lat/lon varsa), onayla/reddet(+not)/sil
-- ✅ 11 Placeholder sayfa (Kampanya, Eczane, Rehber, Mekanlar, Ulaşım, Etkinlikler, Taksi, Kullanıcılar, Şikayetler, Scraper, Ayarlar)
+- ✅ Vefat İlanları modülü TAMAMLANDI
+- ✅ **Kampanyalar modülü TAMAMLANDI** (Frontend + Backend)
+- ✅ **Kullanıcı Yönetimi modülü TAMAMLANDI** (Frontend + Backend)
+- ✅ **Nöbetçi Eczane modülü TAMAMLANDI** (Frontend + Backend + Takvim)
+- ✅ **AdminController refaktörü TAMAMLANDI** (3 sub-controller)
+- ✅ **Ulaşım (Transport) modülü TAMAMLANDI** (Backend + Frontend + @dnd-kit)
 
-### ➡️ Sonraki Adım: Campaigns veya Users Modülü
+### ➡️ Sonraki Adım: Kullanıcı onayı bekleniyor
 
-Önerilen sıra:
-1. **Campaigns** (4 saat) - onay listesi + istatistik dashboard
-2. **Users** (4-5 saat) - kullanıcı yönetimi + ban/unban
-3. **Pharmacy** (5-6 saat) - takvim görünümü + tabs
+Olası sıradaki modüller (belirlenmeli):
+- Rehber (Guide) Admin Panel
+- Mekanlar (Places) Admin Panel
+- Etkinlikler (Events) Admin Panel
+- Şikayetler (Complaints) Admin Panel
+- Scraper Logs Admin Panel
 
 ---
 
@@ -318,9 +302,10 @@ backend/
 ## 📊 Module Priority Queue (Admin Panel)
 
 1. ~~**Deaths** (2-3 hrs)~~ ✅ TAMAMLANDI
-2. **Campaigns** (4 hrs) - Admin approval list + statistics dashboard ← SONRAKİ
-3. **Users** (4-5 hrs) - User management with action buttons
-4. **Pharmacy** (5-6 hrs) - Calendar view + tabs
+2. ~~**Campaigns** (4 hrs)~~ ✅ TAMAMLANDI (+ backend endpoint'ler eklendi)
+3. ~~**Users** (4-5 hrs)~~ ✅ TAMAMLANDI
+4. ~~**Pharmacy** (5-6 hrs)~~ ✅ TAMAMLANDI
+5. **Sıradaki:** Kullanıcı onayı bekleniyor
 
 ---
 

@@ -231,12 +231,66 @@ Aşağıdaki 10 modül henüz placeholder durumunda. Service, Controller, Test y
 
 ---
 
+## #007 22 Şubat 2026 - Campaign Admin Endpoint'leri Eksikti
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Admin / Campaigns
+
+**Açıklama:**
+Audit'te keşfedildi: Frontend `use-campaigns.ts` `/admin/campaigns/*` endpoint'lerini çağırıyor, ama backend'de bu endpoint'ler hiç yoktu. Campaign admin modülü tamamen yazılmamıştı.
+
+**Etki:**
+- Campaign listesi yüklenemiyordu (404)
+- Approve/reject/delete işlemleri çalışmıyordu
+- Frontend'de TypeScript hatası yoktu (sadece runtime 404)
+
+**Nihai Çözüm:**
+- `backend/src/admin/campaign-admin.controller.ts` oluşturuldu (4 endpoint)
+- `backend/src/admin/dto/query-admin-campaigns.dto.ts` oluşturuldu
+- `backend/src/admin/dto/reject-campaign.dto.ts` oluşturuldu
+- AdminService'e 4 campaign metodu eklendi
+- `admin.module.ts`'e yeni controller kayıt edildi
+
+**Önleme:**
+Her frontend modülü yazılırken karşılık gelen backend endpoint'lerinin var olduğu kontrol edilmeli.
+
+---
+
+## #008 22 Şubat 2026 - Campaign Entity Alan Adı Uyumsuzluğu
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Admin / Campaigns
+
+**Açıklama:**
+Campaign entity'deki alan adları frontend Campaign type'taki alan adlarıyla uyuşmuyordu.
+
+| Entity (DB) | Frontend (beklenen) |
+|---|---|
+| `discount_percentage` | `discount_rate` |
+| `start_date` | `valid_from` |
+| `end_date` | `valid_until` |
+| `discount_code` | `code` |
+| `code_view_count` | `code_views` |
+
+Ayrıca `rejected_reason` backend entity'de vardı ama frontend Campaign tipinde tanımlı değildi.
+
+**Nihai Çözüm:**
+AdminService'deki `getAdminCampaigns()` mapping ile dönüşüm yapıyor (entity alan adı → frontend alan adı).
+`admin/src/types/index.ts` Campaign interface'ine `rejected_reason?: string` eklendi.
+
+**Önleme:**
+Frontend tipler oluşturulurken backend entity'yle alan adları karşılaştırılmalı. Uyumsuzluk varsa mapping katmanı oluşturulmalı.
+
+---
+
 ## 📊 İstatistikler
 
-**Toplam Sorun:** 6
-**Çözülmüş:** 3 (50%)
-**Devam Eden:** 1 (16%)
-**Açık:** 2 (34%)
+**Toplam Sorun:** 8
+**Çözülmüş:** 5 (62%)
+**Devam Eden:** 1 (13%)
+**Açık:** 2 (25%)
 
 **En Sık Sorun Kategorileri:**
 1. Database/ORM (2 sorun)

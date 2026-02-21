@@ -14,8 +14,6 @@ describe('AdminController', () => {
       getApprovals: jest.fn(),
       approveAd: jest.fn(),
       rejectAd: jest.fn(),
-      getUsers: jest.fn(),
-      banUser: jest.fn(),
       getScraperLogs: jest.fn(),
       runScraper: jest.fn(),
     };
@@ -99,50 +97,6 @@ describe('AdminController', () => {
         'ad-uuid-1',
         dto,
       );
-    });
-  });
-
-  // ── GET /admin/users ──────────────────────────────────────────────────────
-
-  describe('getUsers', () => {
-    it('kullanıcı listesini döndürmeli', async () => {
-      const expected = { users: [], total: 0, page: 1, limit: 50 };
-      service.getUsers.mockResolvedValue(expected as any);
-      const dto = { search: 'ahmet', page: 1, limit: 50 };
-
-      const result = await controller.getUsers(dto);
-
-      expect(result).toEqual(expected);
-      expect(service.getUsers).toHaveBeenCalledWith(dto);
-    });
-  });
-
-  // ── POST /admin/users/:id/ban ─────────────────────────────────────────────
-
-  describe('banUser', () => {
-    it('kullanıcı banlanmalı', async () => {
-      const expected = { message: 'Kullanıcı banlandı', banned_until: null };
-      service.banUser.mockResolvedValue(expected);
-      const dto = { ban_reason: 'Spam', duration_days: 7 };
-
-      const result = await controller.banUser('admin-uuid', 'user-uuid-1', dto);
-
-      expect(result).toEqual(expected);
-      expect(service.banUser).toHaveBeenCalledWith(
-        'admin-uuid',
-        'user-uuid-1',
-        dto,
-      );
-    });
-
-    it('service hatası yayılmalı', async () => {
-      service.banUser.mockRejectedValue(new Error('Kullanıcı bulunamadı'));
-
-      await expect(
-        controller.banUser('admin-uuid', 'nonexistent', {
-          ban_reason: 'Spam',
-        }),
-      ).rejects.toThrow('Kullanıcı bulunamadı');
     });
   });
 
