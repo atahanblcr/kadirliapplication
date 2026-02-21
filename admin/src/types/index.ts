@@ -354,3 +354,34 @@ export interface DeathFilters {
   status?: DeathStatus;
   search?: string;
 }
+
+// ─── Campaigns ────────────────────────────────────────────────────────────────
+
+export interface Campaign {
+  id: string;
+  business_id: string;
+  business_name: string;
+  title: string;
+  description: string;
+  discount_rate: number;
+  code?: string;
+  valid_from: string;
+  valid_until: string;
+  image_urls: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  views: number;
+  code_views: number;
+  created_by: { id: string; username: string; business_name: string };
+  created_at: string;
+  updated_at: string;
+}
+
+export type CampaignStatus = Campaign['status'];
+
+export interface CampaignFilters {
+  status?: CampaignStatus;
+  search?: string;
+  business_id?: string;
+  page?: number;
+  limit?: number;
+}
