@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as express from 'express';
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
@@ -31,6 +32,9 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix(apiPrefix);
+
+  // Static file serving — uploads klasörünü /uploads path'inden sun
+  app.use('/uploads', express.static(uploadsDir));
 
   // Security headers
   app.use(helmet());

@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import {
   formatFuneralDate,
   calculateArchiveDaysLeft,
+  resolveFileUrl,
 } from '@/lib/death-utils';
 import type { DeathNotice } from '@/types';
 
@@ -77,10 +78,10 @@ export function DeathDetailModal({ item, onClose }: DeathDetailModalProps) {
 
         <div className="p-6 space-y-5">
           {/* Photo */}
-          {(item.photo_file?.cdn_url || item.photo_file?.url) && (
+          {item.photo_file && (
             <div className="flex justify-center">
               <img
-                src={item.photo_file.cdn_url ?? item.photo_file.url}
+                src={resolveFileUrl(item.photo_file.cdn_url ?? item.photo_file.url)}
                 alt={item.deceased_name}
                 className="h-40 w-40 rounded-full object-cover border-4 border-muted"
               />

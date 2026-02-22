@@ -26,6 +26,7 @@ import {
   useCreateDeath,
   useUpdateDeath,
 } from '@/hooks/use-deaths';
+import { resolveFileUrl } from '@/lib/death-utils';
 import { toast } from '@/hooks/use-toast';
 import api from '@/lib/api';
 import type { DeathNotice, CreateDeathDto } from '@/types';
@@ -90,7 +91,7 @@ export function DeathFormDialog({ open, onClose, death }: DeathFormDialogProps) 
         neighborhood_id: death.neighborhood_id ?? '',
         photo_file_id: death.photo_file_id ?? '',
       });
-      setPhotoPreview(death.photo_file?.cdn_url ?? death.photo_file?.url ?? null);
+      setPhotoPreview(resolveFileUrl(death.photo_file?.cdn_url ?? death.photo_file?.url) || null);
     } else if (open && !death) {
       setForm(EMPTY_FORM);
       setPhotoPreview(null);
@@ -110,12 +111,20 @@ export function DeathFormDialog({ open, onClose, death }: DeathFormDialogProps) 
       fd.append('file', file);
       fd.append('module_type', 'death');
 
+      // axios FormData ile kullanıldığında Content-Type header'ı kaldır;
+      // boundary otomatik eklenir, manuel set edilirse bozulur
       const { data } = await api.post('/files/upload', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': undefined },
       });
 
-      const fileId: string = data.data?.id ?? data.id;
-      const fileUrl: string = data.data?.cdn_url ?? data.data?.url ?? '';
+      // Backend { success: true, data: { file: { id, cdn_url, ... } } } döndürür
+      const fileObj = data.data?.file;
+      const fileId: string = fileObj?.id ?? '';
+      // cdn_url = "/uploads/..." → tam URL'e çevir
+      const rawUrl: string = fileObj?.cdn_url ?? fileObj?.storage_path ?? '';
+      const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/v1')
+        .replace(/\/v1$/, '');
+      const fileUrl: string = rawUrl.startsWith('/') ? `${apiOrigin}${rawUrl}` : rawUrl;
 
       set('photo_file_id', fileId);
       setPhotoPreview(fileUrl || URL.createObjectURL(file));
@@ -283,7 +292,11 @@ export function DeathFormDialog({ open, onClose, death }: DeathFormDialogProps) 
           {/* Mezarlık */}
           <div className="space-y-1.5">
             <Label>Mezarlık</Label>
-            <Select value={form.cemetery_id} onValueChange={(v) => set('cemetery_id', v)}>
+            {/* value undefined → placeholder görünür; '' geçersiz (shadcn Select sorunu) */}
+            <Select
+              value={form.cemetery_id || undefined}
+              onValueChange={(v) => set('cemetery_id', v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Mezarlık seçin..." />
               </SelectTrigger>
@@ -298,7 +311,10 @@ export function DeathFormDialog({ open, onClose, death }: DeathFormDialogProps) 
           {/* Cami */}
           <div className="space-y-1.5">
             <Label>Namaz Kılınacak Cami</Label>
-            <Select value={form.mosque_id} onValueChange={(v) => set('mosque_id', v)}>
+            <Select
+              value={form.mosque_id || undefined}
+              onValueChange={(v) => set('mosque_id', v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Cami seçin..." />
               </SelectTrigger>
@@ -313,7 +329,10 @@ export function DeathFormDialog({ open, onClose, death }: DeathFormDialogProps) 
           {/* Mahalle */}
           <div className="space-y-1.5">
             <Label>Mahalle</Label>
-            <Select value={form.neighborhood_id} onValueChange={(v) => set('neighborhood_id', v)}>
+            <Select
+              value={form.neighborhood_id || undefined}
+              onValueChange={(v) => set('neighborhood_id', v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Mahalle seçin..." />
               </SelectTrigger>

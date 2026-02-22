@@ -27,7 +27,7 @@ import {
   Tooltip, TooltipContent, TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useDeaths, useDeleteDeath } from '@/hooks/use-deaths';
-import { formatFuneralDate, calculateArchiveDaysLeft } from '@/lib/death-utils';
+import { formatFuneralDate, calculateArchiveDaysLeft, resolveFileUrl } from '@/lib/death-utils';
 import { DeathFormDialog } from './components/death-form-dialog';
 import { DeathDetailModal } from './death-detail-modal';
 import type { DeathNotice } from '@/types';
@@ -150,9 +150,9 @@ export default function DeathsPage() {
                   <TableRow key={notice.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {(notice.photo_file?.cdn_url || notice.photo_file?.url) && (
+                        {notice.photo_file && (
                           <img
-                            src={notice.photo_file.cdn_url ?? notice.photo_file.url}
+                            src={resolveFileUrl(notice.photo_file.cdn_url ?? notice.photo_file.url)}
                             alt={notice.deceased_name}
                             className="h-8 w-8 rounded-full object-cover border shrink-0"
                           />

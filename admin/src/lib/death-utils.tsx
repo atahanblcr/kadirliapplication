@@ -1,6 +1,18 @@
 import { differenceInDays, format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
+/**
+ * cdn_url "/uploads/..." ile geliyorsa tam URL'e çevirir.
+ * CDN domain varsa olduğu gibi bırakır.
+ */
+export function resolveFileUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/v1')
+    .replace(/\/v1$/, '');
+  return `${apiOrigin}${url}`;
+}
+
 export function formatFuneralDate(date: string, time: string): string {
   try {
     const d = new Date(`${date}T${time}`);
