@@ -327,7 +327,7 @@ export interface DeathNotice {
   deceased_name: string;
   age?: number;
   photo_file_id?: string;
-  photo_file?: { id: string; url: string };
+  photo_file?: { id: string; url: string; cdn_url?: string };
   funeral_date: string;
   funeral_time: string;
   cemetery_id?: string;
@@ -335,6 +335,8 @@ export interface DeathNotice {
   mosque_id?: string;
   mosque?: Mosque;
   condolence_address?: string;
+  neighborhood_id?: string;
+  neighborhood?: { id: string; name: string };
   added_by: string;
   adder?: { id: string; username: string; full_name?: string; phone?: string };
   status: 'pending' | 'approved' | 'rejected';
@@ -351,9 +353,22 @@ export type DeathStatus = DeathNotice['status'];
 export interface DeathFilters {
   page?: number;
   limit?: number;
-  status?: DeathStatus;
   search?: string;
 }
+
+export interface CreateDeathDto {
+  deceased_name: string;
+  age?: number;
+  funeral_date: string;
+  funeral_time: string;
+  cemetery_id?: string;
+  mosque_id?: string;
+  condolence_address?: string;
+  photo_file_id?: string;
+  neighborhood_id?: string;
+}
+
+export type UpdateDeathDto = Partial<CreateDeathDto>;
 
 // ─── Campaigns ────────────────────────────────────────────────────────────────
 

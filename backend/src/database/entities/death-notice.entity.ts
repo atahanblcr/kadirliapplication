@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { FileEntity } from './file.entity';
+import { Neighborhood } from './neighborhood.entity';
 
 @Entity('cemeteries')
 export class Cemetery {
@@ -106,6 +107,13 @@ export class DeathNotice {
 
   @Column({ type: 'text', nullable: true })
   condolence_address: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  neighborhood_id: string;
+
+  @ManyToOne(() => Neighborhood, { nullable: true })
+  @JoinColumn({ name: 'neighborhood_id' })
+  neighborhood: Neighborhood;
 
   @Column({ type: 'uuid' })
   added_by: string;
