@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import {
-  Building2, Calendar, Tag, Eye, BarChart2,
-  CheckCircle2, XCircle, Trash2, Loader2, ChevronLeft, ChevronRight,
+  Building2, Calendar, Tag, BarChart2,
+  Trash2, Loader2, ChevronLeft, ChevronRight, Pencil,
 } from 'lucide-react';
 import {
   Dialog,
@@ -25,28 +25,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
+import { useDeleteCampaign } from '@/hooks/use-campaigns';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { useApproveCampaign, useRejectCampaign, useDeleteCampaign } from '@/hooks/use-campaigns';
-import {
-  CampaignStatusBadge,
-  CAMPAIGN_REJECTION_REASONS,
   formatDiscountRate,
   formatValidityRange,
 } from '@/lib/campaign-utils';
+import { resolveFileUrl } from '@/lib/death-utils';
 import { toast } from '@/hooks/use-toast';
 import type { Campaign } from '@/types';
 
 interface CampaignDetailModalProps {
   item: Campaign | null;
   onClose: () => void;
+  onEdit: (c: Campaign) => void;
 }
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -61,50 +52,22 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
   );
 }
 
-export function CampaignDetailModal({ item, onClose }: CampaignDetailModalProps) {
-  const [rejectOpen, setRejectOpen]     = useState(false);
-  const [deleteOpen, setDeleteOpen]     = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [rejectNote, setRejectNote]     = useState('');
-  const [imgIndex, setImgIndex]         = useState(0);
+export function CampaignDetailModal({ item, onClose, onEdit }: CampaignDetailModalProps) {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [imgIndex, setImgIndex]     = useState(0);
 
-  const approveMutation = useApproveCampaign();
-  const rejectMutation  = useRejectCampaign();
-  const deleteMutation  = useDeleteCampaign();
+  const deleteMutation = useDeleteCampaign();
 
   if (!item) return null;
 
-  const images = item.image_urls ?? [];
+  const rawImages = item.image_urls ?? [];
+  const images = rawImages.map((url) => resolveFileUrl(url) || url);
   const hasImages = images.length > 0;
-
-  const handleApprove = async () => {
-    try {
-      await approveMutation.mutateAsync(item.id);
-      toast({ title: `"${item.title}" kampanyası onaylandı.` });
-      onClose();
-    } catch {
-      toast({ title: 'Hata', description: 'Onaylanamadı.', variant: 'destructive' });
-    }
-  };
-
-  const handleReject = async () => {
-    if (!rejectReason) return;
-    try {
-      await rejectMutation.mutateAsync({ id: item.id, reason: rejectReason, note: rejectNote || undefined });
-      toast({ title: `"${item.title}" kampanyası reddedildi.` });
-      setRejectOpen(false);
-      setRejectReason('');
-      setRejectNote('');
-      onClose();
-    } catch {
-      toast({ title: 'Hata', description: 'Reddedilemedi.', variant: 'destructive' });
-    }
-  };
 
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync(item.id);
-      toast({ title: `"${item.title}" kampanyası silindi.` });
+      toast({ title: `"${item.title}" silindi.` });
       setDeleteOpen(false);
       onClose();
     } catch {
@@ -122,7 +85,6 @@ export function CampaignDetailModal({ item, onClose }: CampaignDetailModalProps)
                 <DialogTitle className="text-xl">{item.title}</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-0.5">{item.business_name}</p>
               </div>
-              <CampaignStatusBadge status={item.status} />
             </div>
           </DialogHeader>
 
@@ -186,19 +148,9 @@ export function CampaignDetailModal({ item, onClose }: CampaignDetailModalProps)
                 value={formatValidityRange(item.valid_from, item.valid_until)}
               />
               <InfoRow
-                icon={<Eye className="h-4 w-4 text-muted-foreground" />}
-                label="Görüntülenme"
-                value={`${item.views.toLocaleString('tr-TR')} görüntülenme`}
-              />
-              <InfoRow
                 icon={<BarChart2 className="h-4 w-4 text-muted-foreground" />}
                 label="Kod Görüntülenme"
-                value={`${item.code_views.toLocaleString('tr-TR')} kez kod gösterildi`}
-              />
-              <InfoRow
-                icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
-                label="Ekleyen"
-                value={item.created_by?.business_name ?? item.created_by?.username ?? '—'}
+                value={`${item.code_views.toLocaleString('tr-TR')} kez`}
               />
               <InfoRow
                 icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
@@ -224,41 +176,18 @@ export function CampaignDetailModal({ item, onClose }: CampaignDetailModalProps)
               </div>
             )}
 
-            {/* Rejection Reason */}
-            {item.status === 'rejected' && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                <p className="text-xs font-semibold uppercase text-red-600 mb-1">Red Nedeni</p>
-                <p className="text-sm text-red-700">—</p>
-              </div>
-            )}
-
             <Separator />
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2">
-              {item.status === 'pending' && (
-                <>
-                  <Button
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                    onClick={handleApprove}
-                    disabled={approveMutation.isPending}
-                  >
-                    {approveMutation.isPending
-                      ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      : <CheckCircle2 className="mr-2 h-4 w-4" />}
-                    Onayla
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => setRejectOpen(true)}
-                    disabled={rejectMutation.isPending}
-                  >
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Reddet
-                  </Button>
-                </>
-              )}
+              <Button
+                className="flex-1"
+                variant="outline"
+                onClick={() => onEdit(item)}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Düzenle
+              </Button>
               <Button
                 variant="outline"
                 size="icon"
@@ -272,51 +201,7 @@ export function CampaignDetailModal({ item, onClose }: CampaignDetailModalProps)
         </DialogContent>
       </Dialog>
 
-      {/* ── Reject Dialog ── */}
-      <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Kampanyayı Reddet</AlertDialogTitle>
-            <AlertDialogDescription>
-              <strong>{item.title}</strong> kampanyası reddedilecek.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-3">
-            <Select value={rejectReason} onValueChange={setRejectReason}>
-              <SelectTrigger>
-                <SelectValue placeholder="Red nedenini seçin..." />
-              </SelectTrigger>
-              <SelectContent>
-                {CAMPAIGN_REJECTION_REASONS.map((r) => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Textarea
-              placeholder="Ek not (isteğe bağlı, max 500 karakter)..."
-              value={rejectNote}
-              onChange={(e) => setRejectNote(e.target.value)}
-              rows={3}
-              maxLength={500}
-            />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => { setRejectReason(''); setRejectNote(''); }}>
-              İptal
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleReject}
-              disabled={!rejectReason || rejectMutation.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {rejectMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Reddet
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* ── Delete Confirm ── */}
+      {/* Delete Confirm */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

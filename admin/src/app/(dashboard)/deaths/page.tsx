@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
 import {
   Search, Plus, Pencil, Trash2, Eye, Loader2, RefreshCw,
 } from 'lucide-react';
@@ -26,10 +24,13 @@ import {
 import {
   Tooltip, TooltipContent, TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDeaths, useDeleteDeath } from '@/hooks/use-deaths';
 import { formatFuneralDate, calculateArchiveDaysLeft, resolveFileUrl } from '@/lib/death-utils';
 import { DeathFormDialog } from './components/death-form-dialog';
 import { DeathDetailModal } from './death-detail-modal';
+import { CemeteryManagement } from './cemetery-management';
+import { MosqueManagement } from './mosque-management';
 import type { DeathNotice } from '@/types';
 
 const PAGE_SIZE = 20;
@@ -48,7 +49,9 @@ function TableSkeleton() {
   );
 }
 
-export default function DeathsPage() {
+// ─── Deaths Tab Content ──────────────────────────────────────────────────────
+
+function DeathsTabContent() {
   const [search, setSearch]             = useState('');
   const [page, setPage]                 = useState(1);
   const [detailItem, setDetailItem]     = useState<DeathNotice | null>(null);
@@ -88,21 +91,7 @@ export default function DeathsPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Vefat İlanları</h1>
-          <p className="text-sm text-muted-foreground">
-            Vefat ilanlarını yönetin
-          </p>
-        </div>
-        <Button onClick={() => { setEditingDeath(null); setFormOpen(true); }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Yeni İlan Ekle
-        </Button>
-      </div>
-
-      {/* Search + Refresh */}
+      {/* Search + Actions */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -116,6 +105,10 @@ export default function DeathsPage() {
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           Yenile
+        </Button>
+        <Button onClick={() => { setEditingDeath(null); setFormOpen(true); }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Yeni İlan Ekle
         </Button>
       </div>
 
@@ -290,6 +283,38 @@ export default function DeathsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
+
+export default function DeathsPage() {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Vefat İlanları</h1>
+        <p className="text-sm text-muted-foreground">
+          Vefat ilanları, mezarlıklar ve camileri yönetin
+        </p>
+      </div>
+
+      <Tabs defaultValue="deaths">
+        <TabsList>
+          <TabsTrigger value="deaths">İlanlar</TabsTrigger>
+          <TabsTrigger value="cemeteries">Mezarlıklar</TabsTrigger>
+          <TabsTrigger value="mosques">Camiler</TabsTrigger>
+        </TabsList>
+        <TabsContent value="deaths" className="mt-4">
+          <DeathsTabContent />
+        </TabsContent>
+        <TabsContent value="cemeteries" className="mt-4">
+          <CemeteryManagement />
+        </TabsContent>
+        <TabsContent value="mosques" className="mt-4">
+          <MosqueManagement />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

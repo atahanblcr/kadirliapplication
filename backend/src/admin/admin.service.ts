@@ -4,12 +4,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { User } from '../database/entities/user.entity';
 import { Ad } from '../database/entities/ad.entity';
 import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
-import { Campaign } from '../database/entities/campaign.entity';
+import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
+import { Business } from '../database/entities/business.entity';
+import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
 import { ScraperLog } from '../database/entities/scraper-log.entity';
@@ -45,6 +47,14 @@ import { ReorderStopDto } from './dto/reorder-stop.dto';
 import { CreateDeathDto } from './dto/create-death.dto';
 import { UpdateDeathDto } from './dto/update-death.dto';
 import { QueryDeathsDto } from './dto/query-deaths.dto';
+import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
+import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
+import { CreateCemeteryDto } from './dto/create-cemetery.dto';
+import { UpdateCemeteryDto } from './dto/update-cemetery.dto';
+import { CreateMosqueDto } from './dto/create-mosque.dto';
+import { UpdateMosqueDto } from './dto/update-mosque.dto';
+import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
+import { UpdateNeighborhoodDto } from './dto/update-neighborhood.dto';
 import { getPaginationMeta } from '../common/utils/pagination.util';
 
 @Injectable()
@@ -82,6 +92,12 @@ export class AdminService {
     private readonly mosqueRepository: Repository<Mosque>,
     @InjectRepository(Neighborhood)
     private readonly neighborhoodRepository: Repository<Neighborhood>,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
+    @InjectRepository(CampaignImage)
+    private readonly campaignImageRepository: Repository<CampaignImage>,
+    @InjectRepository(FileEntity)
+    private readonly fileRepository: Repository<FileEntity>,
   ) {}
 
   // ── DASHBOARD ──────────────────────────────────────────────────────────────
@@ -429,10 +445,18 @@ export class AdminService {
 
   // ── PHARMACY: LİSTE ───────────────────────────────────────────────────────
 
-  async getAdminPharmacies() {
-    const pharmacies = await this.pharmacyRepository.find({
-      order: { name: 'ASC' },
-    });
+  async getAdminPharmacies(search?: string) {
+    const qb = this.pharmacyRepository
+      .createQueryBuilder('p')
+      .orderBy('p.name', 'ASC');
+
+    if (search) {
+      qb.andWhere('(p.name ILIKE :search OR p.address ILIKE :search)', {
+        search: `%${search}%`,
+      });
+    }
+
+    const pharmacies = await qb.getMany();
     return { pharmacies };
   }
 
@@ -506,6 +530,8 @@ export class AdminService {
     const schedule = this.pharmacyScheduleRepository.create({
       pharmacy_id: dto.pharmacy_id,
       duty_date: dto.date,
+      start_time: dto.start_time ?? '19:00',
+      end_time: dto.end_time ?? '09:00',
       source: 'manual' as const,
     });
     await this.pharmacyScheduleRepository.save(schedule);
@@ -652,6 +678,151 @@ export class AdminService {
     return { message: 'Kampanya silindi' };
   }
 
+  // ── CAMPAIGN: İŞLETMELER (form dropdown) ─────────────────────────────────
+
+  async getAdminBusinesses() {
+    const businesses = await this.businessRepository.find({
+      select: ['id', 'business_name'],
+      order: { business_name: 'ASC' },
+    });
+    return { businesses };
+  }
+
+  // ── CAMPAIGN: DETAY ───────────────────────────────────────────────────────
+
+  async getAdminCampaignDetail(id: string) {
+    const c = await this.campaignRepository.findOne({
+      where: { id },
+      relations: ['business', 'business.user', 'images', 'images.file'],
+    });
+    if (!c) throw new NotFoundException('Kampanya bulunamadı');
+
+    return {
+      id: c.id,
+      business_id: c.business_id,
+      business_name: c.business?.business_name ?? '',
+      title: c.title,
+      description: c.description,
+      discount_rate: c.discount_percentage,
+      code: c.discount_code ?? undefined,
+      valid_from: c.start_date,
+      valid_until: c.end_date,
+      images: (c.images ?? [])
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((img) => ({
+          id: img.id,
+          file_id: img.file_id,
+          url: img.file?.cdn_url ?? img.file?.storage_path ?? '',
+        })),
+      image_urls: (c.images ?? [])
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((img) => img.file?.cdn_url ?? '')
+        .filter(Boolean),
+      status: c.status,
+      code_views: c.code_view_count,
+      rejected_reason: c.rejected_reason ?? undefined,
+      created_at: c.created_at,
+      updated_at: c.updated_at,
+    };
+  }
+
+  // ── CAMPAIGN: OLUŞTUR ─────────────────────────────────────────────────────
+
+  async createAdminCampaign(adminId: string, dto: AdminCreateCampaignDto) {
+    // Business varlığını kontrol et
+    const business = await this.businessRepository.findOne({
+      where: { id: dto.business_id },
+    });
+    if (!business) throw new NotFoundException('İşletme bulunamadı');
+
+    // image_ids varsa file varlıklarını doğrula
+    if (dto.image_ids && dto.image_ids.length > 0) {
+      const files = await this.fileRepository.findBy({ id: In(dto.image_ids) });
+      if (files.length !== dto.image_ids.length) {
+        throw new BadRequestException('Bir veya daha fazla dosya bulunamadı');
+      }
+    }
+
+    const campaign = this.campaignRepository.create({
+      business_id: dto.business_id,
+      title: dto.title,
+      description: dto.description,
+      discount_percentage: dto.discount_rate ?? 0,
+      discount_code: dto.code ?? undefined,
+      start_date: dto.valid_from,
+      end_date: dto.valid_until,
+      status: 'approved',
+      approved_by: adminId,
+      approved_at: new Date(),
+    });
+
+    const saved = (await this.campaignRepository.save(campaign)) as Campaign;
+
+    // Görsel kayıtlarını oluştur
+    if (dto.image_ids && dto.image_ids.length > 0) {
+      const imageEntities = dto.image_ids.map((fileId, idx) =>
+        this.campaignImageRepository.create({
+          campaign_id: saved.id,
+          file_id: fileId,
+          display_order: idx,
+        }),
+      );
+      await this.campaignImageRepository.save(imageEntities);
+    }
+
+    return { message: 'Kampanya oluşturuldu', id: saved.id };
+  }
+
+  // ── CAMPAIGN: GÜNCELLE ────────────────────────────────────────────────────
+
+  async updateAdminCampaign(id: string, dto: AdminUpdateCampaignDto) {
+    const campaign = await this.campaignRepository.findOne({ where: { id } });
+    if (!campaign) throw new NotFoundException('Kampanya bulunamadı');
+
+    if (dto.business_id) {
+      const business = await this.businessRepository.findOne({
+        where: { id: dto.business_id },
+      });
+      if (!business) throw new NotFoundException('İşletme bulunamadı');
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (dto.title !== undefined) updateData.title = dto.title;
+    if (dto.description !== undefined) updateData.description = dto.description;
+    if (dto.discount_rate !== undefined) updateData.discount_percentage = dto.discount_rate;
+    if (dto.code !== undefined) updateData.discount_code = dto.code;
+    if (dto.valid_from !== undefined) updateData.start_date = dto.valid_from;
+    if (dto.valid_until !== undefined) updateData.end_date = dto.valid_until;
+    if (dto.business_id !== undefined) updateData.business_id = dto.business_id;
+
+    if (Object.keys(updateData).length > 0) {
+      await this.campaignRepository.update(id, updateData as any);
+    }
+
+    // Görseller güncellendiyse mevcut görselleri sil, yenilerini ekle
+    if (dto.image_ids !== undefined) {
+      if (dto.image_ids.length > 0) {
+        const files = await this.fileRepository.findBy({ id: In(dto.image_ids) });
+        if (files.length !== dto.image_ids.length) {
+          throw new BadRequestException('Bir veya daha fazla dosya bulunamadı');
+        }
+      }
+      await this.campaignImageRepository.delete({ campaign_id: id });
+      if (dto.image_ids.length > 0) {
+        const imageEntities = dto.image_ids.map((fileId, idx) =>
+          this.campaignImageRepository.create({
+            campaign_id: id,
+            file_id: fileId,
+            display_order: idx,
+          }),
+        );
+        await this.campaignImageRepository.save(imageEntities);
+      }
+    }
+
+    return { message: 'Kampanya güncellendi' };
+  }
+
   // ── SCRAPER LOGLARI ───────────────────────────────────────────────────────
 
   async getScraperLogs(dto: QueryScraperLogsDto) {
@@ -721,7 +892,7 @@ export class AdminService {
   }
 
   async getAdminIntercityRoutes(dto: QueryIntercityRoutesDto) {
-    const { company_name, from_city, to_city, is_active, page = 1, limit = 20 } = dto;
+    const { search, company_name, from_city, to_city, is_active, page = 1, limit = 20 } = dto;
     const skip = (page - 1) * limit;
 
     const qb = this.intercityRouteRepository
@@ -731,6 +902,12 @@ export class AdminService {
       .skip(skip)
       .take(limit);
 
+    if (search) {
+      qb.andWhere(
+        '(r.company_name ILIKE :search OR r.company ILIKE :search OR r.destination ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
     if (company_name) {
       qb.andWhere(
         '(r.company_name ILIKE :cn OR r.company ILIKE :cn)',
@@ -877,6 +1054,7 @@ export class AdminService {
       name: s.stop_name,
       neighborhood_id: s.neighborhood_id ?? null,
       neighborhood_name: s.neighborhood_name ?? '',
+      time_from_start: s.time_from_start ?? 0,
       latitude: s.latitude ? Number(s.latitude) : undefined,
       longitude: s.longitude ? Number(s.longitude) : undefined,
       created_at: s.created_at,
@@ -893,6 +1071,7 @@ export class AdminService {
         's.stop_name as stop_name',
         's.stop_order as stop_order',
         's.neighborhood_id as neighborhood_id',
+        's.time_from_start as time_from_start',
         's.latitude as latitude',
         's.longitude as longitude',
         's.created_at as created_at',
@@ -906,7 +1085,7 @@ export class AdminService {
   }
 
   async getAdminIntracityRoutes(dto: QueryIntracityRoutesDto) {
-    const { line_number, is_active, page = 1, limit = 20 } = dto;
+    const { search, line_number, is_active, page = 1, limit = 20 } = dto;
     const skip = (page - 1) * limit;
 
     const qb = this.intracityRouteRepository
@@ -917,6 +1096,12 @@ export class AdminService {
       .skip(skip)
       .take(limit);
 
+    if (search) {
+      qb.andWhere(
+        '(r.route_number ILIKE :search OR r.route_name ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
     if (line_number) {
       qb.andWhere('r.route_number ILIKE :ln', { ln: `%${line_number}%` });
     }
@@ -936,6 +1121,7 @@ export class AdminService {
         name: s.stop_name,
         neighborhood_id: s.neighborhood_id ?? null,
         neighborhood_name: '',
+        time_from_start: s.time_from_start ?? 0,
         latitude: s.latitude ? Number(s.latitude) : undefined,
         longitude: s.longitude ? Number(s.longitude) : undefined,
         created_at: s.created_at,
@@ -1010,6 +1196,7 @@ export class AdminService {
       stop_name: dto.name,
       stop_order: nextOrder,
       neighborhood_id: dto.neighborhood_id,
+      time_from_start: dto.time_from_start,
       latitude: dto.latitude,
       longitude: dto.longitude,
     });
@@ -1028,6 +1215,7 @@ export class AdminService {
 
     if (dto.name !== undefined) stop.stop_name = dto.name;
     if (dto.neighborhood_id !== undefined) stop.neighborhood_id = dto.neighborhood_id;
+    if (dto.time_from_start !== undefined) stop.time_from_start = dto.time_from_start;
     if (dto.latitude !== undefined) stop.latitude = dto.latitude;
     if (dto.longitude !== undefined) stop.longitude = dto.longitude;
 
@@ -1215,19 +1403,61 @@ export class AdminService {
 
   async getCemeteries() {
     const cemeteries = await this.cemeteryRepository.find({
-      where: { is_active: true },
       order: { name: 'ASC' },
     });
     return { cemeteries };
   }
 
+  async createCemetery(dto: CreateCemeteryDto) {
+    const cemetery = this.cemeteryRepository.create(dto);
+    await this.cemeteryRepository.save(cemetery);
+    return { cemetery };
+  }
+
+  async updateCemetery(id: string, dto: UpdateCemeteryDto) {
+    const cemetery = await this.cemeteryRepository.findOne({ where: { id } });
+    if (!cemetery) throw new NotFoundException('Mezarlık bulunamadı');
+    await this.cemeteryRepository.update(id, dto);
+    return { cemetery: { ...cemetery, ...dto } };
+  }
+
+  async deleteCemetery(id: string) {
+    const cemetery = await this.cemeteryRepository.findOne({ where: { id } });
+    if (!cemetery) throw new NotFoundException('Mezarlık bulunamadı');
+    await this.cemeteryRepository.remove(cemetery);
+    return { message: 'Mezarlık silindi' };
+  }
+
+  // ── MOSQUE CRUD ──────────────────────────────────────────────────────────────
+
   async getMosques() {
     const mosques = await this.mosqueRepository.find({
-      where: { is_active: true },
       order: { name: 'ASC' },
     });
     return { mosques };
   }
+
+  async createMosque(dto: CreateMosqueDto) {
+    const mosque = this.mosqueRepository.create(dto);
+    await this.mosqueRepository.save(mosque);
+    return { mosque };
+  }
+
+  async updateMosque(id: string, dto: UpdateMosqueDto) {
+    const mosque = await this.mosqueRepository.findOne({ where: { id } });
+    if (!mosque) throw new NotFoundException('Cami bulunamadı');
+    await this.mosqueRepository.update(id, dto);
+    return { mosque: { ...mosque, ...dto } };
+  }
+
+  async deleteMosque(id: string) {
+    const mosque = await this.mosqueRepository.findOne({ where: { id } });
+    if (!mosque) throw new NotFoundException('Cami bulunamadı');
+    await this.mosqueRepository.remove(mosque);
+    return { message: 'Cami silindi' };
+  }
+
+  // ── NEIGHBORHOOD CRUD ────────────────────────────────────────────────────────
 
   async getDeathNeighborhoods() {
     const neighborhoods = await this.neighborhoodRepository.find({
@@ -1235,5 +1465,57 @@ export class AdminService {
       order: { display_order: 'ASC', name: 'ASC' },
     });
     return { neighborhoods };
+  }
+
+  async getNeighborhoods(search?: string, type?: string, is_active?: boolean, page = 1, limit = 50) {
+    const skip = (page - 1) * limit;
+
+    const qb = this.neighborhoodRepository
+      .createQueryBuilder('n')
+      .orderBy('n.display_order', 'ASC')
+      .addOrderBy('n.name', 'ASC')
+      .skip(skip)
+      .take(limit);
+
+    if (search) {
+      qb.andWhere('n.name ILIKE :search', { search: `%${search}%` });
+    }
+    if (type) {
+      qb.andWhere('n.type = :type', { type });
+    }
+    if (is_active !== undefined) {
+      qb.andWhere('n.is_active = :is_active', { is_active });
+    }
+
+    const [neighborhoods, total] = await qb.getManyAndCount();
+    return { neighborhoods, meta: getPaginationMeta(total, page, limit) };
+  }
+
+  async createNeighborhood(dto: CreateNeighborhoodDto) {
+    // Auto-generate slug if not provided
+    if (!dto.slug) {
+      (dto as any).slug = dto.name
+        .toLowerCase()
+        .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i')
+        .replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u')
+        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+    const neighborhood = this.neighborhoodRepository.create(dto);
+    await this.neighborhoodRepository.save(neighborhood);
+    return { neighborhood };
+  }
+
+  async updateNeighborhood(id: string, dto: UpdateNeighborhoodDto) {
+    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
+    await this.neighborhoodRepository.update(id, dto);
+    return { neighborhood: { ...neighborhood, ...dto } };
+  }
+
+  async deleteNeighborhood(id: string) {
+    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
+    await this.neighborhoodRepository.remove(neighborhood);
+    return { message: 'Mahalle silindi' };
   }
 }

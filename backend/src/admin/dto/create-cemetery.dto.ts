@@ -1,29 +1,21 @@
 import {
   IsString,
-  IsNumber,
   IsOptional,
-  IsUUID,
+  IsNumber,
+  IsBoolean,
   MaxLength,
-  Min,
-  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateIntracityStopDto {
+export class CreateCemeteryDto {
   @IsString()
   @MaxLength(100)
   name: string;
 
   @IsOptional()
-  @IsUUID()
-  neighborhood_id?: string;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  @Max(500)
-  time_from_start?: number;
+  @IsString()
+  @MaxLength(500)
+  address?: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -34,4 +26,8 @@ export class CreateIntracityStopDto {
   @Type(() => Number)
   @IsNumber()
   longitude?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
 }

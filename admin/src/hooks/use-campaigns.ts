@@ -2,16 +2,26 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import type { ApiResponse, Campaign, CampaignFilters, PaginatedMeta } from '@/types';
+import { toast } from '@/hooks/use-toast';
+import type {
+  ApiResponse,
+  Campaign,
+  CampaignFilters,
+  PaginatedMeta,
+  BusinessOption,
+  CreateCampaignDto,
+  UpdateCampaignDto,
+} from '@/types';
 
 // ─── Query Keys ──────────────────────────────────────────────────────────────
 export const campaignKeys = {
   all: ['campaigns'] as const,
   lists: () => [...campaignKeys.all, 'list'] as const,
   list: (filters: CampaignFilters) => [...campaignKeys.lists(), filters] as const,
+  businesses: () => [...campaignKeys.all, 'businesses'] as const,
 };
 
-// ─── Campaigns List (Admin) ───────────────────────────────────────────────────
+// ─── Campaigns List ───────────────────────────────────────────────────────────
 export function useCampaigns(filters: CampaignFilters = {}) {
   return useQuery({
     queryKey: campaignKeys.list(filters),
@@ -28,45 +38,66 @@ export function useCampaigns(filters: CampaignFilters = {}) {
       );
       return { items: data.data.campaigns, meta: data.data.meta };
     },
-    // Pending tab'da 30 saniyede bir otomatik yenile
-    refetchInterval: filters.status === 'pending' ? 30_000 : false,
   });
 }
 
-// ─── Approve ─────────────────────────────────────────────────────────────────
-export function useApproveCampaign() {
+// ─── Businesses (for form dropdown) ──────────────────────────────────────────
+export function useBusinesses() {
+  return useQuery({
+    queryKey: campaignKeys.businesses(),
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<{ businesses: BusinessOption[] }>>(
+        '/admin/campaigns/businesses',
+      );
+      return data.data.businesses;
+    },
+    staleTime: 5 * 60 * 1000, // 5 dakika
+  });
+}
+
+// ─── Create ───────────────────────────────────────────────────────────────────
+export function useCreateCampaign() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { data } = await api.post<ApiResponse<{ message: string }>>(
-        `/admin/campaigns/${id}/approve`,
+    mutationFn: async (dto: CreateCampaignDto) => {
+      const { data } = await api.post<ApiResponse<{ message: string; id: string }>>(
+        '/admin/campaigns',
+        dto,
       );
       return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: campaignKeys.lists() });
+      toast({ title: 'Kampanya oluşturuldu.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Kampanya oluşturulamadı.', variant: 'destructive' });
     },
   });
 }
 
-// ─── Reject ──────────────────────────────────────────────────────────────────
-export function useRejectCampaign() {
+// ─── Update ───────────────────────────────────────────────────────────────────
+export function useUpdateCampaign() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, reason, note }: { id: string; reason: string; note?: string }) => {
-      const { data } = await api.post<ApiResponse<{ message: string }>>(
-        `/admin/campaigns/${id}/reject`,
-        { reason, note },
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateCampaignDto }) => {
+      const { data } = await api.patch<ApiResponse<{ message: string }>>(
+        `/admin/campaigns/${id}`,
+        dto,
       );
       return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: campaignKeys.lists() });
+      toast({ title: 'Kampanya güncellendi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Kampanya güncellenemedi.', variant: 'destructive' });
     },
   });
 }
 
-// ─── Delete ──────────────────────────────────────────────────────────────────
+// ─── Delete ───────────────────────────────────────────────────────────────────
 export function useDeleteCampaign() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -75,6 +106,10 @@ export function useDeleteCampaign() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: campaignKeys.lists() });
+      toast({ title: 'Kampanya silindi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Silinemedi.', variant: 'destructive' });
     },
   });
 }

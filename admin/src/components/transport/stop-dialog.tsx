@@ -11,10 +11,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { IntracityStop } from '@/types';
 import { useAddStop, useUpdateStop } from '@/hooks/use-intracity';
+import { useDeathNeighborhoods } from '@/hooks/use-deaths';
 
 interface StopDialogProps {
   open: boolean;
@@ -25,6 +29,7 @@ interface StopDialogProps {
 
 export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps) {
   const [name, setName]                   = useState('');
+  const [neighborhoodId, setNeighborhoodId] = useState<string>('');
   const [latitude, setLatitude]           = useState('');
   const [longitude, setLongitude]         = useState('');
   const [timeFromStart, setTimeFromStart] = useState('0');
@@ -37,15 +42,18 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
 
   const addStop    = useAddStop();
   const updateStop = useUpdateStop();
+  const { data: neighborhoods } = useDeathNeighborhoods();
 
   useEffect(() => {
     if (editStop) {
       setName(editStop.name ?? '');
+      setNeighborhoodId(editStop.neighborhood_id ?? '');
       setLatitude(editStop.latitude !== undefined ? String(editStop.latitude) : '');
       setLongitude(editStop.longitude !== undefined ? String(editStop.longitude) : '');
       setTimeFromStart(editStop.time_from_start !== undefined ? String(editStop.time_from_start) : '0');
     } else {
       setName('');
+      setNeighborhoodId('');
       setLatitude('');
       setLongitude('');
       setTimeFromStart('0');
@@ -71,6 +79,7 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
 
     const dto = {
       name: name.trim(),
+      neighborhood_id: neighborhoodId || undefined,
       latitude: latitude ? parseFloat(latitude) : undefined,
       longitude: longitude ? parseFloat(longitude) : undefined,
       time_from_start: parseInt(timeFromStart, 10),
@@ -110,6 +119,25 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
               onChange={(e) => setName(e.target.value)}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          </div>
+
+          {/* Mahalle */}
+          <div className="space-y-1">
+            <Label>Mahalle</Label>
+            <Select
+              value={neighborhoodId || '_none'}
+              onValueChange={(v) => setNeighborhoodId(v === '_none' ? '' : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Mahalle seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">Seçilmedi</SelectItem>
+                {(neighborhoods ?? []).map((n) => (
+                  <SelectItem key={n.id} value={n.id}>{n.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Başlangıçtan Süre */}
@@ -161,7 +189,7 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
               rel="noopener noreferrer"
               className="text-xs text-blue-600 hover:underline"
             >
-              📍 Haritada görüntüle
+              Haritada goruntule
             </a>
           )}
         </div>

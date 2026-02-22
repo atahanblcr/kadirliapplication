@@ -22,6 +22,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -42,6 +44,8 @@ interface ScheduleDialogProps {
 
 export function ScheduleDialog({ date, existing, pharmacies, onClose }: ScheduleDialogProps) {
   const [selectedPharmacyId, setSelectedPharmacyId] = useState('');
+  const [startTime, setStartTime] = useState('19:00');
+  const [endTime, setEndTime] = useState('09:00');
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const assignMutation = useAssignSchedule();
@@ -55,9 +59,16 @@ export function ScheduleDialog({ date, existing, pharmacies, onClose }: Schedule
   const handleAssign = async () => {
     if (!selectedPharmacyId) return;
     try {
-      await assignMutation.mutateAsync({ pharmacy_id: selectedPharmacyId, date: dateStr });
+      await assignMutation.mutateAsync({
+        pharmacy_id: selectedPharmacyId,
+        date: dateStr,
+        start_time: startTime,
+        end_time: endTime,
+      });
       toast({ title: `${dateLabel} için nöbet atandı.` });
       setSelectedPharmacyId('');
+      setStartTime('19:00');
+      setEndTime('09:00');
       onClose();
     } catch {
       toast({ title: 'Hata', description: 'Nöbet atanamadı.', variant: 'destructive' });
@@ -99,7 +110,7 @@ export function ScheduleDialog({ date, existing, pharmacies, onClose }: Schedule
             )}
 
             {/* Assign / re-assign form */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="text-sm font-medium">
                 {existing ? 'Nöbeti Değiştir' : 'Nöbet Ata'}
               </p>
@@ -115,6 +126,28 @@ export function ScheduleDialog({ date, existing, pharmacies, onClose }: Schedule
                     ))}
                 </SelectContent>
               </Select>
+
+              {/* Time inputs */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="sch-start">Başlangıç Saati</Label>
+                  <Input
+                    id="sch-start"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="sch-end">Bitiş Saati</Label>
+                  <Input
+                    id="sch-end"
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

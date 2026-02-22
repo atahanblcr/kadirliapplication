@@ -12,6 +12,10 @@ import type {
   UpdateDeathDto,
   Cemetery,
   Mosque,
+  CreateCemeteryDto,
+  UpdateCemeteryDto,
+  CreateMosqueDto,
+  UpdateMosqueDto,
 } from '@/types';
 
 // ─── Query Keys ──────────────────────────────────────────────────────────────
@@ -56,6 +60,65 @@ export function useCemeteries() {
   });
 }
 
+// ─── Create Cemetery ─────────────────────────────────────────────────────────
+export function useCreateCemetery() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateCemeteryDto) => {
+      const { data } = await api.post<ApiResponse<{ cemetery: Cemetery }>>(
+        '/admin/deaths/cemeteries',
+        dto,
+      );
+      return data.data.cemetery;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.cemeteries });
+      toast({ title: 'Mezarlık oluşturuldu.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Mezarlık oluşturulamadı.', variant: 'destructive' });
+    },
+  });
+}
+
+// ─── Update Cemetery ─────────────────────────────────────────────────────────
+export function useUpdateCemetery() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateCemeteryDto }) => {
+      const { data } = await api.patch<ApiResponse<{ cemetery: Cemetery }>>(
+        `/admin/deaths/cemeteries/${id}`,
+        dto,
+      );
+      return data.data.cemetery;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.cemeteries });
+      toast({ title: 'Mezarlık güncellendi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Mezarlık güncellenemedi.', variant: 'destructive' });
+    },
+  });
+}
+
+// ─── Delete Cemetery ─────────────────────────────────────────────────────────
+export function useDeleteCemetery() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/deaths/cemeteries/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.cemeteries });
+      toast({ title: 'Mezarlık silindi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Mezarlık silinemedi.', variant: 'destructive' });
+    },
+  });
+}
+
 // ─── Mosques ─────────────────────────────────────────────────────────────────
 export function useMosques() {
   return useQuery({
@@ -67,6 +130,65 @@ export function useMosques() {
       return data.data.mosques;
     },
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ─── Create Mosque ───────────────────────────────────────────────────────────
+export function useCreateMosque() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateMosqueDto) => {
+      const { data } = await api.post<ApiResponse<{ mosque: Mosque }>>(
+        '/admin/deaths/mosques',
+        dto,
+      );
+      return data.data.mosque;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.mosques });
+      toast({ title: 'Cami oluşturuldu.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Cami oluşturulamadı.', variant: 'destructive' });
+    },
+  });
+}
+
+// ─── Update Mosque ───────────────────────────────────────────────────────────
+export function useUpdateMosque() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateMosqueDto }) => {
+      const { data } = await api.patch<ApiResponse<{ mosque: Mosque }>>(
+        `/admin/deaths/mosques/${id}`,
+        dto,
+      );
+      return data.data.mosque;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.mosques });
+      toast({ title: 'Cami güncellendi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Cami güncellenemedi.', variant: 'destructive' });
+    },
+  });
+}
+
+// ─── Delete Mosque ───────────────────────────────────────────────────────────
+export function useDeleteMosque() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/deaths/mosques/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: deathKeys.mosques });
+      toast({ title: 'Cami silindi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Cami silinemedi.', variant: 'destructive' });
+    },
   });
 }
 

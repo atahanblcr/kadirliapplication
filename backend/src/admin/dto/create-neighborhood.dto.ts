@@ -1,29 +1,33 @@
 import {
   IsString,
-  IsNumber,
   IsOptional,
-  IsUUID,
+  IsNumber,
+  IsBoolean,
+  IsIn,
   MaxLength,
   Min,
-  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateIntracityStopDto {
+export class CreateNeighborhoodDto {
   @IsString()
   @MaxLength(100)
   name: string;
 
+  @IsString()
+  @IsIn(['neighborhood', 'village'])
+  type: 'neighborhood' | 'village';
+
   @IsOptional()
-  @IsUUID()
-  neighborhood_id?: string;
+  @IsString()
+  @MaxLength(100)
+  slug?: string;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  @Max(500)
-  time_from_start?: number;
+  population?: number;
 
   @IsOptional()
   @Type(() => Number)
@@ -34,4 +38,14 @@ export class CreateIntracityStopDto {
   @Type(() => Number)
   @IsNumber()
   longitude?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  display_order?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
 }

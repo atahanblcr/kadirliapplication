@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Param,
   Body,
@@ -11,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { QueryAdminCampaignsDto } from './dto/query-admin-campaigns.dto';
-import { RejectCampaignDto } from './dto/reject-campaign.dto';
+import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
+import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -24,29 +26,40 @@ import { UserRole } from '../common/enums/user-role.enum';
 export class CampaignAdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  // GET /admin/campaigns/businesses
+  @Get('businesses')
+  async getAdminBusinesses() {
+    return this.adminService.getAdminBusinesses();
+  }
+
   // GET /admin/campaigns
   @Get()
   async getAdminCampaigns(@Query() dto: QueryAdminCampaignsDto) {
     return this.adminService.getAdminCampaigns(dto);
   }
 
-  // POST /admin/campaigns/:id/approve
-  @Post(':id/approve')
-  async approveCampaign(
-    @CurrentUser('user_id') adminId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    return this.adminService.approveCampaign(adminId, id);
+  // GET /admin/campaigns/:id
+  @Get(':id')
+  async getAdminCampaignDetail(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.getAdminCampaignDetail(id);
   }
 
-  // POST /admin/campaigns/:id/reject
-  @Post(':id/reject')
-  async rejectCampaign(
-    @CurrentUser('user_id') adminId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: RejectCampaignDto,
+  // POST /admin/campaigns
+  @Post()
+  async createAdminCampaign(
+    @CurrentUser('id') adminId: string,
+    @Body() dto: AdminCreateCampaignDto,
   ) {
-    return this.adminService.rejectCampaign(adminId, id, dto);
+    return this.adminService.createAdminCampaign(adminId, dto);
+  }
+
+  // PATCH /admin/campaigns/:id
+  @Patch(':id')
+  async updateAdminCampaign(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AdminUpdateCampaignDto,
+  ) {
+    return this.adminService.updateAdminCampaign(id, dto);
   }
 
   // DELETE /admin/campaigns/:id

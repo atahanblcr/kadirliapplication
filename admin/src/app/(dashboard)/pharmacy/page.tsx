@@ -6,8 +6,9 @@ import {
   getDay, format, addMonths, subMonths, isToday,
 } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, RefreshCw, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, RefreshCw, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -135,9 +136,10 @@ function PharmaciesTab({
   onAdd: () => void;
   onEdit: (p: Pharmacy) => void;
 }) {
+  const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Pharmacy | null>(null);
   const deleteMutation = useDeletePharmacy();
-  const { data: pharmacies = [], isLoading, isFetching, refetch } = usePharmacies();
+  const { data: pharmacies = [], isLoading, isFetching, refetch } = usePharmacies(search || undefined);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -153,11 +155,20 @@ function PharmaciesTab({
   return (
     <>
       <div className="mt-4 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Eczane adı veya adres ara..."
+              className="pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <p className="text-sm text-muted-foreground">
-            {pharmacies.length} eczane kayıtlı
+            {pharmacies.length} eczane
           </p>
-          <div className="flex gap-2">
+          <div className="ml-auto flex gap-2">
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               Yenile

@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -12,6 +14,9 @@ import { AdminService } from './admin.service';
 import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
 import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
+import { QueryNeighborhoodsDto } from './dto/query-neighborhoods.dto';
+import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
+import { UpdateNeighborhoodDto } from './dto/update-neighborhood.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -66,5 +71,37 @@ export class AdminController {
   @Roles(UserRole.SUPER_ADMIN)
   async runScraper(@Param('name') name: string) {
     return this.adminService.runScraper(name);
+  }
+
+  // ── NEIGHBORHOOD CRUD ──────────────────────────────────────────────────────
+
+  // GET /admin/neighborhoods
+  @Get('neighborhoods')
+  async getNeighborhoods(@Query() dto: QueryNeighborhoodsDto) {
+    const page = parseInt(dto.page ?? '1', 10);
+    const limit = parseInt(dto.limit ?? '50', 10);
+    const is_active = dto.is_active !== undefined ? dto.is_active === 'true' : undefined;
+    return this.adminService.getNeighborhoods(dto.search, dto.type, is_active, page, limit);
+  }
+
+  // POST /admin/neighborhoods
+  @Post('neighborhoods')
+  async createNeighborhood(@Body() dto: CreateNeighborhoodDto) {
+    return this.adminService.createNeighborhood(dto);
+  }
+
+  // PATCH /admin/neighborhoods/:id
+  @Patch('neighborhoods/:id')
+  async updateNeighborhood(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateNeighborhoodDto,
+  ) {
+    return this.adminService.updateNeighborhood(id, dto);
+  }
+
+  // DELETE /admin/neighborhoods/:id
+  @Delete('neighborhoods/:id')
+  async deleteNeighborhood(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteNeighborhood(id);
   }
 }

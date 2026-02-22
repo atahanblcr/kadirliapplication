@@ -4,7 +4,9 @@ import { User } from '../database/entities/user.entity';
 import { Ad } from '../database/entities/ad.entity';
 import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
-import { Campaign } from '../database/entities/campaign.entity';
+import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
+import { Business } from '../database/entities/business.entity';
+import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
 import { ScraperLog } from '../database/entities/scraper-log.entity';
@@ -33,6 +35,9 @@ import { DeathsAdminController } from './deaths-admin.controller';
       Mosque,
       Neighborhood,
       Campaign,
+      CampaignImage,
+      Business,
+      FileEntity,
       Announcement,
       Notification,
       ScraperLog,

@@ -8,16 +8,19 @@ import type { ApiResponse, Pharmacy, PharmacySchedule } from '@/types';
 export const pharmacyKeys = {
   all: ['pharmacy'] as const,
   lists: () => [...pharmacyKeys.all, 'list'] as const,
+  listSearch: (search?: string) => [...pharmacyKeys.lists(), { search }] as const,
   schedule: (start: string, end: string) => [...pharmacyKeys.all, 'schedule', start, end] as const,
 };
 
 // ─── Pharmacies List (Admin) ──────────────────────────────────────────────────
-export function usePharmacies() {
+export function usePharmacies(search?: string) {
   return useQuery({
-    queryKey: pharmacyKeys.lists(),
+    queryKey: pharmacyKeys.listSearch(search),
     queryFn: async () => {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
       const { data } = await api.get<ApiResponse<{ pharmacies: Pharmacy[] }>>(
-        '/admin/pharmacy',
+        `/admin/pharmacy?${params.toString()}`,
       );
       return data.data.pharmacies;
     },
@@ -89,10 +92,15 @@ export function useDeletePharmacy() {
 export function useAssignSchedule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ pharmacy_id, date }: { pharmacy_id: string; date: string }) => {
+    mutationFn: async ({ pharmacy_id, date, start_time, end_time }: {
+      pharmacy_id: string;
+      date: string;
+      start_time?: string;
+      end_time?: string;
+    }) => {
       const { data } = await api.post<ApiResponse<{ schedule: PharmacySchedule }>>(
         '/admin/pharmacy/schedule',
-        { pharmacy_id, date },
+        { pharmacy_id, date, start_time, end_time },
       );
       return data.data.schedule;
     },

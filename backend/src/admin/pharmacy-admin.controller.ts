@@ -48,8 +48,8 @@ export class PharmacyAdminController {
 
   // GET /admin/pharmacy
   @Get()
-  async getAdminPharmacies() {
-    return this.adminService.getAdminPharmacies();
+  async getAdminPharmacies(@Query('search') search?: string) {
+    return this.adminService.getAdminPharmacies(search);
   }
 
   // POST /admin/pharmacy

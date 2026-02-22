@@ -55,6 +55,11 @@ export const SIDEBAR_ITEMS = [
     icon: 'Car',
   },
   {
+    title: 'Mahalleler',
+    href: '/neighborhoods',
+    icon: 'Home',
+  },
+  {
     title: 'Kullanıcılar',
     href: '/users',
     icon: 'Users',
