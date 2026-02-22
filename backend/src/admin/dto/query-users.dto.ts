@@ -8,6 +8,7 @@ export class QueryUsersDto {
   search?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum(UserRole)
   role?: UserRole;
 

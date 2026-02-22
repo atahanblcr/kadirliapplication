@@ -285,12 +285,42 @@ Frontend tipler oluşturulurken backend entity'yle alan adları karşılaştır�
 
 ---
 
+## #009 22 Şubat 2026 - Users role= ve Neighborhoods type= boş param 400 hatası
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Admin / Users + Neighborhoods
+
+**Açıklama:**
+`role=` veya `type=` boş string olarak gönderildiğinde (UI'da filtre temizlenince), `@IsOptional()` decorator'ı NestJS class-validator'da boş string'i `undefined` olarak saymıyor. Bu yüzden `@IsEnum` / `@IsIn` validasyonu devreye girip 400 hatası veriyor.
+
+**Hata Mesajı:**
+```
+role must be one of the following values: user, taxi_driver, ...
+type must be one of the following values: neighborhood, village
+```
+
+**Nihai Çözüm:**
+`@Transform` decorator ile boş string'i `undefined`'a dönüştür:
+```typescript
+@IsOptional()
+@Transform(({ value }) => (value === '' ? undefined : value))
+@IsEnum(UserRole)
+role?: UserRole;
+```
+Hem `query-users.dto.ts` hem `query-neighborhoods.dto.ts`'e uygulandı.
+
+**Önleme:**
+NestJS'de enum/in filter'larda boş string her zaman `@Transform` ile handle edilmeli.
+
+---
+
 ## 📊 İstatistikler
 
-**Toplam Sorun:** 8
-**Çözülmüş:** 5 (62%)
-**Devam Eden:** 1 (13%)
-**Açık:** 2 (25%)
+**Toplam Sorun:** 9
+**Çözülmüş:** 7 (78%)
+**Devam Eden:** 1 (11%)
+**Açık:** 1 (11%)
 
 **En Sık Sorun Kategorileri:**
 1. Database/ORM (2 sorun)

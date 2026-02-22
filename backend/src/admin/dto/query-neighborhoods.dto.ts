@@ -1,4 +1,5 @@
 import { IsOptional, IsString, IsIn, IsBooleanString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class QueryNeighborhoodsDto {
   @IsOptional()
@@ -6,6 +7,7 @@ export class QueryNeighborhoodsDto {
   search?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsIn(['neighborhood', 'village'])
   type?: string;
 
