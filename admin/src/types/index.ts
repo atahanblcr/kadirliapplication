@@ -387,7 +387,7 @@ export interface Campaign {
   views: number;
   code_views: number;
   rejected_reason?: string;
-  created_by: { id: string; username: string; business_name: string };
+  created_by?: { id: string; username: string; business_name: string };
   created_at: string;
   updated_at: string;
 }
@@ -400,6 +400,33 @@ export interface CampaignFilters {
   business_id?: string;
   page?: number;
   limit?: number;
+}
+
+export interface BusinessOption {
+  id: string;
+  business_name: string;
+}
+
+export interface CreateCampaignDto {
+  business_id: string;
+  title: string;
+  description: string;
+  discount_rate: number;
+  code?: string;
+  valid_from: string;
+  valid_until: string;
+  image_ids?: string[];
+}
+
+export interface UpdateCampaignDto {
+  business_id?: string;
+  title?: string;
+  description?: string;
+  discount_rate?: number;
+  code?: string;
+  valid_from?: string;
+  valid_until?: string;
+  image_ids?: string[];
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -511,6 +538,7 @@ export interface IntracityStop {
   neighborhood_name?: string;
   latitude?: number;
   longitude?: number;
+  time_from_start?: number;
   created_at: string;
 }
 

@@ -113,6 +113,7 @@ export function useAddStop() {
       neighborhood_id?: string;
       latitude?: number;
       longitude?: number;
+      time_from_start?: number;
     }) => {
       const { data } = await api.post<ApiResponse<{ stop: IntracityStop }>>(
         `/admin/transport/intracity/${routeId}/stops`,

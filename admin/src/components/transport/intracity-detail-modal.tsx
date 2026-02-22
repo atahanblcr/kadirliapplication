@@ -85,6 +85,12 @@ function SortableStop({ stop, order, onEdit, onDelete }: SortableStopProps) {
         )}
       </div>
 
+      {stop.time_from_start !== undefined && (
+        <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
+          {stop.time_from_start} dk
+        </span>
+      )}
+
       {stop.latitude && stop.longitude && (
         <a
           href={`https://maps.google.com/?q=${stop.latitude},${stop.longitude}`}

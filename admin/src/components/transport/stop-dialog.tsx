@@ -24,12 +24,18 @@ interface StopDialogProps {
 }
 
 export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps) {
-  const [name, setName] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; lat?: string; lng?: string }>({});
+  const [name, setName]                   = useState('');
+  const [latitude, setLatitude]           = useState('');
+  const [longitude, setLongitude]         = useState('');
+  const [timeFromStart, setTimeFromStart] = useState('0');
+  const [errors, setErrors]               = useState<{
+    name?: string;
+    lat?: string;
+    lng?: string;
+    time?: string;
+  }>({});
 
-  const addStop = useAddStop();
+  const addStop    = useAddStop();
   const updateStop = useUpdateStop();
 
   useEffect(() => {
@@ -37,20 +43,24 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
       setName(editStop.name ?? '');
       setLatitude(editStop.latitude !== undefined ? String(editStop.latitude) : '');
       setLongitude(editStop.longitude !== undefined ? String(editStop.longitude) : '');
+      setTimeFromStart(editStop.time_from_start !== undefined ? String(editStop.time_from_start) : '0');
     } else {
       setName('');
       setLatitude('');
       setLongitude('');
+      setTimeFromStart('0');
     }
     setErrors({});
   }, [editStop, open]);
 
   function validate(): boolean {
-    const errs: { name?: string; lat?: string; lng?: string } = {};
+    const errs: typeof errors = {};
     if (!name.trim()) errs.name = 'Durak adı gerekli';
-
     if (latitude && isNaN(parseFloat(latitude))) errs.lat = 'Geçerli enlem girin';
     if (longitude && isNaN(parseFloat(longitude))) errs.lng = 'Geçerli boylam girin';
+
+    const t = parseInt(timeFromStart, 10);
+    if (isNaN(t) || t < 0 || t > 500) errs.time = '0 ile 500 arasında bir değer girin';
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -63,6 +73,7 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
       name: name.trim(),
       latitude: latitude ? parseFloat(latitude) : undefined,
       longitude: longitude ? parseFloat(longitude) : undefined,
+      time_from_start: parseInt(timeFromStart, 10),
     };
 
     try {
@@ -99,6 +110,24 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
               onChange={(e) => setName(e.target.value)}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          </div>
+
+          {/* Başlangıçtan Süre */}
+          <div className="space-y-1">
+            <Label htmlFor="time_from_start">Başlangıçtan İtibaren Süre (Dakika) *</Label>
+            <Input
+              id="time_from_start"
+              type="number"
+              min={0}
+              max={500}
+              placeholder="örn: 15"
+              value={timeFromStart}
+              onChange={(e) => setTimeFromStart(e.target.value)}
+            />
+            {errors.time
+              ? <p className="text-xs text-destructive">{errors.time}</p>
+              : <p className="text-xs text-muted-foreground">İlk durak 0, ikinci durak 5, üçüncü durak 12 gibi...</p>
+            }
           </div>
 
           {/* Konum */}
