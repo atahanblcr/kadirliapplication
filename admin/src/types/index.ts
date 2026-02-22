@@ -296,12 +296,22 @@ export interface AdFilters {
   sort?: string;
 }
 
-export interface AdminApprovalsResponse {
-  pending: {
-    ads: AdListItem[];
-    deaths: unknown[];
-    campaigns: unknown[];
+export interface AdminApprovalItem {
+  type: 'ad' | 'death' | 'campaign';
+  id: string;
+  content: {
+    title: string;
+    user?: { id: string; username: string; phone: string };
   };
+  created_at: string;
+  hours_pending: number;
+}
+
+export interface AdminApprovalsResponse {
+  approvals: AdminApprovalItem[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 // ─── Deaths ────────────────────────────────────────────────────────────────
@@ -312,7 +322,19 @@ export interface Cemetery {
   address?: string;
   latitude?: number;
   longitude?: number;
+  is_active?: boolean;
+  created_at?: string;
 }
+
+export interface CreateCemeteryDto {
+  name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  is_active?: boolean;
+}
+
+export type UpdateCemeteryDto = Partial<CreateCemeteryDto>;
 
 export interface Mosque {
   id: string;
@@ -320,7 +342,19 @@ export interface Mosque {
   address?: string;
   latitude?: number;
   longitude?: number;
+  is_active?: boolean;
+  created_at?: string;
 }
+
+export interface CreateMosqueDto {
+  name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  is_active?: boolean;
+}
+
+export type UpdateMosqueDto = Partial<CreateMosqueDto>;
 
 export interface DeathNotice {
   id: string;

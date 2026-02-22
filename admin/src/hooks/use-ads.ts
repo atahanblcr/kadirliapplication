@@ -28,7 +28,8 @@ export function usePendingAds() {
     queryKey: adKeys.pending(),
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<AdminApprovalsResponse>>('/admin/approvals');
-      return data.data.pending.ads;
+      // Backend: { approvals: [{type:'ad'|'death'|'campaign', ...}], total, page, limit }
+      return (data.data.approvals ?? []).filter((a) => a.type === 'ad') as AdListItem[];
     },
     refetchInterval: 30_000, // otomatik 30 saniyede refresh
   });
@@ -47,9 +48,9 @@ export function useAds(filters: AdFilters = {}) {
       if (filters.sort) params.set('sort', filters.sort);
 
       const { data } = await api.get<
-        ApiResponse<{ ads: AdListItem[] }> & { meta: PaginatedMeta }
+        ApiResponse<{ ads: AdListItem[]; meta: PaginatedMeta }>
       >(`/ads?${params.toString()}`);
-      return { items: data.data.ads, meta: data.meta };
+      return { items: data.data.ads, meta: data.data.meta };
     },
   });
 }
@@ -104,7 +105,7 @@ export function useRejectAd() {
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
       const { data } = await api.post<ApiResponse<{ ad: Ad }>>(
         `/admin/ads/${id}/reject`,
-        { reason },
+        { rejected_reason: reason },
       );
       return data.data.ad;
     },

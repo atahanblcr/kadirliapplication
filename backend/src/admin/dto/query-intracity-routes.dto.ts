@@ -4,6 +4,10 @@ import { Transform, Type } from 'class-transformer';
 export class QueryIntracityRoutesDto {
   @IsOptional()
   @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsString()
   line_number?: string;
 
   @IsOptional()
