@@ -18,6 +18,8 @@ import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 import { QueryNeighborhoodsDto } from './dto/query-neighborhoods.dto';
 import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
 import { UpdateNeighborhoodDto } from './dto/update-neighborhood.dto';
+import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -123,5 +125,31 @@ export class AdminController {
   @Delete('neighborhoods/:id')
   async deleteNeighborhood(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.deleteNeighborhood(id);
+  }
+
+  // ── ADMIN PROFİL ──────────────────────────────────────────────────────────
+
+  // GET /admin/profile
+  @Get('profile')
+  async getProfile(@CurrentUser() user: any) {
+    return this.adminService.getAdminProfile(user.id);
+  }
+
+  // PATCH /admin/profile
+  @Patch('profile')
+  async updateProfile(
+    @CurrentUser() user: any,
+    @Body() dto: UpdateAdminProfileDto,
+  ) {
+    return this.adminService.updateAdminProfile(user.id, dto);
+  }
+
+  // PATCH /admin/change-password
+  @Patch('change-password')
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.adminService.changeAdminPassword(user.id, dto);
   }
 }

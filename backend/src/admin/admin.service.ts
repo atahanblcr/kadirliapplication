@@ -2,7 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { User } from '../database/entities/user.entity';
@@ -90,6 +92,8 @@ import { ReorderPlaceImagesDto } from './dto/reorder-place-images.dto';
 import { Complaint } from '../database/entities/complaint.entity';
 import { QueryComplaintsDto } from './dto/query-complaints.dto';
 import { UpdateComplaintStatusDto } from './dto/update-complaint-status.dto';
+import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AdminService {
@@ -2969,5 +2973,58 @@ export class AdminService {
       resolved_at: c.resolved_at,
       created_at: c.created_at,
     };
+  }
+
+  // ── ADMIN PROFİL ────────────────────────────────────────────────────────────
+
+  async getAdminProfile(adminId: string) {
+    const user = await this.userRepository.findOne({ where: { id: adminId } });
+    if (!user) throw new NotFoundException('Admin bulunamadı');
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    };
+  }
+
+  async updateAdminProfile(adminId: string, dto: UpdateAdminProfileDto) {
+    const user = await this.userRepository.findOne({ where: { id: adminId } });
+    if (!user) throw new NotFoundException('Admin bulunamadı');
+
+    if (dto.username !== undefined) {
+      await this.userRepository.update(adminId, { username: dto.username });
+    }
+
+    const updated = await this.userRepository.findOne({ where: { id: adminId } });
+    return {
+      id: updated!.id,
+      email: updated!.email,
+      username: updated!.username,
+      role: updated!.role,
+    };
+  }
+
+  async changeAdminPassword(adminId: string, dto: ChangePasswordDto) {
+    // password alanı select: false olduğundan queryBuilder ile alıyoruz
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :id', { id: adminId })
+      .getOne();
+
+    if (!user || !user.password) {
+      throw new NotFoundException('Admin bulunamadı');
+    }
+
+    const isValid = await bcrypt.compare(dto.current_password, user.password);
+    if (!isValid) {
+      throw new UnauthorizedException('Mevcut şifre hatalı');
+    }
+
+    const hashed = await bcrypt.hash(dto.new_password, 10);
+    await this.userRepository.update(adminId, { password: hashed });
+
+    return { message: 'Şifre başarıyla değiştirildi' };
   }
 }
