@@ -695,3 +695,89 @@ export interface EventFilters {
   page?: number;
   limit?: number;
 }
+
+// ── REHBER ───────────────────────────────────────────────────────────────────
+
+export interface GuideCategory {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id: string | null;
+  parent: { id: string; name: string } | null;
+  children: GuideCategoryChild[];
+  icon: string | null;
+  color: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface GuideCategoryChild {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+  color: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface GuideItem {
+  id: string;
+  category_id: string;
+  category: {
+    id: string;
+    name: string;
+    parent: { id: string; name: string } | null;
+  } | null;
+  name: string;
+  phone: string;
+  address: string | null;
+  email: string | null;
+  website_url: string | null;
+  working_hours: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  logo_file_id: string | null;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GuideItemFilters {
+  search?: string;
+  category_id?: string;
+  is_active?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateGuideCategoryDto {
+  name: string;
+  parent_id?: string;
+  icon?: string;
+  color?: string;
+  display_order?: number;
+  is_active?: boolean;
+}
+
+export interface UpdateGuideCategoryDto extends Partial<CreateGuideCategoryDto> {}
+
+export interface CreateGuideItemDto {
+  category_id: string;
+  name: string;
+  phone: string;
+  address?: string;
+  email?: string;
+  website_url?: string;
+  working_hours?: string;
+  latitude?: number;
+  longitude?: number;
+  logo_file_id?: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateGuideItemDto extends Partial<CreateGuideItemDto> {}

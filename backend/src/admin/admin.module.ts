@@ -21,6 +21,7 @@ import {
 import { TaxiDriver } from '../database/entities/taxi-driver.entity';
 import { Event, EventImage } from '../database/entities/event.entity';
 import { EventCategory } from '../database/entities/event-category.entity';
+import { GuideCategory, GuideItem } from '../database/entities/guide.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { CampaignAdminController } from './campaign-admin.controller';
@@ -30,6 +31,7 @@ import { TransportAdminController } from './transport-admin.controller';
 import { DeathsAdminController } from './deaths-admin.controller';
 import { TaxiAdminController } from './taxi-admin.controller';
 import { EventAdminController } from './event-admin.controller';
+import { GuideAdminController } from './guide-admin.controller';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { EventAdminController } from './event-admin.controller';
       Event,
       EventImage,
       EventCategory,
+      GuideCategory,
+      GuideItem,
     ]),
   ],
   controllers: [
@@ -69,6 +73,7 @@ import { EventAdminController } from './event-admin.controller';
     DeathsAdminController,
     TaxiAdminController,
     EventAdminController,
+    GuideAdminController,
   ],
   providers: [AdminService],
 })
