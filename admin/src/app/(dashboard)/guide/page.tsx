@@ -587,11 +587,17 @@ function ItemRow({ item, onEdit, onDelete }: ItemRowProps) {
     <TableRow>
       <TableCell>
         <div className="font-medium">{item.name}</div>
-        {item.address && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+        {item.latitude != null && item.longitude != null && (
+          <a
+            href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-xs text-primary hover:underline mt-0.5"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MapPin className="h-3 w-3" />
-            <span className="truncate max-w-[200px]">{item.address}</span>
-          </div>
+            Konumu gör
+          </a>
         )}
       </TableCell>
       <TableCell>

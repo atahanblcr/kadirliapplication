@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MapPin, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -36,7 +36,8 @@ const EMPTY_FORM = {
   category_id: '',
   name: '',
   phone: '',
-  address: '',
+  latitude: '',
+  longitude: '',
   email: '',
   website_url: '',
   working_hours: '',
@@ -59,7 +60,8 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
           category_id: editing.category_id,
           name: editing.name,
           phone: editing.phone,
-          address: editing.address ?? '',
+          latitude: editing.latitude != null ? String(editing.latitude) : '',
+          longitude: editing.longitude != null ? String(editing.longitude) : '',
           email: editing.email ?? '',
           website_url: editing.website_url ?? '',
           working_hours: editing.working_hours ?? '',
@@ -72,16 +74,12 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
     }
   }, [open, editing, defaultCategoryId]);
 
-  // Düz kategori listesi (kök + alt)
-  const flatCategories = categories.flatMap((cat: GuideCategory) => [
-    cat,
-    ...cat.children,
-  ]);
-
   const validate = () => {
     if (!form.category_id) return 'Kategori seçiniz';
     if (!form.name.trim()) return 'İsim zorunludur';
     if (!form.phone.trim()) return 'Telefon zorunludur';
+    if (form.latitude && isNaN(parseFloat(form.latitude))) return 'Geçersiz enlem';
+    if (form.longitude && isNaN(parseFloat(form.longitude))) return 'Geçersiz boylam';
     return null;
   };
 
@@ -94,7 +92,8 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
       category_id: form.category_id,
       name: form.name.trim(),
       phone: form.phone.trim(),
-      address: form.address.trim() || undefined,
+      latitude: form.latitude ? parseFloat(form.latitude) : undefined,
+      longitude: form.longitude ? parseFloat(form.longitude) : undefined,
       email: form.email.trim() || undefined,
       website_url: form.website_url.trim() || undefined,
       working_hours: form.working_hours.trim() || undefined,
@@ -113,6 +112,12 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
       // Hook içinde toast gösterildi
     }
   };
+
+  // Google Maps önizleme linki
+  const mapsPreviewUrl =
+    form.latitude && form.longitude
+      ? `https://www.google.com/maps?q=${form.latitude},${form.longitude}`
+      : null;
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -140,21 +145,13 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
               <SelectContent>
                 {categories.map((cat: GuideCategory) => (
                   <div key={cat.id}>
-                    {/* Kök kategori (grup başlığı görevi) */}
                     {cat.children.length > 0 ? (
                       <>
-                        <SelectItem
-                          value={cat.id}
-                          className="font-semibold"
-                        >
+                        <SelectItem value={cat.id} className="font-semibold">
                           {cat.icon ? `${cat.icon} ` : ''}{cat.name}
                         </SelectItem>
                         {cat.children.map((child) => (
-                          <SelectItem
-                            key={child.id}
-                            value={child.id}
-                            className="pl-6"
-                          >
+                          <SelectItem key={child.id} value={child.id} className="pl-6">
                             └ {child.name}
                           </SelectItem>
                         ))}
@@ -201,19 +198,63 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
 
           <Separator />
 
-          {/* Adres */}
-          <div className="space-y-1.5">
-            <Label htmlFor="address">Adres</Label>
-            <Textarea
-              id="address"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              placeholder="Cadde, mahalle, ilçe..."
-              rows={2}
-            />
+          {/* Konum (Koordinat) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                Konum (Koordinat)
+              </Label>
+              {mapsPreviewUrl && (
+                <a
+                  href={mapsPreviewUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Haritada gör
+                </a>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="latitude" className="text-xs text-muted-foreground">
+                  Enlem (Latitude)
+                </Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  value={form.latitude}
+                  onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+                  placeholder="37.3783"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="longitude" className="text-xs text-muted-foreground">
+                  Boylam (Longitude)
+                </Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  value={form.longitude}
+                  onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+                  placeholder="36.2156"
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Google Maps'te yeri bul → sağ tıkla → koordinatları kopyala
+            </p>
           </div>
 
-          {/* E-posta + Çalışma Saati (yan yana) */}
+          <Separator />
+
+          {/* E-posta + Çalışma Saati */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="email">E-posta</Label>
@@ -230,9 +271,7 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
               <Input
                 id="working_hours"
                 value={form.working_hours}
-                onChange={(e) =>
-                  setForm({ ...form, working_hours: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, working_hours: e.target.value })}
                 placeholder="08:00 - 17:00"
               />
             </div>
@@ -245,22 +284,18 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
               id="website_url"
               type="url"
               value={form.website_url}
-              onChange={(e) =>
-                setForm({ ...form, website_url: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, website_url: e.target.value })}
               placeholder="https://www.ornek.com"
             />
           </div>
 
-          {/* Açıklama (plain text) */}
+          {/* Açıklama */}
           <div className="space-y-1.5">
             <Label htmlFor="description">Açıklama</Label>
             <Textarea
               id="description"
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Kısa açıklama..."
               rows={3}
               maxLength={2000}
