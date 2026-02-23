@@ -1,7 +1,7 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 20 Şubat 2026 (rapor için son kontrol)
+**Son Güncelleme:** 23 Şubat 2026
 
 ---
 
@@ -16,6 +16,19 @@ Deployment:   [░░░░░░░░░░]   0% (Başlanmadı)
 ```
 
 **Toplam İlerleme:** ~80% (Backend 100%, Admin Panel %95)
+
+### Campaign Quick-Add Business (23 Şubat 2026) ✅
+- ✅ Migration: `businesses.user_id` nullable yapıldı (NOT NULL kaldırıldı)
+- ✅ Business entity: `user_id: string | null` + nullable OneToOne relation
+- ✅ Backend: `POST /admin/campaigns/businesses` (user olmadan işletme oluştur)
+- ✅ Backend: `GET /admin/campaigns/businesses/categories` (kategori dropdown)
+- ✅ BusinessCategory admin.module.ts ve admin.service.ts'e eklendi
+- ✅ Frontend types: `BusinessCategory`, `CreateAdminBusinessDto` eklendi
+- ✅ Frontend hooks: `useCreateBusiness` + `useBusinessCategories` eklendi
+- ✅ `quick-add-business-dialog.tsx` bileşeni oluşturuldu (4 alan: ad, kategori, telefon, adres)
+- ✅ `campaign-form-dialog.tsx` - işletme select yanına [+] butonu eklendi (nested dialog)
+- ✅ Yeni işletme oluşturulunca otomatik seçilir + dropdown yenilenir
+- NOT: DB migration manuel çalıştırıldı (`ALTER TABLE businesses ALTER COLUMN user_id DROP NOT NULL`)
 
 ### Ulaşım (Transport) Admin Panel Modülü (22 Şubat 2026) ✅
 - ✅ Backend migration: 11 yeni kolon (company_name, from_city, contact_phone, contact_website, amenities, days_of_week, color, fare, neighborhood_id, latitude, longitude)
@@ -383,3 +396,7 @@ Mart 15-21:  Flutter App Tüm Modüller
 Mart 22-28:  Testing + Bug Fixing
 Mart 29+:    Deployment
 ```
+
+
+
+
