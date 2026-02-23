@@ -1,11 +1,26 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 20:00
-**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül) — Backend testleri ⚠️ (39 fail)
+**Son Güncelleme:** 24 Şubat 2026 21:00
+**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül + Complaints + Settings) — Backend testleri ⚠️ (39 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
+
+### Commit: feat: implement Settings page with theme and profile management
+- **Commit ID:** 948ebde
+- **Tarih:** 24 Şubat 2026
+- **Yapılanlar:**
+  - **Backend DTOs:** update-admin-profile.dto.ts + change-password.dto.ts
+  - **Backend service:** getAdminProfile, updateAdminProfile, changeAdminPassword (bcrypt verify)
+  - **Backend controller:** GET/PATCH /admin/profile + PATCH /admin/change-password
+  - **Frontend providers:** ThemeProvider eklendi (next-themes)
+  - **Frontend layout:** suppressHydrationWarning → html tag
+  - **Frontend hooks:** use-settings.ts (useAdminProfile, useUpdateAdminProfile, useChangePassword)
+  - **Frontend page:** 5-tab settings (Genel/Bildirimler/API Keys/Görünüm/Profil)
+  - Tema değişimi: Light/Dark, next-themes ile gerçek CSS class toggle
+  - Bildirim ayarları: localStorage persist
+  - Şifre değişimi: bcrypt verify + logout after success
 
 ### Commit: feat: implement Complaints admin module with review workflow
 - **Commit ID:** c41caf0
