@@ -18,12 +18,12 @@ export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', unique: true })
-  user_id: string;
+  @Column({ type: 'uuid', unique: true, nullable: true })
+  user_id: string | null;
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User | null;
 
   @Column({ type: 'varchar', length: 150 })
   business_name: string;

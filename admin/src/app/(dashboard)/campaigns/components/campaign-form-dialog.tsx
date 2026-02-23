@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Loader2, Upload, X, ImageIcon } from 'lucide-react';
+import { Loader2, Upload, X, ImageIcon, Plus } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -24,6 +24,7 @@ import {
   useCreateCampaign,
   useUpdateCampaign,
 } from '@/hooks/use-campaigns';
+import { QuickAddBusinessDialog } from './quick-add-business-dialog';
 import { resolveFileUrl } from '@/lib/death-utils';
 import { toast } from '@/hooks/use-toast';
 import api from '@/lib/api';
@@ -65,6 +66,7 @@ export function CampaignFormDialog({ open, onClose, campaign }: CampaignFormDial
   const [images, setImages] = useState<ImageSlot[]>([]);
   const [imagesModified, setImagesModified] = useState(false);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: businesses = [] } = useBusinesses();
@@ -201,22 +203,42 @@ export function CampaignFormDialog({ open, onClose, campaign }: CampaignFormDial
             <Label>
               İşletme <span className="text-destructive">*</span>
             </Label>
-            <Select
-              value={form.business_id || undefined}
-              onValueChange={(v) => set('business_id', v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="İşletme seçin..." />
-              </SelectTrigger>
-              <SelectContent>
-                {businesses.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    {b.business_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select
+                value={form.business_id || undefined}
+                onValueChange={(v) => set('business_id', v)}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="İşletme seçin..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {businesses.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.business_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                title="Yeni İşletme Ekle"
+                onClick={() => setQuickAddOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
+          <QuickAddBusinessDialog
+            open={quickAddOpen}
+            onClose={() => setQuickAddOpen(false)}
+            onCreated={(id) => {
+              set('business_id', id);
+              setQuickAddOpen(false);
+            }}
+          />
 
           {/* Başlık */}
           <div className="space-y-1.5">

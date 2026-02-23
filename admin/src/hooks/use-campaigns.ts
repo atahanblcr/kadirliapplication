@@ -9,6 +9,8 @@ import type {
   CampaignFilters,
   PaginatedMeta,
   BusinessOption,
+  BusinessCategory,
+  CreateAdminBusinessDto,
   CreateCampaignDto,
   UpdateCampaignDto,
 } from '@/types';
@@ -19,6 +21,7 @@ export const campaignKeys = {
   lists: () => [...campaignKeys.all, 'list'] as const,
   list: (filters: CampaignFilters) => [...campaignKeys.lists(), filters] as const,
   businesses: () => [...campaignKeys.all, 'businesses'] as const,
+  businessCategories: () => [...campaignKeys.all, 'business-categories'] as const,
 };
 
 // ─── Campaigns List ───────────────────────────────────────────────────────────
@@ -52,6 +55,41 @@ export function useBusinesses() {
       return data.data.businesses;
     },
     staleTime: 5 * 60 * 1000, // 5 dakika
+  });
+}
+
+// ─── Business Categories (for quick-add form) ────────────────────────────────
+export function useBusinessCategories() {
+  return useQuery({
+    queryKey: campaignKeys.businessCategories(),
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<{ categories: BusinessCategory[] }>>(
+        '/admin/campaigns/businesses/categories',
+      );
+      return data.data.categories;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ─── Create Business (quick-add) ─────────────────────────────────────────────
+export function useCreateBusiness() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateAdminBusinessDto) => {
+      const { data } = await api.post<ApiResponse<{ id: string; business_name: string }>>(
+        '/admin/campaigns/businesses',
+        dto,
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: campaignKeys.businesses() });
+      toast({ title: 'İşletme oluşturuldu.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'İşletme oluşturulamadı.', variant: 'destructive' });
+    },
   });
 }
 

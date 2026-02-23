@@ -14,6 +14,7 @@ import { AdminService } from './admin.service';
 import { QueryAdminCampaignsDto } from './dto/query-admin-campaigns.dto';
 import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
 import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
+import { CreateAdminBusinessDto } from './dto/create-admin-business.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -30,6 +31,18 @@ export class CampaignAdminController {
   @Get('businesses')
   async getAdminBusinesses() {
     return this.adminService.getAdminBusinesses();
+  }
+
+  // GET /admin/campaigns/businesses/categories
+  @Get('businesses/categories')
+  async getBusinessCategories() {
+    return this.adminService.getBusinessCategories();
+  }
+
+  // POST /admin/campaigns/businesses
+  @Post('businesses')
+  async createAdminBusiness(@Body() dto: CreateAdminBusinessDto) {
+    return this.adminService.createAdminBusiness(dto);
   }
 
   // GET /admin/campaigns

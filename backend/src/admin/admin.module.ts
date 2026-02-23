@@ -6,6 +6,7 @@ import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Business } from '../database/entities/business.entity';
+import { BusinessCategory } from '../database/entities/business-category.entity';
 import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
@@ -37,6 +38,7 @@ import { DeathsAdminController } from './deaths-admin.controller';
       Campaign,
       CampaignImage,
       Business,
+      BusinessCategory,
       FileEntity,
       Announcement,
       Notification,

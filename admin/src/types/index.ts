@@ -441,6 +441,18 @@ export interface BusinessOption {
   business_name: string;
 }
 
+export interface BusinessCategory {
+  id: string;
+  name: string;
+}
+
+export interface CreateAdminBusinessDto {
+  business_name: string;
+  category_id?: string;
+  phone: string;
+  address: string;
+}
+
 export interface CreateCampaignDto {
   business_id: string;
   title: string;

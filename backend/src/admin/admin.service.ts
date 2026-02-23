@@ -11,6 +11,7 @@ import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Business } from '../database/entities/business.entity';
+import { BusinessCategory } from '../database/entities/business-category.entity';
 import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
@@ -49,6 +50,7 @@ import { UpdateDeathDto } from './dto/update-death.dto';
 import { QueryDeathsDto } from './dto/query-deaths.dto';
 import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
 import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
+import { CreateAdminBusinessDto } from './dto/create-admin-business.dto';
 import { CreateCemeteryDto } from './dto/create-cemetery.dto';
 import { UpdateCemeteryDto } from './dto/update-cemetery.dto';
 import { CreateMosqueDto } from './dto/create-mosque.dto';
@@ -94,6 +96,8 @@ export class AdminService {
     private readonly neighborhoodRepository: Repository<Neighborhood>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(BusinessCategory)
+    private readonly businessCategoryRepository: Repository<BusinessCategory>,
     @InjectRepository(CampaignImage)
     private readonly campaignImageRepository: Repository<CampaignImage>,
     @InjectRepository(FileEntity)
@@ -686,6 +690,26 @@ export class AdminService {
       order: { business_name: 'ASC' },
     });
     return { businesses };
+  }
+
+  async getBusinessCategories() {
+    const categories = await this.businessCategoryRepository.find({
+      where: { is_active: true },
+      select: ['id', 'name'],
+      order: { display_order: 'ASC', name: 'ASC' },
+    });
+    return { categories };
+  }
+
+  async createAdminBusiness(dto: CreateAdminBusinessDto) {
+    const business = new Business();
+    business.business_name = dto.business_name;
+    if (dto.category_id) business.category_id = dto.category_id;
+    business.phone = dto.phone;
+    business.address = dto.address;
+    business.user_id = null;
+    const saved = await this.businessRepository.save(business);
+    return { id: saved.id, business_name: saved.business_name };
   }
 
   // ── CAMPAIGN: DETAY ───────────────────────────────────────────────────────
