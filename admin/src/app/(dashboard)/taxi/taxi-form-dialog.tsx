@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useCreateTaxiDriver, useUpdateTaxiDriver } from '@/hooks/use-taxi';
 import type { TaxiDriver } from '@/types';
 
@@ -24,7 +24,6 @@ interface Props {
 }
 
 export function TaxiFormDialog({ open, onClose, editing }: Props) {
-  const { toast } = useToast();
   const createMutation = useCreateTaxiDriver();
   const updateMutation = useUpdateTaxiDriver();
 

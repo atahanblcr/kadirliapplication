@@ -48,14 +48,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useTaxiDrivers, useDeleteTaxiDriver } from '@/hooks/use-taxi';
 import { TaxiFormDialog } from './taxi-form-dialog';
 import type { TaxiDriver, TaxiFilters } from '@/types';
 
 export default function TaxiPage() {
-  const { toast } = useToast();
-
   const [filters, setFilters] = useState<TaxiFilters>({
     page: 1,
     limit: 20,
