@@ -7,7 +7,16 @@
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
 
-### Commit: feat: implement Guide admin module with hierarchical categories
+### Commit: fix: replace address field with coordinates in Guide item form
+- **Commit ID:** 0e75736
+- **Tarih:** 24 Şubat 2026
+- **Yapılanlar:**
+  - guide-item-form: adres textarea → lat/lng input (koordinat girişi)
+  - Koordinat girilince "Haritada gör" Google Maps önizleme linki çıkıyor
+  - Tablo satırında adres yerine "Konumu gör" Maps linki
+  - address DB alanı korundu, formdan sadece kaldırıldı
+
+### Önceki: feat: implement Guide admin module with hierarchical categories
 - **Commit ID:** f92e933
 - **Tarih:** 24 Şubat 2026
 - **Yapılanlar:**
@@ -15,7 +24,6 @@
   - **Frontend:** types, use-guide.ts hook, GuideCategoryForm, GuideItemForm, page.tsx (2 tab)
   - Max 2 seviye hiyerarşi + circular reference koruması
   - Alt kategori / item olan kategori silme engeli
-  - TypeScript hatasız (backend prod + frontend)
 
 ### Önceki: feat: add database seeder and email/password migration
 - **Commit ID:** f0fa516
