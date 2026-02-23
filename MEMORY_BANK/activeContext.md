@@ -1,13 +1,22 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 16:00
+**Son Güncelleme:** 24 Şubat 2026 18:30
 **Durum:** ✅ Admin Panel 100% tamamlandı — Backend testleri ⚠️ (39 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
 
-### Commit: fix: replace address field with coordinates in Guide item form
+### Commit: feat: implement Places admin module with image management
+- **Commit ID:** 30f18b4
+- **Tarih:** 24 Şubat 2026
+- **Yapılanlar:**
+  - **Backend:** 7 DTO + places-admin.controller.ts (12 endpoint) + AdminService'e places metodları
+  - **Frontend:** types, use-places.ts hook, PlaceCategoryForm, PlaceFormDialog, PlaceImagesDialog, page.tsx
+  - Koordinat zorunlu (lat/lng), cover image upload, dnd-kit drag-drop gallery
+  - Kategori CRUD, Mekan CRUD, Fotoğraf ekle/sil/kapak-yap/sırala
+
+### Önceki: fix: replace address field with coordinates in Guide item form
 - **Commit ID:** 0e75736
 - **Tarih:** 24 Şubat 2026
 - **Yapılanlar:**
@@ -93,6 +102,12 @@ GET/POST/PATCH/DELETE /admin/taxi
 GET/POST/PATCH/DELETE /admin/events (+ /categories)
 GET/POST/PATCH/DELETE /admin/guide/categories
 GET/POST/PATCH/DELETE /admin/guide/items
+GET/POST/PATCH/DELETE /admin/places/categories
+GET/POST/PATCH/DELETE /admin/places (+ /:id)
+POST /admin/places/:id/images
+DELETE /admin/places/images/:imageId
+PATCH /admin/places/images/:imageId/set-cover
+PATCH /admin/places/:id/images/reorder
 GET /admin/scrapers/logs
 POST /admin/scrapers/:name/run
 ```

@@ -52,6 +52,7 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 | Taxi | CRUD + RANDOM() sıralama | 23 Şub |
 | Events | City scope filter + CRUD | 24 Şub |
 | **Guide** | **Hiyerarşik kategoriler + CRUD** | **24 Şub** |
+| **Places** | **Kategoriler + CRUD + Fotoğraf yönetimi (dnd-kit)** | **24 Şub** |
 
 ### Phase 5: Bug Fixing ✅ (22 Şubat 2026)
 
@@ -132,6 +133,7 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 ✅ Taxi               - RANDOM() sıralama
 ✅ Events             - City scope filtering
 ✅ Guide              - Hiyerarşik kategoriler + CRUD (24 Şub)
+✅ Places             - Kategoriler + CRUD + Fotoğraf yönetimi (24 Şub)
 ✅ Jobs               - Oluşturuldu
 ✅ Places             - Oluşturuldu
 ✅ Scrapers           - Logs + Run
