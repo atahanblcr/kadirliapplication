@@ -27,6 +27,7 @@ import {
   PlaceCategory,
   PlaceImage,
 } from '../database/entities/place.entity';
+import { Complaint } from '../database/entities/complaint.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { CampaignAdminController } from './campaign-admin.controller';
@@ -38,6 +39,7 @@ import { TaxiAdminController } from './taxi-admin.controller';
 import { EventAdminController } from './event-admin.controller';
 import { GuideAdminController } from './guide-admin.controller';
 import { PlacesAdminController } from './places-admin.controller';
+import { ComplaintsAdminController } from './complaints-admin.controller';
 
 @Module({
   imports: [
@@ -71,6 +73,7 @@ import { PlacesAdminController } from './places-admin.controller';
       PlaceCategory,
       Place,
       PlaceImage,
+      Complaint,
     ]),
   ],
   controllers: [
@@ -84,6 +87,7 @@ import { PlacesAdminController } from './places-admin.controller';
     EventAdminController,
     GuideAdminController,
     PlacesAdminController,
+    ComplaintsAdminController,
   ],
   providers: [AdminService],
 })

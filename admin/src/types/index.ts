@@ -860,3 +860,51 @@ export interface CreatePlaceDto {
 }
 
 export interface UpdatePlaceDto extends Partial<CreatePlaceDto> {}
+
+// ─── Complaints ───────────────────────────────────────────────────────────────
+
+export type ComplaintStatus = 'pending' | 'reviewing' | 'resolved' | 'rejected';
+export type ComplaintPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type ComplaintTargetType = 'ad' | 'announcement' | 'campaign' | 'user' | 'death' | 'other';
+export type ComplaintReason = 'spam' | 'inappropriate' | 'false_info' | 'harassment' | 'other';
+
+export interface Complaint {
+  id: string;
+  type: string;
+  target_type: ComplaintTargetType | null;
+  target_id: string | null;
+  subject: string | null;
+  message: string;
+  reason: ComplaintReason | null;
+  priority: ComplaintPriority;
+  evidence_file_ids: string[];
+  status: ComplaintStatus;
+  admin_notes: string | null;
+  reporter: {
+    id: string;
+    full_name: string;
+    phone: string;
+  } | null;
+  reviewer: {
+    id: string;
+    full_name: string;
+  } | null;
+  resolver: {
+    id: string;
+    full_name: string;
+  } | null;
+  reviewed_at: string | null;
+  resolved_at: string | null;
+  created_at: string;
+}
+
+export interface ComplaintFilters {
+  status?: ComplaintStatus;
+  priority?: ComplaintPriority;
+  target_type?: ComplaintTargetType;
+  reporter_id?: string;
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  limit?: number;
+}
