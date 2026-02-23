@@ -19,6 +19,8 @@ import {
   IntracityStop,
 } from '../database/entities/transport.entity';
 import { TaxiDriver } from '../database/entities/taxi-driver.entity';
+import { Event, EventImage } from '../database/entities/event.entity';
+import { EventCategory } from '../database/entities/event-category.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { CampaignAdminController } from './campaign-admin.controller';
@@ -27,6 +29,7 @@ import { PharmacyAdminController } from './pharmacy-admin.controller';
 import { TransportAdminController } from './transport-admin.controller';
 import { DeathsAdminController } from './deaths-admin.controller';
 import { TaxiAdminController } from './taxi-admin.controller';
+import { EventAdminController } from './event-admin.controller';
 
 @Module({
   imports: [
@@ -52,6 +55,9 @@ import { TaxiAdminController } from './taxi-admin.controller';
       IntracityRoute,
       IntracityStop,
       TaxiDriver,
+      Event,
+      EventImage,
+      EventCategory,
     ]),
   ],
   controllers: [
@@ -62,6 +68,7 @@ import { TaxiAdminController } from './taxi-admin.controller';
     TransportAdminController,
     DeathsAdminController,
     TaxiAdminController,
+    EventAdminController,
   ],
   providers: [AdminService],
 })

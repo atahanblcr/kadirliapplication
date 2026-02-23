@@ -44,4 +44,12 @@ export class QueryEventDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   is_free?: boolean;
+
+  // Şehir içi (true) veya şehir dışı (false) filtresi
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : undefined,
+  )
+  @IsBoolean()
+  is_local?: boolean;
 }

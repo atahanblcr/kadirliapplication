@@ -84,6 +84,10 @@ export class Event {
   @JoinColumn({ name: 'cover_image_id' })
   cover_image: FileEntity;
 
+  // Şehir içi (true) veya şehir dışı (false) etkinlik
+  @Column({ type: 'boolean', default: true })
+  is_local: boolean;
+
   @Column({ type: 'boolean', default: false })
   is_recurring: boolean;
 

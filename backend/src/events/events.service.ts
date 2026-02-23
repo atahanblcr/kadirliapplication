@@ -64,6 +64,7 @@ export class EventsService {
       start_date,
       end_date,
       is_free,
+      is_local,
     } = dto;
 
     const today = new Date().toISOString().slice(0, 10);
@@ -94,6 +95,10 @@ export class EventsService {
 
     if (is_free !== undefined) {
       qb.andWhere('e.is_free = :is_free', { is_free });
+    }
+
+    if (is_local !== undefined) {
+      qb.andWhere('e.is_local = :is_local', { is_local });
     }
 
     qb.orderBy('e.event_date', 'ASC')

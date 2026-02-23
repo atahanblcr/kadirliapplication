@@ -10,7 +10,7 @@
 **Status:** Backend + Frontend + API test + Docker rebuild tamamen bitti
 **Son Kontrol:** 23 Şubat 2026
 
-### Admin Panel İlerleme (%97 - 11 modül tamamlandı)
+### Admin Panel İlerleme (%99 - 12 modül tamamlandı)
 - ✅ Next.js 14 projesi (App Router + TypeScript + Tailwind CSS)
 - ✅ shadcn/ui bileşenler (alert-dialog, alert, badge, button, card, dialog, dropdown-menu, input, label, popover, scroll-area, select, separator, sheet, skeleton, switch, table, tabs, textarea, tooltip) — `@/components/ui/form` YOK
 - ✅ Temel layout: Collapsible sidebar + Topbar
@@ -27,13 +27,13 @@
 - ✅ **Ulaşım (Transport) modülü TAMAMLANDI** (Backend + Frontend + @dnd-kit)
 - ✅ **Mahalleler (Neighborhoods) modülü TAMAMLANDI**
 - ✅ **Taksi (Taxi) modülü TAMAMLANDI** (Backend + Frontend + RANDOM ordering)
+- ✅ **Etkinlikler (Events) modülü TAMAMLANDI** (Backend + Frontend + is_local filtresi)
 
 ### ➡️ Sonraki Adım: Kullanıcı onayı bekleniyor
 
 Olası sıradaki modüller (belirlenmeli):
 - Rehber (Guide) Admin Panel
 - Mekanlar (Places) Admin Panel
-- Etkinlikler (Events) Admin Panel
 - Şikayetler (Complaints) Admin Panel
 - Scraper Logs Admin Panel
 

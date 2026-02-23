@@ -635,3 +635,63 @@ export interface TaxiFilters {
   page?: number;
   limit?: number;
 }
+
+// ─── Events Types ─────────────────────────────────────────────────────────────
+
+export interface EventCategory {
+  id: string;
+  name: string;
+  icon: string | null;
+  slug: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AdminEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  category_id: string | null;
+  category: { id: string; name: string; icon: string | null } | null;
+  event_date: string;
+  event_time: string;
+  duration_minutes: number | null;
+  venue_name: string | null;
+  venue_address: string | null;
+  is_local: boolean;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  organizer: string | null;
+  ticket_price: number | null;
+  is_free: boolean;
+  age_restriction: string | null;
+  capacity: number | null;
+  website_url: string | null;
+  ticket_url: string | null;
+  cover_image_id: string | null;
+  cover_image_url: string | null;
+  status: 'draft' | 'published' | 'cancelled' | 'archived';
+  images: EventImage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventImage {
+  id: string;
+  file_id: string;
+  url: string | null;
+  display_order: number;
+}
+
+export interface EventFilters {
+  search?: string;
+  category_id?: string;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  is_local?: boolean;
+  page?: number;
+  limit?: number;
+}
