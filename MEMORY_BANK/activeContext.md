@@ -1,13 +1,27 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 18:30
-**Durum:** ✅ Admin Panel 100% tamamlandı — Backend testleri ⚠️ (39 fail)
+**Son Güncelleme:** 24 Şubat 2026 20:00
+**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül) — Backend testleri ⚠️ (39 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
 
-### Commit: feat: implement Places admin module with image management
+### Commit: feat: implement Complaints admin module with review workflow
+- **Commit ID:** c41caf0
+- **Tarih:** 24 Şubat 2026
+- **Yapılanlar:**
+  - **Backend entity:** complaint.entity.ts → priority, reason, evidence_file_ids, reviewed_by/reviewed_at eklendi
+  - **Backend DTOs:** query-complaints.dto.ts + update-complaint-status.dto.ts
+  - **Backend controller:** complaints-admin.controller.ts (5 endpoint: GET list, GET detail, PATCH review/resolve/reject/priority)
+  - **Backend service:** 6 metot + mapComplaint (getComplaints, getComplaintById, reviewComplaint, resolveComplaint, rejectComplaint, updateComplaintPriority)
+  - **Admin module:** Complaint entity + ComplaintsAdminController kayıtlı
+  - **Frontend types:** Complaint, ComplaintFilters, ComplaintStatus/Priority/TargetType/Reason union types
+  - **Frontend hooks:** 6 hook (list, detail, review, resolve, reject, priority)
+  - **Frontend bileşenler:** complaint-detail-modal.tsx (3 section), complaint-resolve-dialog.tsx, complaint-reject-dialog.tsx
+  - **Frontend page:** tab filtreler, öncelik/tip filtreleri, tablo, urgent kırmızı highlight, pagination
+
+### Önceki: feat: implement Places admin module with image management
 - **Commit ID:** 30f18b4
 - **Tarih:** 24 Şubat 2026
 - **Yapılanlar:**
@@ -104,6 +118,12 @@ GET/POST/PATCH/DELETE /admin/guide/categories
 GET/POST/PATCH/DELETE /admin/guide/items
 GET/POST/PATCH/DELETE /admin/places/categories
 GET/POST/PATCH/DELETE /admin/places (+ /:id)
+GET /admin/complaints (filters: status, priority, target_type, reporter_id, date_range)
+GET /admin/complaints/:id
+PATCH /admin/complaints/:id/review
+PATCH /admin/complaints/:id/resolve
+PATCH /admin/complaints/:id/reject
+PATCH /admin/complaints/:id/priority
 POST /admin/places/:id/images
 DELETE /admin/places/images/:imageId
 PATCH /admin/places/images/:imageId/set-cover
