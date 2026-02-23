@@ -781,3 +781,82 @@ export interface CreateGuideItemDto {
 }
 
 export interface UpdateGuideItemDto extends Partial<CreateGuideItemDto> {}
+
+// ─── Places ───────────────────────────────────────────────────────────────────
+
+export interface PlaceCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PlaceImage {
+  id: string;
+  file_id: string;
+  url: string | null;
+  display_order: number;
+}
+
+export interface Place {
+  id: string;
+  category_id: string | null;
+  category: { id: string; name: string; icon: string | null } | null;
+  name: string;
+  description: string | null;
+  address: string | null;
+  latitude: number;
+  longitude: number;
+  entrance_fee: number | null;
+  is_free: boolean;
+  opening_hours: string | null;
+  best_season: string | null;
+  how_to_get_there: string | null;
+  distance_from_center: number | null;
+  cover_image_id: string | null;
+  cover_image_url: string | null;
+  is_active: boolean;
+  images: PlaceImage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlaceFilters {
+  search?: string;
+  category_id?: string;
+  is_active?: boolean;
+  is_free?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreatePlaceCategoryDto {
+  name: string;
+  icon?: string;
+  display_order?: number;
+  is_active?: boolean;
+}
+
+export interface UpdatePlaceCategoryDto extends Partial<CreatePlaceCategoryDto> {}
+
+export interface CreatePlaceDto {
+  category_id?: string;
+  name: string;
+  description?: string;
+  address?: string;
+  latitude: number;
+  longitude: number;
+  entrance_fee?: number;
+  is_free?: boolean;
+  opening_hours?: string;
+  best_season?: string;
+  how_to_get_there?: string;
+  distance_from_center?: number;
+  cover_image_id?: string;
+  is_active?: boolean;
+}
+
+export interface UpdatePlaceDto extends Partial<CreatePlaceDto> {}
