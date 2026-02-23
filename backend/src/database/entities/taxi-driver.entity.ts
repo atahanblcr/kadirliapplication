@@ -18,8 +18,8 @@ export class TaxiDriver {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', unique: true })
-  user_id: string;
+  @Column({ type: 'uuid', unique: true, nullable: true })
+  user_id: string | null;
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

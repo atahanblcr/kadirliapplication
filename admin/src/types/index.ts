@@ -609,3 +609,29 @@ export interface IntracityFilters {
   page?: number;
   limit?: number;
 }
+
+// ─── Taxi ─────────────────────────────────────────────────────────────────────
+
+export interface TaxiDriver {
+  id: string;
+  name: string;
+  phone: string;
+  plaka: string | null;
+  vehicle_info: string | null;
+  registration_file_id: string | null;
+  registration_file_url: string | null;
+  license_file_id: string | null;
+  is_verified: boolean;
+  is_active: boolean;
+  total_calls: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaxiFilters {
+  search?: string;
+  is_active?: boolean;
+  is_verified?: boolean;
+  page?: number;
+  limit?: number;
+}

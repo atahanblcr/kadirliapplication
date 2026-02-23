@@ -1,8 +1,8 @@
 # CLAUDE.md - KadirliApp Sistem Prompt (Anayasa)
 
-**Proje:** KadirliApp  
-**Versiyon:** 1.0  
-**Son Güncelleme:** 16 Şubat 2026
+**Proje:** KadirliApp
+**Versiyon:** 1.0
+**Son Güncelleme:** 23 Şubat 2026
 
 ---
 
@@ -22,6 +22,46 @@ Sen KadirliApp projesinin **Lead Developer**'ısın. Görevin bu projeyi sıfır
 - Test coverage %75+ tut
 - Git best practices uygula
 - Memory Bank'ı sürekli güncelle
+
+---
+
+## 📊 MEVCUT PROJE DURUMU (23 Şubat 2026)
+
+**Backend:** ✅ **100% Tamamlandı**
+- 21 modül (auth, ads, announcements, deaths, campaigns, users, pharmacy, transport, neighborhoods, vb.)
+- 100+ API endpoint
+- 492+ unit test (75%+ coverage)
+- Production-ready
+
+**Admin Panel:** ✅ **95% Tamamlandı**
+- 10 ana modül (Dashboard, Announcements, Ads, Deaths, Campaigns, Users, Pharmacy, Transport, Neighborhoods)
+- Tüm CRUD işlemleri
+- Feature-complete, responsive UI
+- Hazır deployment için
+
+**Flutter Mobil App:** ❌ **0% (Başlanmadı)**
+- `/flutter-app` dizini hazır (proje yapısı)
+- Sonraki aşama
+- Backend API tam hazır, entegrasyon yapılacak
+
+**DevOps & Deployment:**
+- Development: `docker-compose.yml` (PostgreSQL, Redis, Backend, Admin)
+- Production: PM2 + NGINX + systemd
+- CI/CD: Hazır deployment scripts
+
+**SKILLS Dosyaları:**
+- ✅ `SKILLS/backend-nestjs.md`
+- ✅ `SKILLS/admin-nextjs.md`
+- ✅ `SKILLS/testing-strategy.md`
+- ✅ `SKILLS/api-security.md`
+
+**MEMORY_BANK Klasörü:**
+- `activeContext.md` - Aktif görev context
+- `progress.md` - Tamamlanan görevler listesi
+- `decisions.md` - Önemli kararlar
+- `issues.md` - Takıldığın yerler ve çözümler
+- `BACKEND_AUDIT_REPORT.md` - Backend denetim raporu
+- `ADMIN_PANEL_TEST_REPORT_22_FEB_2026.md` - Admin panel test sonuçları
 
 ---
 
@@ -266,11 +306,11 @@ auto_archive_at = funeral_date + 7 days;
 
 ### Kullanabileceğin Özel Yetenekler:
 
-E�er bir task için özel bir yetenek gerekiyorsa, `SKILLS/` klasörüne bak:
+Eğer bir task için özel bir yetenek gerekiyorsa, `SKILLS/` klasörüne bak:
 
 - **SKILLS/backend-nestjs.md** - NestJS best practices
-- **SKILLS/database-design.md** - Database optimizasyonları
-- **SKILLS/testing.md** - Test yazma stratejileri
+- **SKILLS/admin-nextjs.md** - Next.js Admin panel best practices
+- **SKILLS/testing-strategy.md** - Test yazma stratejileri
 - **SKILLS/api-security.md** - Security best practices
 
 Her skill dosyasını göreve başlamadan oku!
@@ -333,7 +373,7 @@ Her gün sonunda bana özet ver:
 
 ## 🎓 ÖĞRENME VE GELİŞİM
 
-E�er bir konuda emin değilsen:
+E�er bir konuda emin değilsen:
 
 1. **İlgili SKILL dosyasını oku**
 2. **Bana sor** (karar vermeden önce)
