@@ -510,3 +510,54 @@ Text(
 
 ---
 
+## 🆕 Güncelleme 5 — Taxi Admin Modülü (23 Şubat 2026)
+
+### Yapılan Değişiklikler
+
+#### Backend
+
+| Dosya | Değişiklik | Durum |
+|-------|-----------|-------|
+| `taxi-driver.entity.ts` | `user_id` → `nullable: true` | ✅ |
+| Migration `1772100000000` | `taxi_drivers.user_id DROP NOT NULL` | ✅ |
+| `taxi-admin.controller.ts` (YENİ) | GET/POST/PATCH/DELETE /admin/taxi | ✅ |
+| `create-taxi-driver.dto.ts` (YENİ) | name, phone, plaka, vehicle_info, file_ids, flags | ✅ |
+| `update-taxi-driver.dto.ts` (YENİ) | PartialType(CreateTaxiDriverDto) | ✅ |
+| `query-taxi-drivers.dto.ts` (YENİ) | search, is_active, is_verified, page, limit | ✅ |
+| `admin.service.ts` | 5 yeni metod + TaxiDriver repository eklendi | ✅ |
+| `admin.module.ts` | TaxiDriver entity + TaxiAdminController kaydı | ✅ |
+| `upload-file.dto.ts` | `'taxi'` module_type enum'a eklendi | ✅ |
+
+#### Frontend
+
+| Dosya | Değişiklik | Durum |
+|-------|-----------|-------|
+| `types/index.ts` | TaxiDriver + TaxiFilters interface eklendi | ✅ |
+| `use-taxi.ts` (YENİ) | 4 hook: list/create/update/delete | ✅ |
+| `taxi/page.tsx` | Placeholder → tam implementasyon | ✅ |
+| `taxi/taxi-form-dialog.tsx` (YENİ) | Create/Edit form dialog | ✅ |
+
+### Kritik Teknik Not: RANDOM() + Pagination
+
+```
+⚠️ SORUN: getManyAndCount() + leftJoinAndSelect + ORDER BY RANDOM()
+         → PostgreSQL "DISTINCT, ORDER BY must appear in select list" hatası
+
+✅ ÇÖZÜM: İki aşamalı sorgu:
+  1. SELECT id ORDER BY RANDOM() (join yok)
+  2. WHERE id IN (...) ile detay sorgu (relation'larla)
+```
+
+Bu pattern diğer modüllerde de RANDOM() gerekirse kullanılmalıdır.
+
+### İş Kuralı Hatırlatması (Değişmedi)
+
+```
+⚠️ TAKSİ SIRALAMA: Her zaman RANDOM() kullan
+   - ORDER BY rank/order KULLANMA (kolon yok)
+   - Her refresh farklı sıra = adil dağılım
+   - Admin panelde "Sıralama" dropdown'u YAPMA
+```
+
+---
+

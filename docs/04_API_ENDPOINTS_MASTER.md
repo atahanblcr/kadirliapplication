@@ -2502,6 +2502,180 @@ Max: 3 uzatma
 
 ---
 
+## 14.9 Admin - Taksi Sürücüsü Listesi
+
+**Endpoint:** `GET /v1/admin/taxi`
+
+**Auth:** ✅ Yes (admin, super_admin)
+
+**Query Parameters:**
+| Parametre | Tip | Açıklama |
+|-----------|-----|----------|
+| search | string | Ad, telefon veya plakada ILIKE arama |
+| is_active | boolean | true / false filtresi |
+| is_verified | boolean | true / false filtresi |
+| page | number | Sayfa no (default: 1) |
+| limit | number | Sayfa boyutu (default: 20) |
+
+> ⚠️ **Sıralama:** Her istek `ORDER BY RANDOM()` — refresh'te her zaman farklı sıra (intentional iş kuralı)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "drivers": [
+      {
+        "id": "uuid",
+        "name": "Ahmet Kaya",
+        "phone": "05001234567",
+        "plaka": "01AKY123",
+        "vehicle_info": "Beyaz Fiat Egea",
+        "registration_file_id": null,
+        "registration_file_url": null,
+        "license_file_id": null,
+        "is_verified": true,
+        "is_active": true,
+        "total_calls": 0,
+        "created_at": "2026-02-23T10:00:00.000Z",
+        "updated_at": "2026-02-23T10:00:00.000Z"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 5,
+      "total_pages": 1,
+      "has_next": false,
+      "has_prev": false
+    }
+  }
+}
+```
+
+---
+
+## 14.10 Admin - Taksi Sürücüsü Detayı
+
+**Endpoint:** `GET /v1/admin/taxi/:id`
+
+**Auth:** ✅ Yes (admin, super_admin)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "driver": {
+      "id": "uuid",
+      "name": "Ahmet Kaya",
+      "phone": "05001234567",
+      "plaka": "01AKY123",
+      "vehicle_info": "Beyaz Fiat Egea",
+      "registration_file_id": null,
+      "registration_file_url": null,
+      "license_file_id": null,
+      "is_verified": true,
+      "is_active": true,
+      "total_calls": 0,
+      "created_at": "2026-02-23T10:00:00.000Z",
+      "updated_at": "2026-02-23T10:00:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+## 14.11 Admin - Taksi Sürücüsü Oluştur
+
+**Endpoint:** `POST /v1/admin/taxi`
+
+**Auth:** ✅ Yes (admin, super_admin)
+
+**Request Body:**
+```json
+{
+  "name": "Ahmet Kaya",
+  "phone": "05001234567",
+  "plaka": "01AKY123",
+  "vehicle_info": "Beyaz Fiat Egea",
+  "registration_file_id": "uuid-optional",
+  "license_file_id": "uuid-optional",
+  "is_active": true,
+  "is_verified": true
+}
+```
+
+**Validasyon Kuralları:**
+- `name`: Zorunlu, max 100 karakter
+- `phone`: Zorunlu, max 15 karakter
+- `plaka`: Opsiyonel, unique (aynı plaka 2 sürücüde olamaz)
+- `is_verified`: Default `true` (admin eklediği için otomatik doğrulanmış sayılır)
+- `user_id`: NULL (admin eklerken mobil hesap bağlantısı zorunlu değil)
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": {
+    "driver": { "id": "uuid", "name": "Ahmet Kaya", "..." }
+  }
+}
+```
+
+**Hata Durumu - Plaka Zaten Kayıtlı (400):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Bu plaka numarası zaten kayıtlı"
+  }
+}
+```
+
+---
+
+## 14.12 Admin - Taksi Sürücüsü Güncelle
+
+**Endpoint:** `PATCH /v1/admin/taxi/:id`
+
+**Auth:** ✅ Yes (admin, super_admin)
+
+**Request Body:** (tüm alanlar opsiyonel)
+```json
+{
+  "vehicle_info": "Siyah VW Passat",
+  "is_verified": false,
+  "is_active": false
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "driver": { "id": "uuid", "..." }
+  }
+}
+```
+
+---
+
+## 14.13 Admin - Taksi Sürücüsü Sil
+
+**Endpoint:** `DELETE /v1/admin/taxi/:id`
+
+**Auth:** ✅ Yes (admin, super_admin)
+
+**Response:** `204 No Content` (body yok)
+
+> Soft delete: `deleted_at = NOW()` — sürücü veritabanından silinmez, gizlenir
+
+---
+
 ## Error Codes
 
 | Code | Status | Description |

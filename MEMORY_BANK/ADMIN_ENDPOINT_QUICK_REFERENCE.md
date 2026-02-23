@@ -574,6 +574,125 @@ All responses follow this format:
 
 ---
 
+## Taxi Module
+
+### List Taxi Drivers
+```
+GET /admin/taxi
+```
+
+**Query Params:**
+| Param | Type | Açıklama |
+|-------|------|----------|
+| search | string | Ad, telefon veya plakada ILIKE arama |
+| is_active | boolean | true / false |
+| is_verified | boolean | true / false |
+| page | number | Sayfa no (default: 1) |
+| limit | number | Sayfa boyutu (default: 20) |
+
+> ⚠️ **ÖNEMLI:** Sıralama her istekte `ORDER BY RANDOM()` — her refresh farklı sıra
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "drivers": [
+      {
+        "id": "uuid",
+        "name": "Ahmet Kaya",
+        "phone": "05001234567",
+        "plaka": "01AKY123",
+        "vehicle_info": "Beyaz Fiat Egea",
+        "registration_file_id": null,
+        "registration_file_url": null,
+        "license_file_id": null,
+        "is_verified": true,
+        "is_active": true,
+        "total_calls": 0,
+        "created_at": "2026-02-23T...",
+        "updated_at": "2026-02-23T..."
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 5,
+      "total_pages": 1,
+      "has_next": false,
+      "has_prev": false
+    }
+  }
+}
+```
+
+---
+
+### Get Taxi Driver Detail
+```
+GET /admin/taxi/:id
+```
+
+**Response:** `{ "success": true, "data": { "driver": { ...fields... } } }`
+
+---
+
+### Create Taxi Driver
+```
+POST /admin/taxi
+```
+
+**Request Body:**
+```json
+{
+  "name": "Ahmet Kaya",
+  "phone": "05001234567",
+  "plaka": "01AKY123",
+  "vehicle_info": "Beyaz Fiat Egea",
+  "registration_file_id": "uuid-optional",
+  "license_file_id": "uuid-optional",
+  "is_active": true,
+  "is_verified": true
+}
+```
+
+> `name` ve `phone` zorunlu. `is_verified` default `true` (admin eklediyse otomatik doğrulanmış).
+
+**Validation:** Plaka unique kontrolü — aynı plaka 2 sürücüde olamaz (`400 Bu plaka numarası zaten kayıtlı`)
+
+**Response:** `{ "success": true, "data": { "driver": { ...fields... } } }`
+
+---
+
+### Update Taxi Driver
+```
+PATCH /admin/taxi/:id
+```
+
+**Request Body:** Tüm alanlar opsiyonel (Partial)
+```json
+{
+  "vehicle_info": "Siyah VW Passat",
+  "is_verified": false,
+  "is_active": false
+}
+```
+
+**Response:** `{ "success": true, "data": { "driver": { ...updated fields... } } }`
+
+---
+
+### Delete Taxi Driver
+```
+DELETE /admin/taxi/:id
+```
+
+**Response:** `204 No Content` (body yok)
+
+> Soft delete (`deleted_at = NOW()`)
+
+---
+
 ## Known Issues & Workarounds
 
 ### ~~Issue #1: Users Role Filter~~ ✅ FIXED (22 Şubat 2026)
@@ -602,6 +721,6 @@ All responses follow this format:
 
 ---
 
-**Last Updated:** 2026-02-22
+**Last Updated:** 2026-02-23
 **Status:** Production Ready
 **Issues:** 4 minor (all non-critical)

@@ -1,16 +1,16 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 21 Şubat 2026
+**Son Güncelleme:** 23 Şubat 2026
 
 ---
 
 ## 🎯 Şu Anki Durum
 
-**Modül:** Ulaşım (Transport) Admin Panel Modülü ✅ TAMAMLANDI
-**Status:** Backend + Frontend + API test tamamen bitti
-**Son Kontrol:** 22 Şubat 2026
+**Modül:** Taksi (Taxi) Admin Panel Modülü ✅ TAMAMLANDI
+**Status:** Backend + Frontend + API test + Docker rebuild tamamen bitti
+**Son Kontrol:** 23 Şubat 2026
 
-### Admin Panel İlerleme (%95 - 9 modül tamamlandı)
+### Admin Panel İlerleme (%97 - 11 modül tamamlandı)
 - ✅ Next.js 14 projesi (App Router + TypeScript + Tailwind CSS)
 - ✅ shadcn/ui bileşenler (alert-dialog, alert, badge, button, card, dialog, dropdown-menu, input, label, popover, scroll-area, select, separator, sheet, skeleton, switch, table, tabs, textarea, tooltip) — `@/components/ui/form` YOK
 - ✅ Temel layout: Collapsible sidebar + Topbar
@@ -20,11 +20,13 @@
 - ✅ Duyurular modülü TAMAMLANDI
 - ✅ İlanlar modülü TAMAMLANDI
 - ✅ Vefat İlanları modülü TAMAMLANDI
-- ✅ **Kampanyalar modülü TAMAMLANDI** (Frontend + Backend)
+- ✅ **Kampanyalar modülü TAMAMLANDI** (Frontend + Backend + Quick-Add Business)
 - ✅ **Kullanıcı Yönetimi modülü TAMAMLANDI** (Frontend + Backend)
 - ✅ **Nöbetçi Eczane modülü TAMAMLANDI** (Frontend + Backend + Takvim)
 - ✅ **AdminController refaktörü TAMAMLANDI** (3 sub-controller)
 - ✅ **Ulaşım (Transport) modülü TAMAMLANDI** (Backend + Frontend + @dnd-kit)
+- ✅ **Mahalleler (Neighborhoods) modülü TAMAMLANDI**
+- ✅ **Taksi (Taxi) modülü TAMAMLANDI** (Backend + Frontend + RANDOM ordering)
 
 ### ➡️ Sonraki Adım: Kullanıcı onayı bekleniyor
 

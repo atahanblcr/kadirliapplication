@@ -1,7 +1,7 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 23 Şubat 2026 (Quick-Add Business & Categories)
+**Son Güncelleme:** 23 Şubat 2026 (Taxi Admin Modülü)
 
 ---
 
@@ -9,13 +9,54 @@
 
 ```
 Backend:      [██████████] 100% ✅ (15 feature module + admin login, 492 test, 85.13% coverage)
-Admin Panel:  [█████████░]  95% (Layout + Login + Dashboard + 9 modül tamamlandı)
+Admin Panel:  [█████████░]  97% (Layout + Login + Dashboard + 11 modül tamamlandı)
 Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
 Testing:      [██████████] 100% ✅ (492 test, 33 test suite)
 Deployment:   [░░░░░░░░░░]   0% (Başlanmadı)
 ```
 
-**Toplam İlerleme:** ~80% (Backend 100%, Admin Panel %95)
+**Toplam İlerleme:** ~82% (Backend 100%, Admin Panel %97)
+
+### Taxi Admin Panel Modülü (23 Şubat 2026) ✅
+
+**Backend:**
+- ✅ Migration `1772100000000-MakeTaxiDriverUserIdNullable` — `taxi_drivers.user_id` nullable yapıldı (admin panelden kullanıcısız sürücü eklenebilsin)
+- ✅ `TaxiDriver` entity: `user_id` → `nullable: true` (TypeORM)
+- ✅ `GET /admin/taxi` — Liste, RANDOM ordering, search/is_active/is_verified filtreleri, pagination
+- ✅ `GET /admin/taxi/:id` — Detay (registration_file + license_file relations)
+- ✅ `POST /admin/taxi` — Yeni sürücü, plaka unique kontrolü, `is_verified=true` default
+- ✅ `PATCH /admin/taxi/:id` — Kısmi güncelleme, plaka unique check (başka sürücüde yoksa)
+- ✅ `DELETE /admin/taxi/:id` — Soft delete (204 No Content)
+- ✅ DTOs: `create-taxi-driver.dto.ts`, `update-taxi-driver.dto.ts`, `query-taxi-drivers.dto.ts`
+- ✅ `upload-file.dto.ts` — `'taxi'` enum'a eklendi (module_type)
+- ✅ `admin.module.ts` — TaxiDriver entity + TaxiAdminController kaydedildi
+- ✅ Docker rebuild başarılı
+
+**Teknik Çözüm — RANDOM() + Pagination Sorunu:**
+- TypeORM `getManyAndCount()` + `leftJoinAndSelect` + `ORDER BY RANDOM()` → PostgreSQL DISTINCT hatası
+- Çözüm: İki aşamalı sorgu:
+  1. `SELECT id ORDER BY RANDOM()` (join yok, DISTINCT yok)
+  2. `WHERE id IN (...)` ile relation'lı detay sorgusu
+  3. RANDOM() sırasını korumak için `orderMap` ile sıralama
+
+**Frontend:**
+- ✅ `TaxiDriver` + `TaxiFilters` tipleri `types/index.ts`'e eklendi
+- ✅ `use-taxi.ts` — `useTaxiDrivers`, `useCreateTaxiDriver`, `useUpdateTaxiDriver`, `useDeleteTaxiDriver` hooks
+- ✅ `taxi/page.tsx` — Tablo (Ad/Telefon/Plaka/Araç/Aramalar/Durum), search + aktif/doğrulama filtreleri, tel: + WhatsApp quick-link, pagination, yenile butonu
+- ✅ `taxi/taxi-form-dialog.tsx` — Create/Edit dialog (ad, tel, plaka uppercase, araç bilgisi, is_verified switch, is_active switch)
+- ✅ Sidebar'da "Taksi" linki zaten mevcuttu (Car icon), ek değişiklik gerekmedi
+
+**Düzeltilen Hatalar:**
+- `UserRole` import yolu: `../database/entities/user.entity` → `../common/enums/user-role.enum`
+- `Transform` import: `class-validator` → `class-transformer`
+- `Roles` decorator yolu: `../auth/decorators/roles.decorator` → `../common/decorators/roles.decorator`
+- `useToast` hook yok: direkt `toast` import'u kullanıldı (projenin standart yaklaşımı)
+
+**Git Commits:**
+- `feat: implement Taxi admin module with random ordering` (14 dosya, 1166+ satır)
+- `fix: correct toast import in taxi pages`
+
+---
 
 ### Campaign Quick-Add Business + Categories (23 Şubat 2026) ✅
 **Backend:**

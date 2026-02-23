@@ -233,6 +233,76 @@
 
 ---
 
+## 23 Şubat 2026 - RANDOM() + Pagination Sorunu Çözümü
+
+**Durum:** ✅ Onaylandı ve uygulandı
+
+**Soru:** TypeORM `getManyAndCount()` + `leftJoinAndSelect` + `ORDER BY RANDOM()` nasıl bir arada kullanılır?
+
+**Sorun:**
+PostgreSQL hatası: `for SELECT DISTINCT, ORDER BY expressions must appear in select list`
+TypeORM, `leftJoinAndSelect` + `skip/take` kullanıldığında otomatik olarak `SELECT DISTINCT` ekliyor.
+DISTINCT listesinde bulunmayan `RANDOM()` ile ORDER BY çakışıyor.
+
+**Seçenekler:**
+1. **RANDOM() sorgudan kaldır** — İş kuralını çiğner
+2. **skip/take kaldır, in-memory slice** — Büyük veri setlerinde memory sorunu
+3. **İki aşamalı sorgu** — ID'leri RANDOM ile al, sonra detay sorgula
+4. **Native query** — TypeORM bypas
+
+**Karar:** İki aşamalı sorgu (Option 3)
+
+```typescript
+// 1) Sadece ID'leri RANDOM ile al (join yok → DISTINCT yok)
+const allIds = await repo.createQueryBuilder('t')
+  .select('t.id', 'id')
+  .where(...)
+  .orderBy('RANDOM()')
+  .getRawMany();
+
+// 2) Sayfalanan ID'lere göre detay çek (relation'larla)
+const drivers = await repo.createQueryBuilder('t')
+  .leftJoinAndSelect('t.registration_file', 'rf')
+  .whereInIds(pagedIds)
+  .getMany();
+```
+
+**Gerekçe:**
+- RANDOM() iş kuralı korunuyor
+- İki ayrı query → DISTINCT sorunu yok
+- ID sorgusu hızlı (join yok, index'e gidiyor)
+- Küçük dataset (Kadirli'de 50-100 sürücü) → memory'de sıralama sorun değil
+
+**Etkilenen Modüller:** Taxi Admin
+
+**Karar Veren:** Claude (PostgreSQL hata analizi sonrası)
+
+---
+
+## 23 Şubat 2026 - TaxiDriver.user_id Nullable Yapıldı
+
+**Durum:** ✅ Onaylandı ve uygulandı
+
+**Soru:** Admin panelden taksi sürücüsü eklerken `user_id` zorunlu mu olmalı?
+
+**Sorun:**
+`taxi_drivers.user_id` NOT NULL kısıtı vardı. Mobil uygulamada kayıtlı olmayan yerel taksicileri admin ekleyemiyordu.
+
+**Karar:** `user_id` nullable yapıldı
+
+**Gerekçe:**
+- Kadirli'deki taksiciler mobil uygulama kullanmayabilir
+- Admin, yerel taksicileri doğrudan sisteme ekleyebilmeli (ad + tel + plaka yeterli)
+- Mobil uygulamadan kaydolan sürücüler için `user_id` hâlâ set edilebilir
+- Migration: `ALTER TABLE taxi_drivers ALTER COLUMN user_id DROP NOT NULL`
+- Precedent: `businesses.user_id` da aynı şekilde nullable yapılmıştı (22 Şubat 2026)
+
+**Etkilenen Modüller:** Taxi, Admin Panel
+
+**Karar Veren:** Claude (iş kuralı analizi sonrası)
+
+---
+
 ## [YENİ KARAR ŞABLONU]
 
 ## [Tarih] - [Başlık]
