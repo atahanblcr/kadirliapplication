@@ -16,7 +16,7 @@ const ALLOWED_MIME_TYPES = [
   'application/pdf',
 ];
 
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
 
 @Injectable()
 export class FilesService {
@@ -43,7 +43,7 @@ export class FilesService {
     }
 
     if (file.size > MAX_SIZE_BYTES) {
-      throw new BadRequestException('Dosya boyutu 10 MB sınırını aşıyor');
+      throw new BadRequestException('Dosya boyutu 20 MB sınırını aşıyor');
     }
 
     const fileData: DeepPartial<FileEntity> = {

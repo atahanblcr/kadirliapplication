@@ -138,34 +138,32 @@ Redis key naming convention belirle ve dokümante et.
 
 ---
 
-## #004 20 Şubat 2026 - File Upload 10MB Üzeri Hata
+## #004 23 Şubat 2026 - File Upload Sorunları
 
-**Durum:** 🟡 Devam ediyor
+**Durum:** 🟢 Çözüldü
 
 **Modül:** Files
 
 **Açıklama:**
-10MB'dan büyük dosyalar upload edilemiyor. NGINX 413 (Payload Too Large) hatası veriyor.
+İki sorun çözüldü:
+1. `@CurrentUser('user_id')` → `@CurrentUser('id')` düzeltildi (User entity'de `id` var, `user_id` yok)
+   - Sonucu: `uploaded_by` NULL doluyor, `deleteFile` her zaman 403 Forbidden veriyordu
+2. File size limit 10MB → 20MB artırıldı
+3. `main.ts`'e body-parser limit eklendi (JSON/urlencoded için)
 
-**Hata Mesajı:**
-```
-413 Request Entity Too Large
-```
+**Nihai Çözüm:**
+- `files.controller.ts`: `@CurrentUser('id')` - hem upload hem delete
+- `files.controller.ts`: `limits: { fileSize: 20 * 1024 * 1024 }`
+- `files.service.ts`: `MAX_SIZE_BYTES = 20 * 1024 * 1024`
+- `main.ts`: `express.json({ limit: '1mb' })`
 
-**Denenen Çözümler:**
-1. NestJS body-parser limit arttırıldı - Başarısız (NGINX blokluyordu)
-2. NGINX config değiştirildi - Test ediliyor
+**Test Sonucu (23 Şubat):**
+- ✅ Upload → `uploaded_by = a84a7512-...` (dolu)
+- ✅ Delete → "Dosya silindi"
+- ✅ cdn_url doğru dönüyor
 
-**Mevcut Çalışma:**
-```nginx
-# /etc/nginx/nginx.conf
-client_max_body_size 20M;
-```
-
-**Sonraki Adımlar:**
-- NGINX restart
-- Test et
-- CloudFlare R2'ye direkt upload stratejisi düşün
+**Önleme:**
+NestJS'de JWT strategy `validate()` User entity döndürür. `@CurrentUser` decorator `req.user[field]` okuyor. User entity'de `user_id` YOK, `id` VAR.
 
 ---
 
@@ -191,43 +189,26 @@ client_max_body_size 20M;
 
 ---
 
-## #006 20 Şubat 2026 - Placeholder Modüller Tamamlanmamış
+## #006 - Admin Panel Placeholder Sayfaları
 
-**Durum:** 🔴 Açık / Yapılacak
+**Durum:** 🟢 Çözüldü (İNTENSİYONEL)
 
-**Modül:** 10 placeholder modül
+**Modül:** Admin Panel
 
 **Açıklama:**
-Aşağıdaki 10 modül henüz placeholder durumunda. Service, Controller, Test yazılmadı:
-1. admin - Admin panel CRUD (Rollback, User management)
-2. campaigns - Marketing campaigns
-3. events - Şehir etkinlikleri
-4. files - File upload/delete management
-5. guide - Rehber modülü
-6. notifications - FCM push notifications
-7. pharmacy - Eczane modülü
-8. places - Yerler rehberi (Sokaklar, Meydanlar)
-9. taxi - Taksi modülü (RANDOM sıralama)
-10. transport - Şehirlerarası taşıma
+7 sayfa henüz placeholder (sadece AlertCircle + "Bu modül henüz yapılmadı" mesajı):
+1. Taxi (`/dashboard/taxi`)
+2. Events (`/dashboard/events`)
+3. Guide (`/dashboard/guide`)
+4. Places (`/dashboard/places`)
+5. Complaints (`/dashboard/complaints`)
+6. Scrapers (`/dashboard/scrapers`)
+7. Settings (`/dashboard/settings`)
 
-**İş Sırası:**
-1. Taxi (DONE oldu 60% oluş sürdür)
-2. Pharmacy
-3. Events
-4. Campaigns
-5. Guide
-6. Places
-7. Transport
-8. Notifications (FCM)
-9. Admin Panel
-10. Files
+**Nihai Çözüm:**
+Bu placeholder sayfalar INTENTIONAL ve doğru. Sidebar'da navigasyon var, sayfa açılır, ama daha implement edilmemiş modüller içindir.
 
-**Sonraki Adımlar:**
-- Taxi Module: docs/04 "7. TAXI" bölümünü oku ve implement et
-- Her modül: DTOs → Service (CRUD + business rules) → Controller (endpoints) → Tests (%85+ coverage)
-- Tamamlanan modüller: Auth (88.88%), Users (88.75%), Announcements (90.35%), Ads (92.92%), Deaths (100%)
-
-**NOT:** Şu an "Haiku" modeline geçildi, sonrası devam edecek başka işi var.
+**NOT:** Silinmemeleri gerekir - kullanıcıya "bu geliyor" mesajı verir.
 
 ---
 

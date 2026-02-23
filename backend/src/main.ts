@@ -33,6 +33,11 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix(apiPrefix);
 
+  // Body size limit — multipart/form-data için Multer ayarları yeterli,
+  // JSON/urlencoded body'ler için güvenlik sınırı
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
   // Static file serving — uploads klasörünü /uploads path'inden sun
   app.use('/uploads', express.static(uploadsDir));
 

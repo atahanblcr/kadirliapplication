@@ -55,11 +55,11 @@ export class FilesController {
           );
         }
       },
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+      limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
     }),
   )
   async uploadFile(
-    @CurrentUser('user_id') userId: string,
+    @CurrentUser('id') userId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadFileDto,
   ) {
@@ -70,7 +70,7 @@ export class FilesController {
   // Dosya sil (yükleyen kişi)
   @Delete(':id')
   async deleteFile(
-    @CurrentUser('user_id') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.filesService.deleteFile(userId, id);
