@@ -51,6 +51,7 @@ import { QueryDeathsDto } from './dto/query-deaths.dto';
 import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
 import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
 import { CreateAdminBusinessDto } from './dto/create-admin-business.dto';
+import { CreateBusinessCategoryDto } from './dto/create-business-category.dto';
 import { CreateCemeteryDto } from './dto/create-cemetery.dto';
 import { UpdateCemeteryDto } from './dto/update-cemetery.dto';
 import { CreateMosqueDto } from './dto/create-mosque.dto';
@@ -699,6 +700,33 @@ export class AdminService {
       order: { display_order: 'ASC', name: 'ASC' },
     });
     return { categories };
+  }
+
+  async createBusinessCategory(dto: CreateBusinessCategoryDto) {
+    const slug = dto.name
+      .toLowerCase()
+      .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    // Slug çakışması varsa suffix ekle
+    const uniqueSlug = await this.ensureUniqueSlug(slug);
+
+    const category = new BusinessCategory();
+    category.name = dto.name;
+    category.slug = uniqueSlug;
+    const saved = await this.businessCategoryRepository.save(category);
+    return { id: saved.id, name: saved.name };
+  }
+
+  private async ensureUniqueSlug(base: string): Promise<string> {
+    let slug = base;
+    let counter = 1;
+    while (await this.businessCategoryRepository.findOne({ where: { slug } })) {
+      slug = `${base}-${counter++}`;
+    }
+    return slug;
   }
 
   async createAdminBusiness(dto: CreateAdminBusinessDto) {

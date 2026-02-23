@@ -72,6 +72,27 @@ export function useBusinessCategories() {
   });
 }
 
+// ─── Create Business Category (quick-add) ────────────────────────────────────
+export function useCreateBusinessCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (name: string) => {
+      const { data } = await api.post<ApiResponse<{ id: string; name: string }>>(
+        '/admin/campaigns/businesses/categories',
+        { name },
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: campaignKeys.businessCategories() });
+      toast({ title: 'Kategori eklendi.' });
+    },
+    onError: () => {
+      toast({ title: 'Hata', description: 'Kategori eklenemedi.', variant: 'destructive' });
+    },
+  });
+}
+
 // ─── Create Business (quick-add) ─────────────────────────────────────────────
 export function useCreateBusiness() {
   const queryClient = useQueryClient();
