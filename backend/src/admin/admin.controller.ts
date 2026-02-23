@@ -9,6 +9,7 @@ import {
   Query,
   ParseUUIDPipe,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { QueryApprovalsDto } from './dto/query-approvals.dto';
@@ -35,10 +36,29 @@ export class AdminController {
     return this.adminService.getDashboard();
   }
 
+  // GET /admin/dashboard/module-usage
+  @Get('dashboard/module-usage')
+  async getModuleUsage() {
+    return this.adminService.getModuleUsage();
+  }
+
+  // GET /admin/dashboard/activities
+  @Get('dashboard/activities')
+  async getRecentActivities() {
+    return this.adminService.getRecentActivities();
+  }
+
   // GET /admin/approvals
   @Get('approvals')
   async getApprovals(@Query() dto: QueryApprovalsDto) {
     return this.adminService.getApprovals(dto);
+  }
+
+  // DELETE /admin/ads/:id
+  @Delete('ads/:id')
+  @HttpCode(204)
+  async deleteAd(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteAdAsAdmin(id);
   }
 
   // POST /admin/ads/:id/approve

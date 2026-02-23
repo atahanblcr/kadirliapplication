@@ -121,7 +121,7 @@ export function useDeleteAd() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/ads/${id}`);
+      await api.delete(`/admin/ads/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adKeys.pending() });

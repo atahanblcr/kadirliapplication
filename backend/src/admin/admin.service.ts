@@ -1994,4 +1994,94 @@ export class AdminService {
     if (!event) throw new NotFoundException('Etkinlik bulunamadı');
     await this.eventRepository.softDelete(id);
   }
+
+  // ── İLAN SİL (ADMIN) ─────────────────────────────────────────────────────
+
+  async deleteAdAsAdmin(id: string) {
+    const ad = await this.adRepository.findOne({ where: { id } });
+    if (!ad) throw new NotFoundException('İlan bulunamadı');
+    await this.adRepository.softDelete(id);
+    return { message: 'İlan silindi' };
+  }
+
+  // ── DASHBOARD: MODÜL KULLANIM ─────────────────────────────────────────────
+
+  async getModuleUsage() {
+    const [ads, announcements, deaths, campaigns, pharmacies, taxi, events] =
+      await Promise.all([
+        this.adRepository.count(),
+        this.announcementRepository.count(),
+        this.deathRepository.count(),
+        this.campaignRepository.count(),
+        this.pharmacyRepository.count(),
+        this.taxiDriverRepository.count(),
+        this.eventRepository.count(),
+      ]);
+
+    return [
+      { name: 'İlanlar', count: ads },
+      { name: 'Duyurular', count: announcements },
+      { name: 'Vefat İlanları', count: deaths },
+      { name: 'Kampanyalar', count: campaigns },
+      { name: 'Eczaneler', count: pharmacies },
+      { name: 'Taksi', count: taxi },
+      { name: 'Etkinlikler', count: events },
+    ].sort((a, b) => b.count - a.count);
+  }
+
+  // ── DASHBOARD: SON AKTİVİTELER ───────────────────────────────────────────
+
+  async getRecentActivities() {
+    const activities: {
+      id: string;
+      type: string;
+      description: string;
+      created_at: string;
+    }[] = [];
+
+    const [recentAds, recentAnnouncements, recentDeaths, recentUsers] =
+      await Promise.all([
+        this.adRepository.find({ order: { created_at: 'DESC' }, take: 5 }),
+        this.announcementRepository.find({
+          order: { created_at: 'DESC' },
+          take: 4,
+        }),
+        this.deathRepository.find({ order: { created_at: 'DESC' }, take: 3 }),
+        this.userRepository.find({ order: { created_at: 'DESC' }, take: 3 }),
+      ]);
+
+    activities.push(
+      ...recentAds.map((ad) => ({
+        id: ad.id,
+        type: 'ad_created',
+        description: `Yeni ilan: "${ad.title}"`,
+        created_at: ad.created_at.toISOString(),
+      })),
+      ...recentAnnouncements.map((a) => ({
+        id: a.id,
+        type: 'announcement_created',
+        description: `Duyuru: "${a.title}"`,
+        created_at: a.created_at.toISOString(),
+      })),
+      ...recentDeaths.map((d) => ({
+        id: d.id,
+        type: 'death_notice',
+        description: `Vefat ilanı: ${d.deceased_name}`,
+        created_at: d.created_at.toISOString(),
+      })),
+      ...recentUsers.map((u) => ({
+        id: u.id,
+        type: 'user_register',
+        description: `Yeni kullanıcı: ${u.username ?? u.phone ?? u.email ?? '?'}`,
+        created_at: u.created_at.toISOString(),
+      })),
+    );
+
+    activities.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+    return activities.slice(0, 10);
+  }
 }
