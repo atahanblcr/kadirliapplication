@@ -1,11 +1,23 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 23:30
-**Durum:** ✅ Admin Panel + Backend API 100% Operational (26/26 endpoint 200 OK) — Backend unit testleri ⚠️ (39 fail)
+**Son Güncelleme:** 24 Şubat 2026 23:59
+**Durum:** ✅ Admin Panel + Backend API 100% Operational — ✅ Backend Tests 489/489 PASS (0 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
+
+### Commit: fix: resolve all 39 failing backend tests (fb38f06)
+- **Tarih:** 24 Şubat 2026 23:59
+- **Yapılanlar:**
+  - **admin.service.spec.ts**: TestingModule'a 23 eksik repository mock eklendi
+    (Pharmacy, PharmacySchedule, Transport×4, Cemetery, Mosque, Neighborhood,
+     Business, BusinessCategory, CampaignImage, FileEntity, TaxiDriver, Event,
+     EventImage, EventCategory, GuideCategory, GuideItem, PlaceCategory, Place,
+     PlaceImage, Complaint)
+  - **files.service.ts**: `MAX_SIZE_BYTES` 20MB → 10MB (docs spec'e göre)
+  - **announcements.service.spec.ts**: `where` → `andWhere` beklentisi düzeltildi
+  - **Sonuç**: 489/489 test PASS, 33/33 suite PASS, 0 fail ✅
 
 ### Commit: fix: resolve all backend API failures (96c8588)
 - **Tarih:** 24 Şubat 2026 23:30
@@ -194,18 +206,9 @@ POST /admin/scrapers/:name/run
 
 ---
 
-## 🔴 ACİL SONRAKI ADIMLAR
+## 🔴 SONRAKİ ADIMLAR
 
-### PRIORITY 1: Backend Test Hatalarını Düzelt
-```
-1. admin/admin.service.spec.ts
-   → TestingModule'a GuideCategory + GuideItem repository mock eklenmeli
-
-2. files/files.service.spec.ts
-   → 10MB validation testi düzeltilmeli
-```
-
-### PRIORITY 2: Flutter Mobile App
+### PRIORITY 1: Flutter Mobile App
 - `docs/08_CLAUDE_CODE_PROMPT_CHAIN.md` takip et
 - Auth → Announcements → Ads → Deaths → Transport → Pharmacy sırası
 
