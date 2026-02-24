@@ -20,6 +20,7 @@ import {
   Home,
   Users,
   MessageSquareWarning,
+  Shield,
   Settings,
   ChevronLeft,
   type LucideIcon,
@@ -41,6 +42,7 @@ const iconMap: Record<string, LucideIcon> = {
   Home,
   Users,
   MessageSquareWarning,
+  Shield,
   Settings,
 };
 

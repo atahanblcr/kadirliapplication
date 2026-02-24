@@ -7,6 +7,20 @@
 
 ## 🎯 SON YAPILAN İŞ
 
+### ✅ COMPLETED: Admin Staff Yönetimi + Permission Sistemi (24 Şubat 2026)
+- **Durum:** ✅ Implementation tamamlandı, build başarılı
+- **Yapılanlar:**
+  1. ✅ Backend entity (admin-permission.entity.ts) + migration
+  2. ✅ Backend 5 DTO (create, update, permissions, password reset, query)
+  3. ✅ Backend StaffAdminService (9 metot)
+  4. ✅ Backend StaffAdminController (6 endpoint) + PermissionGuard + @Permission decorator
+  5. ✅ Admin module güncelleme (entity + service + controller register)
+  6. ✅ Frontend types (AdminStaff, AdminPermission, ADMIN_MODULES)
+  7. ✅ Frontend use-staff hook (6 mutations)
+  8. ✅ Sidebar güncelleme + Checkbox UI component
+  9. ✅ Frontend sayfalar (list, form dialog with permission matrix, reset password)
+  10. ✅ Backend build: PASS | Admin build: PASS (/staff route)
+
 ### Proje Temizliği & Context Optimizasyonu (24 Şubat 2026)
 - **Scrapers Modülü Kaldırıldı** ✅
   - Backend: entity, DTO, controller endpoint'leri, migration, test blokları

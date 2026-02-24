@@ -908,3 +908,92 @@ export interface ComplaintFilters {
   page?: number;
   limit?: number;
 }
+
+// ─── Admin Staff & Permissions ───────────────────────────────────────────────
+
+export type AdminModuleKey =
+  | 'announcements'
+  | 'ads'
+  | 'deaths'
+  | 'campaigns'
+  | 'users'
+  | 'pharmacy'
+  | 'transport'
+  | 'neighborhoods'
+  | 'taxi'
+  | 'events'
+  | 'guide'
+  | 'places'
+  | 'complaints';
+
+export interface AdminModuleConfig {
+  key: AdminModuleKey;
+  label: string;
+  hasApprove: boolean;
+}
+
+export interface AdminPermission {
+  id: string;
+  user_id: string;
+  module: AdminModuleKey;
+  can_read: boolean;
+  can_create: boolean;
+  can_update: boolean;
+  can_delete: boolean;
+  can_approve: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminStaff {
+  id: string;
+  email: string;
+  username: string;
+  phone: string;
+  role: 'moderator' | 'admin' | 'super_admin';
+  is_active: boolean;
+  permissions?: AdminPermission[];
+  permission_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StaffFilters {
+  search?: string;
+  role?: 'moderator' | 'admin' | 'super_admin';
+  is_active?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateStaffDto {
+  email: string;
+  password: string;
+  username: string;
+  phone: string;
+  role: 'moderator' | 'admin';
+  permissions?: PermissionItemDto[];
+}
+
+export interface UpdateStaffDto {
+  role?: 'moderator' | 'admin' | 'super_admin';
+  username?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateStaffPermissionsDto {
+  permissions: PermissionItemDto[];
+}
+
+export interface PermissionItemDto {
+  module: AdminModuleKey;
+  can_read?: boolean;
+  can_create?: boolean;
+  can_update?: boolean;
+  can_delete?: boolean;
+  can_approve?: boolean;
+}
+
+export interface ResetStaffPasswordDto {
+  new_password: string;
+}

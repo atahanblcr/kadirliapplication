@@ -27,6 +27,7 @@ import {
   PlaceImage,
 } from '../database/entities/place.entity';
 import { Complaint } from '../database/entities/complaint.entity';
+import { AdminPermission } from '../database/entities/admin-permission.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { CampaignAdminController } from './campaign-admin.controller';
@@ -39,6 +40,8 @@ import { EventAdminController } from './event-admin.controller';
 import { GuideAdminController } from './guide-admin.controller';
 import { PlacesAdminController } from './places-admin.controller';
 import { ComplaintsAdminController } from './complaints-admin.controller';
+import { StaffAdminService } from './staff-admin.service';
+import { StaffAdminController } from './staff-admin.controller';
 
 @Module({
   imports: [
@@ -72,6 +75,7 @@ import { ComplaintsAdminController } from './complaints-admin.controller';
       Place,
       PlaceImage,
       Complaint,
+      AdminPermission,
     ]),
   ],
   controllers: [
@@ -86,7 +90,8 @@ import { ComplaintsAdminController } from './complaints-admin.controller';
     GuideAdminController,
     PlacesAdminController,
     ComplaintsAdminController,
+    StaffAdminController,
   ],
-  providers: [AdminService],
+  providers: [AdminService, StaffAdminService],
 })
 export class AdminModule {}
