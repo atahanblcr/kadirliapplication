@@ -19,7 +19,7 @@ async function createInitialAdmin() {
     return;
   }
 
-  const hashedPassword = await bcrypt.hash('Admin123!', 10);
+  const hashedPassword = await bcrypt.hash('Admin123a', 10);
 
   const admin = userRepository.create({
     phone: '05551234567',
@@ -35,7 +35,7 @@ async function createInitialAdmin() {
 
   console.log('✅ İlk admin kullanıcısı oluşturuldu!');
   console.log('Email   : admin@kadirliapp.com');
-  console.log('Şifre   : Admin123!');
+  console.log('Şifre   : Admin123a');
   console.log('Rol     : SUPER_ADMIN');
 
   await AppDataSource.destroy();

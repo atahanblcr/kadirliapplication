@@ -99,7 +99,7 @@ FAIL DETAYI:
 ```
 Base URL:  http://localhost:3000/v1
 Auth:      JWT Bearer Token
-Admin:     admin@kadirliapp.com / Admin123!
+Admin:     admin@kadirliapp.com / Admin123a
 ```
 
 ### Admin Panel: ✅ FULLY OPERATIONAL (100%)

@@ -29,7 +29,7 @@ export function usePendingAds() {
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<AdminApprovalsResponse>>('/admin/approvals');
       // Backend: { approvals: [{type:'ad'|'death'|'campaign', ...}], total, page, limit }
-      return (data.data.approvals ?? []).filter((a) => a.type === 'ad') as AdListItem[];
+      return (data.data.approvals ?? []).filter((a) => a.type === 'ad') as unknown as AdListItem[];
     },
     refetchInterval: 30_000, // otomatik 30 saniyede refresh
   });
