@@ -4,11 +4,28 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { User } from '../database/entities/user.entity';
 import { Ad } from '../database/entities/ad.entity';
-import { DeathNotice } from '../database/entities/death-notice.entity';
-import { Campaign } from '../database/entities/campaign.entity';
+import { DeathNotice, Cemetery, Mosque } from '../database/entities/death-notice.entity';
+import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
 import { ScraperLog } from '../database/entities/scraper-log.entity';
+import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  IntercityRoute,
+  IntercitySchedule,
+  IntracityRoute,
+  IntracityStop,
+} from '../database/entities/transport.entity';
+import { Neighborhood } from '../database/entities/neighborhood.entity';
+import { Business } from '../database/entities/business.entity';
+import { BusinessCategory } from '../database/entities/business-category.entity';
+import { FileEntity } from '../database/entities/file.entity';
+import { TaxiDriver } from '../database/entities/taxi-driver.entity';
+import { Event, EventImage } from '../database/entities/event.entity';
+import { EventCategory } from '../database/entities/event-category.entity';
+import { GuideCategory, GuideItem } from '../database/entities/guide.entity';
+import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import { Complaint } from '../database/entities/complaint.entity';
 
 // ─── QueryBuilder mock'ları ──────────────────────────────────────────────────
 
@@ -136,6 +153,29 @@ describe('AdminService', () => {
         { provide: getRepositoryToken(Announcement), useFactory: mockRepo },
         { provide: getRepositoryToken(Notification), useFactory: mockRepo },
         { provide: getRepositoryToken(ScraperLog), useFactory: mockRepo },
+        { provide: getRepositoryToken(Pharmacy), useFactory: mockRepo },
+        { provide: getRepositoryToken(PharmacySchedule), useFactory: mockRepo },
+        { provide: getRepositoryToken(IntercityRoute), useFactory: mockRepo },
+        { provide: getRepositoryToken(IntercitySchedule), useFactory: mockRepo },
+        { provide: getRepositoryToken(IntracityRoute), useFactory: mockRepo },
+        { provide: getRepositoryToken(IntracityStop), useFactory: mockRepo },
+        { provide: getRepositoryToken(Cemetery), useFactory: mockRepo },
+        { provide: getRepositoryToken(Mosque), useFactory: mockRepo },
+        { provide: getRepositoryToken(Neighborhood), useFactory: mockRepo },
+        { provide: getRepositoryToken(Business), useFactory: mockRepo },
+        { provide: getRepositoryToken(BusinessCategory), useFactory: mockRepo },
+        { provide: getRepositoryToken(CampaignImage), useFactory: mockRepo },
+        { provide: getRepositoryToken(FileEntity), useFactory: mockRepo },
+        { provide: getRepositoryToken(TaxiDriver), useFactory: mockRepo },
+        { provide: getRepositoryToken(Event), useFactory: mockRepo },
+        { provide: getRepositoryToken(EventImage), useFactory: mockRepo },
+        { provide: getRepositoryToken(EventCategory), useFactory: mockRepo },
+        { provide: getRepositoryToken(GuideCategory), useFactory: mockRepo },
+        { provide: getRepositoryToken(GuideItem), useFactory: mockRepo },
+        { provide: getRepositoryToken(PlaceCategory), useFactory: mockRepo },
+        { provide: getRepositoryToken(Place), useFactory: mockRepo },
+        { provide: getRepositoryToken(PlaceImage), useFactory: mockRepo },
+        { provide: getRepositoryToken(Complaint), useFactory: mockRepo },
       ],
     }).compile();
 

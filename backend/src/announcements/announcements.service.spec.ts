@@ -133,7 +133,7 @@ describe('AnnouncementsService', () => {
 
       await service.findAll(mockUser as User, {});
 
-      expect(qb.where).toHaveBeenCalledWith('a.status = :status', {
+      expect(qb.andWhere).toHaveBeenCalledWith('a.status = :status', {
         status: 'published',
       });
     });
