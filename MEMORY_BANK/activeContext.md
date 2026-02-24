@@ -1,11 +1,22 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 21:00
-**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül + Complaints + Settings) — Backend testleri ⚠️ (39 fail)
+**Son Güncelleme:** 24 Şubat 2026 22:30
+**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül + Complaints + Settings + Login Fix) — Backend testleri ⚠️ (39 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
+
+### Commit: fix: fix admin login redirect to use semantic /dashboard URL
+- **Commit ID:** 31a42f2
+- **Tarih:** 24 Şubat 2026
+- **Yapılanlar:**
+  - **Sorun:** Login sonrası `router.push('/')` yapılıyor (semantik değil)
+  - **Çözüm:** 3 adım yapıldı:
+    1. `(dashboard)/dashboard/page.tsx` oluşturuldu — dashboard component'i buraya taşındı
+    2. `(dashboard)/page.tsx` güncellendi — root `/` → `/dashboard` redirect (server component)
+    3. `use-auth.ts` güncellendu — login sonrası `/dashboard`'a yönlendir
+  - **Doğrulama:** `npm run build` başarılı (21 route prerendered)
 
 ### Commit: feat: implement Settings page with theme and profile management
 - **Commit ID:** 948ebde
