@@ -14,7 +14,6 @@ import {
 import { AdminService } from './admin.service';
 import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
-import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 import { QueryNeighborhoodsDto } from './dto/query-neighborhoods.dto';
 import { QueryAdminAdsDto } from './dto/query-admin-ads.dto';
 import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
@@ -87,19 +86,6 @@ export class AdminController {
     @Body() dto: RejectAdDto,
   ) {
     return this.adminService.rejectAd(adminId, id, dto);
-  }
-
-  // GET /admin/scrapers/logs
-  @Get('scrapers/logs')
-  async getScraperLogs(@Query() dto: QueryScraperLogsDto) {
-    return this.adminService.getScraperLogs(dto);
-  }
-
-  // POST /admin/scrapers/:name/run  (super_admin only)
-  @Post('scrapers/:name/run')
-  @Roles(UserRole.SUPER_ADMIN)
-  async runScraper(@Param('name') name: string) {
-    return this.adminService.runScraper(name);
   }
 
   // ── NEIGHBORHOOD CRUD ──────────────────────────────────────────────────────

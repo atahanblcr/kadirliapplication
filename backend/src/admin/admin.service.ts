@@ -20,7 +20,6 @@ import { BusinessCategory } from '../database/entities/business-category.entity'
 import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
-import { ScraperLog } from '../database/entities/scraper-log.entity';
 import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
 import {
   IntercityRoute,
@@ -33,7 +32,6 @@ import { RejectAdDto } from './dto/reject-ad.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { ChangeRoleDto } from './dto/change-role.dto';
-import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
 import { AssignScheduleDto } from './dto/assign-schedule.dto';
@@ -111,8 +109,6 @@ export class AdminService {
     private readonly announcementRepository: Repository<Announcement>,
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
-    @InjectRepository(ScraperLog)
-    private readonly scraperLogRepository: Repository<ScraperLog>,
     @InjectRepository(Pharmacy)
     private readonly pharmacyRepository: Repository<Pharmacy>,
     @InjectRepository(PharmacySchedule)
@@ -965,37 +961,6 @@ export class AdminService {
     }
 
     return { message: 'Kampanya güncellendi' };
-  }
-
-  // ── SCRAPER LOGLARI ───────────────────────────────────────────────────────
-
-  async getScraperLogs(dto: QueryScraperLogsDto) {
-    const { scraper_name, status, page = 1, limit = 20 } = dto;
-    const skip = (page - 1) * limit;
-
-    const qb = this.scraperLogRepository
-      .createQueryBuilder('l')
-      .orderBy('l.started_at', 'DESC')
-      .skip(skip)
-      .take(limit);
-
-    if (scraper_name) {
-      qb.andWhere('l.scraper_name = :scraper_name', { scraper_name });
-    }
-
-    if (status) {
-      qb.andWhere('l.status = :status', { status });
-    }
-
-    const [logs, total] = await qb.getManyAndCount();
-    return { logs, total, page, limit };
-  }
-
-  // ── SCRAPER ÇALIŞTIR ──────────────────────────────────────────────────────
-
-  async runScraper(name: string) {
-    // Scraper job entegrasyonu ileride BullMQ ile eklenecek
-    return { message: 'Scraper başlatıldı', scraper_name: name };
   }
 
   // ── ŞEHİRLERARASI HATLAR ─────────────────────────────────────────────────

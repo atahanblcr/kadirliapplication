@@ -157,7 +157,6 @@ async function runTests() {
         { name: 'Neighborhoods', url: '/neighborhoods', selector: 'a[href*="/neighborhoods"]' },
         { name: 'Pharmacy', url: '/pharmacy', selector: 'a[href*="/pharmacy"]' },
         { name: 'Places', url: '/places', selector: 'a[href*="/places"]' },
-        { name: 'Scrapers', url: '/scrapers', selector: 'a[href*="/scrapers"]' },
         { name: 'Settings', url: '/settings', selector: 'a[href*="/settings"]' },
         { name: 'Taxi', url: '/taxi', selector: 'a[href*="/taxi"]' },
         { name: 'Transport', url: '/transport', selector: 'a[href*="/transport"]' },

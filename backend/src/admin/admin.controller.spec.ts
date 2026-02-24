@@ -14,8 +14,6 @@ describe('AdminController', () => {
       getApprovals: jest.fn(),
       approveAd: jest.fn(),
       rejectAd: jest.fn(),
-      getScraperLogs: jest.fn(),
-      runScraper: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -97,37 +95,6 @@ describe('AdminController', () => {
         'ad-uuid-1',
         dto,
       );
-    });
-  });
-
-  // ── GET /admin/scrapers/logs ──────────────────────────────────────────────
-
-  describe('getScraperLogs', () => {
-    it('scraper loglarını döndürmeli', async () => {
-      const expected = { logs: [], total: 0, page: 1, limit: 20 };
-      service.getScraperLogs.mockResolvedValue(expected as any);
-      const dto = { scraper_name: 'power_outage' };
-
-      const result = await controller.getScraperLogs(dto);
-
-      expect(result).toEqual(expected);
-      expect(service.getScraperLogs).toHaveBeenCalledWith(dto);
-    });
-  });
-
-  // ── POST /admin/scrapers/:name/run ────────────────────────────────────────
-
-  describe('runScraper', () => {
-    it('scraper başlatılmalı', async () => {
-      service.runScraper.mockResolvedValue({
-        message: 'Scraper başlatıldı',
-        scraper_name: 'power_outage',
-      });
-
-      const result = await controller.runScraper('power_outage');
-
-      expect(result.message).toBe('Scraper başlatıldı');
-      expect(service.runScraper).toHaveBeenCalledWith('power_outage');
     });
   });
 });

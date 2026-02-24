@@ -20,7 +20,6 @@ import {
   Home,
   Users,
   MessageSquareWarning,
-  Terminal,
   Settings,
   ChevronLeft,
   type LucideIcon,
@@ -42,7 +41,6 @@ const iconMap: Record<string, LucideIcon> = {
   Home,
   Users,
   MessageSquareWarning,
-  Terminal,
   Settings,
 };
 

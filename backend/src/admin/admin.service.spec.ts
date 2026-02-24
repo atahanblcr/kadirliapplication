@@ -8,7 +8,6 @@ import { DeathNotice, Cemetery, Mosque } from '../database/entities/death-notice
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
-import { ScraperLog } from '../database/entities/scraper-log.entity';
 import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
 import {
   IntercityRoute,
@@ -108,19 +107,6 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     ...overrides,
   } as Campaign);
 
-const makeScraperLog = (overrides: Partial<ScraperLog> = {}): ScraperLog =>
-  ({
-    id: 'log-uuid-1',
-    scraper_name: 'power_outage',
-    status: 'success',
-    records_found: 5,
-    records_created: 3,
-    records_updated: 2,
-    started_at: new Date('2026-02-20T06:00:00Z'),
-    completed_at: new Date('2026-02-20T06:00:12Z'),
-    ...overrides,
-  } as ScraperLog);
-
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
 describe('AdminService', () => {
@@ -131,7 +117,6 @@ describe('AdminService', () => {
   let campaignRepo: any;
   let announcementRepo: any;
   let notifRepo: any;
-  let scraperLogRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -152,7 +137,6 @@ describe('AdminService', () => {
         { provide: getRepositoryToken(Campaign), useFactory: mockRepo },
         { provide: getRepositoryToken(Announcement), useFactory: mockRepo },
         { provide: getRepositoryToken(Notification), useFactory: mockRepo },
-        { provide: getRepositoryToken(ScraperLog), useFactory: mockRepo },
         { provide: getRepositoryToken(Pharmacy), useFactory: mockRepo },
         { provide: getRepositoryToken(PharmacySchedule), useFactory: mockRepo },
         { provide: getRepositoryToken(IntercityRoute), useFactory: mockRepo },
@@ -186,7 +170,6 @@ describe('AdminService', () => {
     campaignRepo = module.get(getRepositoryToken(Campaign));
     announcementRepo = module.get(getRepositoryToken(Announcement));
     notifRepo = module.get(getRepositoryToken(Notification));
-    scraperLogRepo = module.get(getRepositoryToken(ScraperLog));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -566,78 +549,6 @@ describe('AdminService', () => {
       await expect(
         service.banUser('admin-uuid', 'user-uuid-1', { ban_reason: 'Spam' }),
       ).rejects.toThrow(BadRequestException);
-    });
-  });
-
-  // ── getScraperLogs ────────────────────────────────────────────────────────
-
-  describe('getScraperLogs', () => {
-    it('log listesini döndürmeli', async () => {
-      const qb = makeSelectQb([makeScraperLog()]);
-      scraperLogRepo.createQueryBuilder.mockReturnValue(qb);
-
-      const result = await service.getScraperLogs({});
-
-      expect(result.logs).toHaveLength(1);
-      expect(result.total).toBe(1);
-    });
-
-    it('started_at DESC sıralanmalı', async () => {
-      const qb = makeSelectQb([]);
-      scraperLogRepo.createQueryBuilder.mockReturnValue(qb);
-
-      await service.getScraperLogs({});
-
-      expect(qb.orderBy).toHaveBeenCalledWith('l.started_at', 'DESC');
-    });
-
-    it('scraper_name filtresi uygulanmalı', async () => {
-      const qb = makeSelectQb([]);
-      scraperLogRepo.createQueryBuilder.mockReturnValue(qb);
-
-      await service.getScraperLogs({ scraper_name: 'power_outage' });
-
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'l.scraper_name = :scraper_name',
-        { scraper_name: 'power_outage' },
-      );
-    });
-
-    it('status filtresi uygulanmalı', async () => {
-      const qb = makeSelectQb([]);
-      scraperLogRepo.createQueryBuilder.mockReturnValue(qb);
-
-      await service.getScraperLogs({ status: 'failed' });
-
-      expect(qb.andWhere).toHaveBeenCalledWith('l.status = :status', {
-        status: 'failed',
-      });
-    });
-
-    it('boş liste döndürmeli', async () => {
-      const qb = makeSelectQb([]);
-      scraperLogRepo.createQueryBuilder.mockReturnValue(qb);
-
-      const result = await service.getScraperLogs({});
-
-      expect(result.logs).toEqual([]);
-    });
-  });
-
-  // ── runScraper ────────────────────────────────────────────────────────────
-
-  describe('runScraper', () => {
-    it('başlatma mesajı ve scraper adını döndürmeli', async () => {
-      const result = await service.runScraper('power_outage');
-
-      expect(result.message).toBe('Scraper başlatıldı');
-      expect(result.scraper_name).toBe('power_outage');
-    });
-
-    it('farklı scraper adı ile çalışmalı', async () => {
-      const result = await service.runScraper('pharmacy');
-
-      expect(result.scraper_name).toBe('pharmacy');
     });
   });
 });

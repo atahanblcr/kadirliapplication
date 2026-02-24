@@ -10,7 +10,6 @@ import { BusinessCategory } from '../database/entities/business-category.entity'
 import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
-import { ScraperLog } from '../database/entities/scraper-log.entity';
 import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
 import {
   IntercityRoute,
@@ -57,7 +56,6 @@ import { ComplaintsAdminController } from './complaints-admin.controller';
       FileEntity,
       Announcement,
       Notification,
-      ScraperLog,
       Pharmacy,
       PharmacySchedule,
       IntercityRoute,

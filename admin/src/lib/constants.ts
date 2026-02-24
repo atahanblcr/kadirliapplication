@@ -70,23 +70,11 @@ export const SIDEBAR_ITEMS = [
     icon: 'MessageSquareWarning',
   },
   {
-    title: 'Scraper Logları',
-    href: '/scrapers',
-    icon: 'Terminal',
-  },
-  {
     title: 'Ayarlar',
     href: '/settings',
     icon: 'Settings',
   },
 ] as const;
-
-export const STATUS_COLORS = {
-  emergency: 'bg-red-500',
-  high: 'bg-orange-500',
-  normal: 'bg-yellow-500',
-  low: 'bg-blue-500',
-} as const;
 
 export const NEIGHBORHOODS = [
   'Merkez',

@@ -110,17 +110,6 @@ export function usePlaces(filters: PlaceFilters = {}) {
   });
 }
 
-export function usePlace(id: string) {
-  return useQuery({
-    queryKey: placeKeys.detail(id),
-    queryFn: async () => {
-      const res = await api.get(`/admin/places/${id}`);
-      return res.data.data.place as Place;
-    },
-    enabled: !!id,
-  });
-}
-
 export function useCreatePlace() {
   const queryClient = useQueryClient();
   return useMutation({

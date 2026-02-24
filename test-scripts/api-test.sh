@@ -245,15 +245,7 @@ curl -s "$BASE_URL/admin/neighborhoods" \
 TOTAL_TESTS=$((TOTAL_TESTS + 1))
 
 echo ""
-echo "3.4 Admin Scrapers..."
-
-echo "  - GET /admin/scrapers/logs"
-curl -s "$BASE_URL/admin/scrapers/logs" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" | jq '.data | length' > /dev/null && PASSED_TESTS=$((PASSED_TESTS + 1)) || FAILED_TESTS=$((FAILED_TESTS + 1))
-TOTAL_TESTS=$((TOTAL_TESTS + 1))
-
-echo ""
-echo "3.5 Admin Taxi..."
+echo "3.4 Admin Taxi..."
 
 echo "  - GET /admin/taxi"
 curl -s "$BASE_URL/admin/taxi" \
