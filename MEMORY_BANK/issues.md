@@ -38,6 +38,46 @@
 
 **Durum:** 🟢 Çözüldü
 
+**Modül:** Backend Database Schema
+
+**Durum:** 🔴 Açık
+
+**Açıklama:**
+Admin panel API test sırasında 4 endpoint'te database schema mismatch hatası bulundu. AdminService'deki SELECT query'leri database table'larında olmayan column'ları referans ediyor.
+
+**Affected Endpoints:**
+1. GET /admin/deaths → `d.neighborhood_id` column yok
+2. GET /admin/transport/intercity → `r.company_name` column yok
+3. GET /admin/transport/intracity → `r.color` column yok
+4. GET /admin/events → `e.is_local` column yok
+
+**Hata Mesajı:**
+```
+QueryFailedError: column d.neighborhood_id does not exist
+QueryFailedError: column r.company_name does not exist
+QueryFailedError: column r.color does not exist
+QueryFailedError: column e.is_local does not exist
+```
+
+**Root Cause:**
+AdminService'deki SQL query builder select() metodları database schema'sı ile senkron değil. Migration'lar run edilmiş ama schema'da bu column'lar yok.
+
+**Çözüm Seçenekleri:**
+1. AdminService query'lerini database schema'sına uydurmak
+2. Database migration oluşturup eksik column'ları eklemek
+3. TypeORM entities ile senkronizasyon sağlamak
+
+**Etki:**
+- Admin panel UI tamamlandı (100%)
+- Backend API 16/23 endpoint çalışıyor (7 bloklı)
+- Manual test yapılamıyor (test plan hazırlandı, backend düzeltilince çalıştırılacak)
+
+---
+
+## #001 16 Şubat 2026 - Redis Connection Timeout
+
+**Durum:** 🟢 Çözüldü
+
 **Modül:** Auth (OTP Storage)
 
 **Açıklama:**

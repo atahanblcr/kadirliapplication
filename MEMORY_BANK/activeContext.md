@@ -1,11 +1,29 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 22:30
-**Durum:** ✅ Admin Panel 100% tamamlandı (17/17 modül + Complaints + Settings + Login Fix) — Backend testleri ⚠️ (39 fail)
+**Son Güncelleme:** 24 Şubat 2026 23:00
+**Durum:** ⚠️ Admin Panel UI 100% Ready (17/17 modül) — Backend API Database Schema Issue Found (4 column'lar eksik)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
+
+### Commit: docs: add comprehensive admin panel test plan and report (f3c98d8)
+- **Tarih:** 24 Şubat 2026 23:00
+- **Yapılanlar:**
+  - **ADMIN_PANEL_COMPREHENSIVE_TEST_PLAN.md** oluşturuldu (100+ test scenario)
+    - 17 modül her biri için detaylı test case'leri
+    - CRUD, filtering, edge case'ler
+    - Success criteria tanımlı
+  - **ADMIN_PANEL_TEST_REPORT_24_FEB_2026.md** oluşturuldu
+    - Frontend: ✅ 100% Ready (build successful)
+    - Backend API: ⚠️ Partial (16/23 endpoints çalışıyor)
+    - **Root Cause Found:** Database schema mismatch
+      - `deaths` query: `d.neighborhood_id` column eksik
+      - `transport/intercity` query: `r.company_name` column eksik
+      - `transport/intracity` query: `r.color` column eksik
+      - `events` query: `e.is_local` column eksik
+  - AdminService'deki select query'ler database schema'sıyla eşleşmiyor
+  - Manual test planı hazırlandı - backend schema düzeltilince test edilecek
 
 ### Commit: fix: fix admin login redirect to use semantic /dashboard URL
 - **Commit ID:** 31a42f2
