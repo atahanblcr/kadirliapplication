@@ -1,11 +1,27 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026 23:00
-**Durum:** ⚠️ Admin Panel UI 100% Ready (17/17 modül) — Backend API Database Schema Issue Found (4 column'lar eksik)
+**Son Güncelleme:** 24 Şubat 2026 23:30
+**Durum:** ✅ Admin Panel + Backend API 100% Operational (26/26 endpoint 200 OK) — Backend unit testleri ⚠️ (39 fail)
 
 ---
 
 ## 🎯 SON YAPILAN İŞ (24 Şubat 2026)
+
+### Commit: fix: resolve all backend API failures (96c8588)
+- **Tarih:** 24 Şubat 2026 23:30
+- **Yapılanlar:**
+  - **Database Schema** (ALTER TABLE) — Production DB'ye uygulandı:
+    - `death_notices`: `neighborhood_id` eklendi
+    - `intercity_routes`: `company_name`, `from_city`, `contact_phone`, `contact_website`, `amenities` eklendi
+    - `intercity_schedules`: `days_of_week` eklendi
+    - `intracity_routes`: `color`, `fare` eklendi
+    - `intracity_stops`: `neighborhood_id`, `latitude`, `longitude` eklendi
+    - `events`: `is_local` eklendi
+    - `complaints`: `reason`, `priority`, `evidence_file_ids`, `reviewed_by`, `reviewed_at` eklendi
+  - **Admin API**: `GET /admin/ads` route + `getAdminAds()` service method + `QueryAdminAdsDto` eklendi
+  - **Complaints**: `CASE WHEN` ORDER BY TypeORM uyumsuzluğu → JS sort'a taşındı
+  - **Dockerfile**: `CMD dist/main` → `dist/src/main` düzeltildi (NestJS CLI output structure)
+  - **Sonuç**: 26/26 admin endpoint → 200 OK ✅
 
 ### Commit: docs: add comprehensive admin panel test plan and report (f3c98d8)
 - **Tarih:** 24 Şubat 2026 23:00
