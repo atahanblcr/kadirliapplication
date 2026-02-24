@@ -94,6 +94,7 @@ import { QueryComplaintsDto } from './dto/query-complaints.dto';
 import { UpdateComplaintStatusDto } from './dto/update-complaint-status.dto';
 import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { QueryAdminAdsDto } from './dto/query-admin-ads.dto';
 
 @Injectable()
 export class AdminService {
@@ -320,6 +321,42 @@ export class AdminService {
   }
 
   // ── İLAN ONAYLA ───────────────────────────────────────────────────────────
+
+  // ── İLAN LİSTESİ (Admin) ─────────────────────────────────────────────────
+
+  async getAdminAds(dto: QueryAdminAdsDto) {
+    const page = parseInt(dto.page ?? '1', 10);
+    const limit = parseInt(dto.limit ?? '20', 10);
+    const skip = (page - 1) * limit;
+
+    const qb = this.adRepository
+      .createQueryBuilder('ad')
+      .leftJoinAndSelect('ad.user', 'user')
+      .leftJoinAndSelect('ad.category', 'category')
+      .leftJoinAndSelect('ad.images', 'images')
+      .where('ad.deleted_at IS NULL')
+      .orderBy('ad.created_at', 'DESC');
+
+    if (dto.status) {
+      qb.andWhere('ad.status = :status', { status: dto.status });
+    }
+    if (dto.category_id) {
+      qb.andWhere('ad.category_id = :category_id', { category_id: dto.category_id });
+    }
+    if (dto.user_id) {
+      qb.andWhere('ad.user_id = :user_id', { user_id: dto.user_id });
+    }
+    if (dto.search) {
+      qb.andWhere('(ad.title ILIKE :search OR ad.description ILIKE :search)', {
+        search: `%${dto.search}%`,
+      });
+    }
+
+    const [ads, total] = await qb.skip(skip).take(limit).getManyAndCount();
+    return { ads, meta: getPaginationMeta(total, page, limit) };
+  }
+
+  // ── İLAN ONAYLA ──────────────────────────────────────────────────────────
 
   async approveAd(adminId: string, id: string) {
     const ad = await this.adRepository.findOne({
@@ -2818,16 +2855,21 @@ export class AdminService {
       qb.andWhere('c.created_at <= :date_to', { date_to: new Date(date_to) });
     }
 
-    // Urgent/High önce, sonra created_at DESC
-    qb.orderBy(
-      `CASE c.priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END`,
-      'ASC',
-    ).addOrderBy('c.created_at', 'DESC');
+    qb.orderBy('c.created_at', 'DESC');
 
     const offset = (page - 1) * limit;
     qb.skip(offset).take(limit);
 
-    const [items, total] = await qb.getManyAndCount();
+    const [rawItems, total] = await qb.getManyAndCount();
+
+    // Urgent/High önce, sonra created_at DESC
+    const priorityOrder: Record<string, number> = { urgent: 1, high: 2, medium: 3, low: 4 };
+    const items = rawItems.sort((a, b) => {
+      const pa = priorityOrder[a.priority] ?? 4;
+      const pb = priorityOrder[b.priority] ?? 4;
+      if (pa !== pb) return pa - pb;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
     return {
       complaints: items.map((c) => this.mapComplaint(c)),

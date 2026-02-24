@@ -16,6 +16,7 @@ import { QueryApprovalsDto } from './dto/query-approvals.dto';
 import { RejectAdDto } from './dto/reject-ad.dto';
 import { QueryScraperLogsDto } from './dto/query-scraper-logs.dto';
 import { QueryNeighborhoodsDto } from './dto/query-neighborhoods.dto';
+import { QueryAdminAdsDto } from './dto/query-admin-ads.dto';
 import { CreateNeighborhoodDto } from './dto/create-neighborhood.dto';
 import { UpdateNeighborhoodDto } from './dto/update-neighborhood.dto';
 import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
@@ -54,6 +55,12 @@ export class AdminController {
   @Get('approvals')
   async getApprovals(@Query() dto: QueryApprovalsDto) {
     return this.adminService.getApprovals(dto);
+  }
+
+  // GET /admin/ads
+  @Get('ads')
+  async getAds(@Query() dto: QueryAdminAdsDto) {
+    return this.adminService.getAdminAds(dto);
   }
 
   // DELETE /admin/ads/:id
