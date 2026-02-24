@@ -135,7 +135,10 @@ export function UserDetailModal({ userId, onClose }: UserDetailModalProps) {
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-0">
           <DialogHeader className="px-6 pt-6 pb-0">
             {isLoading ? (
-              <Skeleton className="h-7 w-40" />
+              <>
+                <DialogTitle className="sr-only">Kullanıcı Detayı</DialogTitle>
+                <Skeleton className="h-7 w-40" />
+              </>
             ) : user ? (
               <div className="flex items-start justify-between gap-4 pr-8">
                 <div>
