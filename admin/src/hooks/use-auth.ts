@@ -36,7 +36,7 @@ export function useAuth() {
     Cookies.set('user', JSON.stringify(userData), { sameSite: 'strict' });
 
     setUser(userData);
-    router.push('/');
+    router.push('/dashboard');
   }, [router]);
 
   const logout = useCallback(() => {
