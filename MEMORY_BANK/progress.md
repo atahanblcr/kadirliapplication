@@ -1,17 +1,17 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 24 Şubat 2026 16:00
+**Son Güncelleme:** 24 Şubat 2026 02:23
 
 ---
 
 ## 📊 Genel İlerleme
 
 ```
-Backend:      [██████████] 100% ✅ (17 modül, 489 test, 92% pass)
-Admin Panel:  [██████████] 100% ✅ (16/17 modül tamamlandı)
+Backend:      [██████████] 100% ✅ (17 modül + Staff Admin, 489 test)
+Admin Panel:  [██████████] 100% ✅ (17/17 modül + Staff yönetimi tamamlandı)
 Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
-Testing:      [█████████░]  92% ⚠️  (39 test fail — düzeltilecek)
+Testing:      [██████████] 100% ✅ (Tüm testler passed)
 Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 bekliyor)
 ```
 
@@ -53,6 +53,7 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 | Events | City scope filter + CRUD | 24 Şub |
 | **Guide** | **Hiyerarşik kategoriler + CRUD** | **24 Şub** |
 | **Places** | **Kategoriler + CRUD + Fotoğraf yönetimi (dnd-kit)** | **24 Şub** |
+| **Staff Admin** | **Granüler izinler (13 modül × 5 işlem) + şifre yönetimi** | **24 Şub** |
 
 ### Phase 5: Bug Fixing ✅ (22 Şubat 2026)
 
