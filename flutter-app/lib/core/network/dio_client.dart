@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
-
-/// Dio HTTP Client
-/// Configured with interceptors for auth, error handling, and logging
+import '../storage/storage_service.dart';
+import 'auth_interceptor.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
 
   late Dio _dio;
+  bool _interceptorsAdded = false;
 
   factory DioClient() {
     return _instance;
@@ -15,6 +16,23 @@ class DioClient {
 
   DioClient._internal() {
     _initializeDio();
+  }
+
+  /// Call after StorageService.init() to attach auth interceptor
+  void setupInterceptors(StorageService storage) {
+    if (_interceptorsAdded) return;
+    _interceptorsAdded = true;
+
+    _dio.interceptors.add(AuthInterceptor(storage));
+
+    if (kDebugMode) {
+      _dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        error: true,
+        logPrint: (obj) => debugPrint(obj.toString()),
+      ));
+    }
   }
 
   void _initializeDio() {
@@ -28,11 +46,6 @@ class DioClient {
         responseType: ResponseType.json,
       ),
     );
-
-    // TODO: Add interceptors
-    // _dio.interceptors.add(AuthInterceptor());
-    // _dio.interceptors.add(ErrorInterceptor());
-    // _dio.interceptors.add(LoggingInterceptor());
   }
 
   Dio get dio => _dio;

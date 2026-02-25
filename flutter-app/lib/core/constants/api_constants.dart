@@ -15,11 +15,14 @@ class ApiConstants {
   static const String apiVersion = 'v1';
 
   // Endpoints - Auth
-  static const String authOtpRequest = '/auth/otp/request';
-  static const String authOtpVerify = '/auth/otp/verify';
+  static const String authRequestOtp = '/auth/request-otp';
+  static const String authVerifyOtp = '/auth/verify-otp';
   static const String authRegister = '/auth/register';
-  static const String authRefreshToken = '/auth/refresh-token';
+  static const String authRefresh = '/auth/refresh';
   static const String authLogout = '/auth/logout';
+
+  // Endpoints - Neighborhoods
+  static const String neighborhoods = '/admin/neighborhoods';
 
   // Endpoints - Announcements
   static const String announcementsList = '/announcements';
