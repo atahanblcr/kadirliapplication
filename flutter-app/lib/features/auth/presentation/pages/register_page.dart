@@ -216,11 +216,22 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 // Neighborhood dropdown
                 neighborhoodsAsync.when(
                   data: (neighborhoods) {
+                    // Filter by location type
+                    final filtered = neighborhoods
+                        .where((n) => n.type == _locationType)
+                        .toList();
+
+                    // Update label based on location type
+                    final locationLabel =
+                        _locationType == 'neighborhood' ? 'Mahalle' : 'Koy';
+                    final hintText =
+                        '$locationLabel seciniz';
+
                     return DropdownButtonFormField<NeighborhoodModel>(
                       initialValue: _selectedNeighborhood,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'Mahalle / Koy *',
+                        labelText: '$locationLabel / Koy *',
                         prefixIcon:
                             const Icon(Icons.location_on_outlined),
                         border: OutlineInputBorder(
@@ -230,8 +241,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         filled: true,
                         fillColor: AppColors.surface,
                       ),
-                      hint: const Text('Mahalle seciniz'),
-                      items: neighborhoods.map((n) {
+                      hint: Text(hintText),
+                      items: filtered.map((n) {
                         return DropdownMenuItem(
                           value: n,
                           child: Text(n.name),

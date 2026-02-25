@@ -112,10 +112,13 @@ class AuthRepository {
       final responseData = response.data;
 
       List<dynamic> items;
-      if (responseData['data'] is Map && responseData['data']['data'] != null) {
-        items = responseData['data']['data'] as List<dynamic>;
-      } else if (responseData['data'] is List) {
-        items = responseData['data'] as List<dynamic>;
+      final dataField = responseData['data'];
+
+      if (dataField is Map) {
+        // API returns: { data: { neighborhoods: [...], meta: {...} } }
+        items = dataField['neighborhoods'] as List<dynamic>? ?? [];
+      } else if (dataField is List) {
+        items = dataField;
       } else {
         items = [];
       }
