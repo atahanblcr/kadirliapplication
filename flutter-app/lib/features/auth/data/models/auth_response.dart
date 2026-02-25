@@ -13,10 +13,12 @@ class OtpResponse {
   });
 
   factory OtpResponse.fromJson(Map<String, dynamic> json) {
+    final expiresIn = json['expires_in'];
+    final retryAfter = json['retry_after'];
     return OtpResponse(
       message: json['message'] as String? ?? 'OTP gönderildi',
-      expiresIn: json['expires_in'] as int? ?? 300,
-      retryAfter: json['retry_after'] as int? ?? 60,
+      expiresIn: expiresIn is String ? int.tryParse(expiresIn) ?? 300 : expiresIn as int? ?? 300,
+      retryAfter: retryAfter is String ? int.tryParse(retryAfter) ?? 60 : retryAfter as int? ?? 60,
     );
   }
 }
@@ -68,10 +70,11 @@ class AuthResponse {
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    final expiresIn = json['expires_in'];
     return AuthResponse(
       accessToken: json['access_token'] as String,
       refreshToken: json['refresh_token'] as String,
-      expiresIn: json['expires_in'] as int? ?? 2592000,
+      expiresIn: expiresIn is String ? int.tryParse(expiresIn) ?? 2592000 : expiresIn as int? ?? 2592000,
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
     );
   }
@@ -88,9 +91,10 @@ class RefreshResponse {
   });
 
   factory RefreshResponse.fromJson(Map<String, dynamic> json) {
+    final expiresIn = json['expires_in'];
     return RefreshResponse(
       accessToken: json['access_token'] as String,
-      expiresIn: json['expires_in'] as int? ?? 2592000,
+      expiresIn: expiresIn is String ? int.tryParse(expiresIn) ?? 2592000 : expiresIn as int? ?? 2592000,
     );
   }
 }

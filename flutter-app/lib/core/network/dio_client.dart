@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
@@ -36,9 +37,14 @@ class DioClient {
   }
 
   void _initializeDio() {
+    // Use localhost for iOS, 10.0.2.2 for Android emulator
+    final baseUrl = Platform.isIOS
+        ? ApiConstants.devBaseUrlIos
+        : ApiConstants.devBaseUrl;
+
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiConstants.devBaseUrl,
+        baseUrl: baseUrl,
         connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeoutMs),
         receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeoutMs),
         sendTimeout: const Duration(milliseconds: ApiConstants.sendTimeoutMs),

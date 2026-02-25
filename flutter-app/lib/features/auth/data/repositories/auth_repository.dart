@@ -19,9 +19,16 @@ class AuthRepository {
       );
       final data = response.data['data'] as Map<String, dynamic>?
           ?? response.data as Map<String, dynamic>;
-      return OtpResponse.fromJson(data);
+      print('[DEBUG] OtpResponse raw data: $data');
+      final otpResponse = OtpResponse.fromJson(data);
+      print('[DEBUG] OtpResponse parsed: message=${otpResponse.message}, expiresIn=${otpResponse.expiresIn}');
+      return otpResponse;
     } on DioException catch (e) {
+      print('[DEBUG] DioException in requestOtp: ${e.message}');
       throw _handleDioError(e);
+    } catch (e) {
+      print('[DEBUG] Unknown exception in requestOtp: $e');
+      throw UnknownException(message: 'Beklenmedik bir hata: $e');
     }
   }
 
