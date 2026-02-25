@@ -27,7 +27,7 @@ class ApiResponse<T> {
 
   Map<String, dynamic> toJson(Object? Function(T)? toJsonT) => {
         'success': success,
-        'data': data != null ? toJsonT?.call(data) : null,
+        'data': data != null ? toJsonT?.call(data as T) : null,
         'meta': meta?.toJson(),
       };
 }
