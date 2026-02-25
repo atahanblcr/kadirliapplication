@@ -1,7 +1,7 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 24 Şubat 2026 02:23
+**Son Güncelleme:** 25 Şubat 2026
 
 ---
 
@@ -10,7 +10,7 @@
 ```
 Backend:      [██████████] 100% ✅ (17 modül + Staff Admin, 489 test)
 Admin Panel:  [██████████] 100% ✅ (17/17 modül + Staff yönetimi tamamlandı)
-Flutter App:  [░░░░░░░░░░]   0% (Başlanmadı)
+Flutter App:  [██░░░░░░░░]  15% (Auth modülü tamamlandı)
 Testing:      [██████████] 100% ✅ (Tüm testler passed)
 Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 bekliyor)
 ```
@@ -109,12 +109,36 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 
 ---
 
+### Phase 7: Flutter Mobile App (Başladı - 25 Şubat 2026)
+
+| Modül | Özellikler | Tarih |
+|-------|-----------|-------|
+| Firebase Setup | FCM + iOS/Android config | 25 Şub |
+| **Auth** | **Phone→OTP→Register flow + JWT + Auto-refresh** | **25 Şub** |
+
+**Flutter Auth Dosyaları:**
+
+| Dosya | İçerik |
+|-------|--------|
+| `core/network/auth_interceptor.dart` | Bearer token injection + 401 refresh |
+| `features/auth/data/models/user_model.dart` | UserModel + NeighborhoodModel |
+| `features/auth/data/models/auth_response.dart` | OTP/Verify/Auth/Refresh responses |
+| `features/auth/data/repositories/auth_repository.dart` | 6 API methods + error mapping |
+| `features/auth/presentation/providers/auth_provider.dart` | AuthNotifier + AuthState + 3 providers |
+| `features/auth/presentation/pages/phone_input_page.dart` | Turkish phone input |
+| `features/auth/presentation/pages/otp_verify_page.dart` | 6-digit code + timer |
+| `features/auth/presentation/pages/register_page.dart` | Username, age, neighborhood |
+| `app.dart` | AuthGate routing |
+
+---
+
 ## 🔴 Bekleyen Görevler (Öncelik Sırasıyla)
 
-1. **⚠️ Backend test fix** — admin.service.spec.ts + files.service.spec.ts
-2. **📱 Flutter mobile app** — Auth, Ana ekranlar, API entegrasyonu
-3. **🚀 Production deployment** — NGINX + PM2 + SSL
-4. **📲 Push notification** — FCM entegrasyonu
+1. **📱 Flutter: Announcements** — List + Detail pages
+2. **📱 Flutter: Ads** — List + Detail + Favorites
+3. **📱 Flutter: Profile** — View + Edit
+4. **🚀 Production deployment** — NGINX + PM2 + SSL
+5. **📲 flutter_local_notifications** — Re-add with compatible version
 
 ---
 

@@ -1,25 +1,26 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 24 Şubat 2026
-**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter Sprint Başlıyor
+**Son Güncelleme:** 25 Şubat 2026
+**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter Auth Module ✅
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
 
-### ✅ COMPLETED: Admin Staff Yönetimi + Permission Sistemi (24 Şubat 2026)
-- **Durum:** ✅ Implementation tamamlandı, build başarılı
+### ✅ COMPLETED: Flutter Auth Module (25 Şubat 2026)
+- **Durum:** ✅ Implementation tamamlandı, flutter analyze PASS (0 error)
 - **Yapılanlar:**
-  1. ✅ Backend entity (admin-permission.entity.ts) + migration
-  2. ✅ Backend 5 DTO (create, update, permissions, password reset, query)
-  3. ✅ Backend StaffAdminService (9 metot)
-  4. ✅ Backend StaffAdminController (6 endpoint) + PermissionGuard + @Permission decorator
-  5. ✅ Admin module güncelleme (entity + service + controller register)
-  6. ✅ Frontend types (AdminStaff, AdminPermission, ADMIN_MODULES)
-  7. ✅ Frontend use-staff hook (6 mutations)
-  8. ✅ Sidebar güncelleme + Checkbox UI component
-  9. ✅ Frontend sayfalar (list, form dialog with permission matrix, reset password)
-  10. ✅ Backend build: PASS | Admin build: PASS (/staff route)
+  1. ✅ iOS/Android Firebase setup (FCM notifications working)
+  2. ✅ Auth models (UserModel, NeighborhoodModel, OtpResponse, VerifyOtpResponse, AuthResponse)
+  3. ✅ Auth repository (requestOtp, verifyOtp, register, refreshToken, logout, getNeighborhoods)
+  4. ✅ Auth interceptor (auto Bearer token injection + 401 refresh)
+  5. ✅ Auth provider (StateNotifier + AuthState with OTP flow)
+  6. ✅ Phone input page (Turkish format: 05XX, +90 prefix display)
+  7. ✅ OTP verify page (6-digit, 60s countdown, resend, masked phone)
+  8. ✅ Register page (username, age, location type, neighborhood dropdown)
+  9. ✅ App shell (_AuthGate: initial→splash, unauth→phone, auth→home)
+  10. ✅ API constants fixed (wrong paths corrected to match backend)
+  11. ✅ Pre-existing errors fixed (api_response.dart generic type, widget_test.dart)
 
 ### Proje Temizliği & Context Optimizasyonu (24 Şubat 2026)
 - **Scrapers Modülü Kaldırıldı** ✅
@@ -234,11 +235,11 @@ PATCH /admin/places/:id/images/reorder
 
 ## 🔴 SONRAKİ ADIMLAR
 
-### PRIORITY 1: Flutter Mobile App ✅ HAZIR
-- Backend 100% ready, API endpoints tamamen çalışıyor
-- Auth flow (OTP) ready
-- Tüm module API'leri ready
-- Flutter app başlayacak `/flutter-app` klasöründe
+### PRIORITY 1: Flutter Mobile App — Sonraki Modüller
+- ✅ Auth module tamamlandı (Phone→OTP→Register flow)
+- ✅ Firebase FCM setup (iOS + Android)
+- Sırada: Announcements (List + Detail), Ads (List + Detail + Favorites), Profile (View + Edit)
+- flutter_local_notifications re-add edilecek (uyumlu versiyon bulunacak)
 
 ### PRIORITY 2: Production Deployment
 - NGINX config + SSL (Let's Encrypt)
