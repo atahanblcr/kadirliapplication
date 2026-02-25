@@ -299,41 +299,70 @@ keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -sto
 
 ## 📝 Checklist - Firebase Setup Tamamlandı mı?
 
-- [ ] Google Cloud Console'da Firebase projesi oluşturuldu
-- [ ] Android app eklendi (google-services.json indirildi)
-- [ ] iOS app eklendi (GoogleService-Info.plist indirildi)
-- [ ] google-services.json → flutter-app/android/app/ içinde
-- [ ] GoogleService-Info.plist → flutter-app/ios/Runner/ içinde
-- [ ] android/build.gradle güncellendi
-- [ ] android/app/build.gradle güncellendi
-- [ ] Xcode'da GoogleService-Info.plist Bundle Resources'a eklendi
-- [ ] `flutterfire configure --platforms=android,ios` çalıştırıldı
-- [ ] lib/firebase_options.dart oluşturuldu
-- [ ] main.dart'da `Firebase.initializeApp()` eklendi
-- [ ] main.dart'da FCM permissions istendi
-- [ ] `flutter run` hatasız çalışıyor
-- [ ] Bildirim test gönderimi başarılı
+- [x] Google Cloud Console'da Firebase projesi oluşturuldu
+- [x] Android app eklendi (google-services.json indirildi)
+- [x] iOS app eklendi (GoogleService-Info.plist indirildi)
+- [x] google-services.json → flutter-app/android/app/ içinde
+- [x] GoogleService-Info.plist → flutter-app/ios/Runner/ içinde
+- [x] android/build.gradle güncellendi
+- [x] android/app/build.gradle güncellendi
+- [x] Xcode'da GoogleService-Info.plist Bundle Resources'a eklendi (IOS_FIREBASE_SETUP.md)
+- [x] lib/firebase_options.dart oluşturuldu
+- [x] main.dart'da `Firebase.initializeApp()` eklendi
+- [x] main.dart'da FCM permissions istendi
+- [x] FCM Token Manager oluşturuldu (backend'e gönderme)
+- [x] Firebase Messaging Service oluşturuldu (handlers)
+- [ ] `flutter run` hatasız çalışıyor (test gerekli)
+- [ ] Bildirim test gönderimi başarılı (test gerekli)
 
 ---
 
-## 🔗 Sonraki Adımlar (Auth Module Yazımı)
+## 🔗 Sonraki Adımlar
 
-Firebase setup tamamlandıktan sonra:
+### Yapılan İşler ✅
 
-1. **Auth module** yazılacak:
-   - `/features/auth/presentation/pages/` → OTP, Register sayfası
-   - `/features/auth/data/repositories/` → AuthRepository
-   - `/features/auth/presentation/providers/` → authProvider (Riverpod)
+1. **FCM Token → Backend gönderme**
+   - ✅ `FcmTokenManager` class'ı oluşturuldu
+   - ✅ Token otomatik backend'e gönderiliyor
+   - ✅ Token refresh listener eklendi
+   - 📍 `/core/notifications/fcm_token_manager.dart`
 
-2. **FCM Token → Backend gönderme:**
-   - main.dart'da FCM token al
-   - `/v1/notifications/token` endpoint'ine gönder
-   - Token storage'a kaydet
+2. **Notification Handlers**
+   - ✅ `FirebaseMessagingService` class'ı oluşturuldu
+   - ✅ Foreground message handler
+   - ✅ Background message handler
+   - 📍 `/core/notifications/firebase_messaging_service.dart`
 
-3. **Notification listeners:**
-   - Ön plan bildirim: flutter_local_notifications
-   - Arka plan bildirim: Firebase FCM handler
-   - Terminated app: Deep linking (v2.0)
+3. **iOS Setup**
+   - 📋 `IOS_FIREBASE_SETUP.md` - Xcode manuel adımları
+   - 📍 `flutter-app/IOS_FIREBASE_SETUP.md`
+
+4. **Main Initialization**
+   - ✅ main.dart güncellendi
+   - ✅ FCM permissions otomatik isteniyor
+   - ✅ Token backend'e otomatik gönderiliyor
+
+### Yapılacak İşler 🔄
+
+1. **iOS Manual Setup**
+   - Xcode'da Bundle Resources'a GoogleService-Info.plist ekle
+   - (Detaylı talimat: `IOS_FIREBASE_SETUP.md`)
+
+2. **Auth Module**
+   - `/features/auth/` - OTP + Register + JWT
+   - `/features/auth/data/` - API models, repositories
+   - `/features/auth/presentation/` - Pages, providers
+
+3. **Notification Navigation**
+   - Message tap → relevant screen (deep linking)
+   - Announcement → AnnouncementDetail
+   - Ad → AdDetail
+   - etc.
+
+4. **Local Notifications** (opsiyonel)
+   - `flutter_local_notifications` - gösterme için
+   - Android + iOS notification sounds
+   - Custom notification icons
 
 ---
 

@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
+import 'core/notifications/fcm_token_manager.dart';
+import 'core/notifications/firebase_messaging_service.dart';
 import 'app.dart';
 
 void main() async {
@@ -12,6 +15,26 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Request notification permissions
+    await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carryForwardNotificationSettings: true,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    // Initialize FCM Token Manager (get token + send to backend)
+    await FcmTokenManager().initAndSendToken();
+
+    // Listen for token refresh
+    FcmTokenManager().listenForTokenRefresh();
+
+    // Initialize Firebase Messaging Service (foreground + background handlers)
+    await FirebaseMessagingService().init();
   }
 
   runApp(const KadirliApp());
