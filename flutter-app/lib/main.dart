@@ -21,7 +21,6 @@ void main() async {
       alert: true,
       announcement: false,
       badge: true,
-      carryForwardNotificationSettings: true,
       criticalAlert: false,
       provisional: false,
       sound: true,
