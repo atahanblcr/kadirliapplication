@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "634227882013",
+    "project_id": "kadirliapplication",
+    "storage_bucket": "kadirliapplication.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634227882013:android:66569c1a4f3745fff5eef4",
+        "android_client_info": {
+          "package_name": "com.kadirli.kadirliapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLMbhQxz40ZgsgrtbgXtvQRBDXdsKmIBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
