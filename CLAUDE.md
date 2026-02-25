@@ -2,7 +2,7 @@
 
 **Proje:** KadirliApp
 **Versiyon:** 1.0
-**Son Güncelleme:** 24 Şubat 2026
+**Son Güncelleme:** 25 Şubat 2026
 
 ---
 
@@ -25,7 +25,7 @@ Sen KadirliApp projesinin **Lead Developer**'ısın. Görevin bu projeyi sıfır
 
 ---
 
-## 📊 MEVCUT PROJE DURUMU (24 Şubat 2026)
+## 📊 MEVCUT PROJE DURUMU (25 Şubat 2026)
 
 **Backend:** ✅ **100% Tamamlandı**
 - 17 modül (auth, ads, announcements, deaths, campaigns, users, pharmacy, transport, neighborhoods, events, taxi, guide, places, admin, files, notifications, jobs)
@@ -33,16 +33,20 @@ Sen KadirliApp projesinin **Lead Developer**'ısın. Görevin bu projeyi sıfır
 - 492 unit test (85.13% coverage)
 - Production-ready ✅
 
-**Admin Panel:** ✅ **97% Tamamlandı**
-- 13 ana modül (Dashboard, Announcements, Ads, Deaths, Campaigns, Users, Pharmacy, Transport, Neighborhoods, Taxi, Events, Scrapers, Settings)
+**Admin Panel:** ✅ **100% Tamamlandı**
+- 16 ana modül (Dashboard, Announcements, Ads, Deaths, Campaigns, Users, Pharmacy, Transport, Neighborhoods, Taxi, Events, Jobs, Transport, Places, Guide, Notifications, Settings)
 - Tüm CRUD işlemleri
 - Feature-complete, responsive UI
-- Hazır deployment için (admin/Dockerfile: Eklenecek)
+- Production-ready ✅
 
-**Flutter Mobil App:** ❌ **0% (Sonraki Aşama)**
-- `/flutter-app` dizini hazır (boş proje yapısı)
-- Backend API 100% hazır, entegrasyon yapılacak
-- Frontend + Auth + Main screens: Sıradaki sprint
+**Flutter Mobil App:** 🚀 **5% (Setup Tamamlandı)**
+- ✅ Complete project structure (lib/, android/, ios/, web/)
+- ✅ 30+ dependencies (Riverpod, Dio, Firebase, Google Maps, etc.)
+- ✅ Firebase Cloud Messaging (FCM) configured
+- ✅ Core architecture (Constants, Network, Storage, Exceptions, Validators)
+- ✅ google-services.json + GoogleService-Info.plist konfigürasyonu
+- 🔄 Auth Module (OTP + Register) - Başlayacak
+- 📋 16 modül planlı (4 haftalık timeline)
 
 **DevOps & Deployment:**
 - Development: ✅ `docker-compose.yml` (PostgreSQL, Redis, Backend, Admin)
@@ -54,6 +58,10 @@ Sen KadirliApp projesinin **Lead Developer**'ısın. Görevin bu projeyi sıfır
 - ✅ `SKILLS/admin-nextjs.md`
 - ✅ `SKILLS/testing-strategy.md`
 - ✅ `SKILLS/api-security.md`
+- ✅ `SKILLS/flutter-auth.md` (OTP + JWT)
+- ✅ `SKILLS/flutter-ads.md` (CRUD + Favorites)
+- ✅ `SKILLS/flutter-ui.md` (Material Design 3 patterns)
+- ✅ `SKILLS/flutter-list-detail.md` (List views + Detail pages)
 
 **MEMORY_BANK Klasörü:**
 - `activeContext.md` - Aktif görev context
@@ -91,6 +99,21 @@ Sen KadirliApp projesinin **Lead Developer**'ısın. Görevin bu projeyi sıfır
 5. **docs/08_CLAUDE_CODE_PROMPT_CHAIN.md**
    - Adım adım görevlerin
    - Hangi sırayla ne yapacaksın
+
+6. **FLUTTER_SETUP_PLAN.md** (Mobil App)
+   - Flutter proje setup detayları
+   - 4 haftalık development roadmap
+   - Architecture kararları
+
+7. **FIREBASE_SETUP_GUIDE.md** (Mobil App)
+   - Firebase Cloud Messaging kurulum
+   - Android + iOS konfigürasyonu
+   - Push notifications setup
+
+8. **flutter-app/README.md**
+   - Flutter proje dokumentasyonu
+   - Paketler ve versiyonlar
+   - Coding standards
 
 ---
 
@@ -274,7 +297,7 @@ auto_archive_at = funeral_date + 7 days;
 
 ## 🎯 GELİŞTİRME AKIŞI
 
-### Her Modül İçin:
+### Backend Modülleri İçin:
 
 1. **Oku:**
    - docs/04_API_ENDPOINTS_MASTER.md'den ilgili bölümü
@@ -300,6 +323,37 @@ auto_archive_at = funeral_date + 7 days;
    - Bana ne yaptığını özetle
    - Karşılaştığın sorunları bildir
 
+### Flutter Mobil Modülleri İçin:
+
+1. **Oku:**
+   - FLUTTER_RESPONSES.md'den archicture kararlarını
+   - SKILLS/flutter-*.md dosyasını (ilgili modül)
+   - docs/04_API_ENDPOINTS_MASTER.md'den API detaylarını
+
+2. **Planla:**
+   - Feature klasörü: `lib/features/[modül]/{data, presentation}`
+   - Models (API response) → Repository → Provider → Pages sırası
+   - Riverpod providers
+
+3. **Yaz:**
+   - Repository pattern (API calls)
+   - Riverpod providers (state management)
+   - Pages + Widgets (UI)
+   - Material Design 3 bileşenler
+
+4. **Handle:**
+   - Error handling (custom exceptions)
+   - Loading states (AsyncValue)
+   - Empty states
+
+5. **Dokümante Et:**
+   - MEMORY_BANK/activeContext.md güncelle
+   - Git commit at
+
+6. **Raporla:**
+   - Hangi modülü yaptığını söyle
+   - Test sonuçlarını bildir
+
 ---
 
 ## 🔧 TOOLS VE SKILLS
@@ -308,16 +362,27 @@ auto_archive_at = funeral_date + 7 days;
 
 Eğer bir task için özel bir yetenek gerekiyorsa, `SKILLS/` klasörüne bak:
 
+**Backend Skills:**
 - **SKILLS/backend-nestjs.md** - NestJS best practices
-- **SKILLS/admin-nextjs.md** - Next.js Admin panel best practices
 - **SKILLS/testing-strategy.md** - Test yazma stratejileri
 - **SKILLS/api-security.md** - Security best practices
+
+**Admin Panel Skills:**
+- **SKILLS/admin-nextjs.md** - Next.js Admin panel best practices
+
+**Flutter Mobile Skills:**
+- **SKILLS/flutter-auth.md** - Authentication (OTP + JWT)
+- **SKILLS/flutter-ads.md** - CRUD operations + Favorites
+- **SKILLS/flutter-ui.md** - Material Design 3 patterns
+- **SKILLS/flutter-list-detail.md** - List views + Detail pages
 
 Her skill dosyasını göreve başlamadan oku!
 
 ---
 
 ## 🚫 YAPMAMAN GEREKENLER
+
+### Backend/Admin için:
 
 1. ❌ **Yorum yapmadan değişiklik yapma**
    - "Şimdi X modülünü yazıyorum" de önce
@@ -339,6 +404,26 @@ Her skill dosyasını göreve başlamadan oku!
 
 7. ❌ **Validation yapmadan API'ye data alma**
    - DTO'lar zorunlu
+
+### Flutter Mobile için:
+
+1. ❌ **API response'u parse etmeden UI yazma**
+   - Response models + Freezed kullan
+
+2. ❌ **Error handling ve loading states atlama**
+   - AsyncValue<T> ile state handle et
+
+3. ❌ **Storage/Tokens olmadan veri yazmak**
+   - SharedPreferences/Hive'ı doğru kullan
+
+4. ❌ **Hard-coded strings kullanma**
+   - Constants'tan al (colors, spacing, text styles)
+
+5. ❌ **Riverpod provider'ları yanlış organize etme**
+   - .autoDispose ve .family doğru yerlerde kullan
+
+6. ❌ **Network errors'ı ignore etme**
+   - Custom exceptions + user-friendly mesajlar
 
 ---
 
