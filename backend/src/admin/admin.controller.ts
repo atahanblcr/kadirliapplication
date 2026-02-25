@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { SkipAuth } from '../common/decorators/skip-auth.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
 
 @Controller('admin')
@@ -90,7 +91,8 @@ export class AdminController {
 
   // ── NEIGHBORHOOD CRUD ──────────────────────────────────────────────────────
 
-  // GET /admin/neighborhoods
+  // GET /admin/neighborhoods (Public - for registration form)
+  @SkipAuth()
   @Get('neighborhoods')
   async getNeighborhoods(@Query() dto: QueryNeighborhoodsDto) {
     const page = parseInt(dto.page ?? '1', 10);
