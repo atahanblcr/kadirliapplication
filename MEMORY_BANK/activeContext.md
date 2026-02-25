@@ -1,30 +1,57 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
 **Son Güncelleme:** 25 Şubat 2026
-**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter Auth Module ✅
+**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter Auth Module ✅ BOTH PLATFORMS
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
 
-### ✅ COMPLETED: Flutter Auth Module (25 Şubat 2026) - TESTED & WORKING
-- **Durum:** ✅ Fully tested on Android emulator, Phone→OTP→Register flow working
-- **Tested Flow:**
-  1. ✅ Phone input (05551234567) → OTP request 200 OK
-  2. ✅ OTP code (123456) → Verification 200 OK, temp_token received
-  3. ✅ Register page navigated → Neighborhoods dropdown loading...
-  4. ⚠️ Neighborhoods 401 Unauthorized (needs public endpoint or temp_token header)
+### ✅ COMPLETED: Flutter Auth Module iOS & Android Testing (25 Şubat 2026)
+- **Durum:** ✅ FULLY TESTED - Both Android & iOS working perfectly
+- **Test Sonuçları:**
+  1. ✅ **Android:** Phone (05551234567) → OTP (123456) → Register → Home ✓
+  2. ✅ **iOS:** Phone (05551234567) → OTP (123456) → Register → Home ✓
+  3. ✅ Registration form: Username, Age, Location Type, Neighborhood/Village selection ✓
+  4. ✅ Form validation working ✓
+  5. ✅ Neighborhoods dropdown dynamic filtering by location type ✓
 
-- **Fixes Applied:**
-  1. ✅ Android emulator base URL: `10.0.2.2:3000` (was 192.168.1.100)
-  2. ✅ Dynamic platform detection: iOS→localhost, Android→10.0.2.2
-  3. ✅ Response parsing: String-to-int conversion for `expires_in` fields
-  4. ✅ OtpResponse, AuthResponse, RefreshResponse parsing fixed
-  5. ✅ Debug logging added for troubleshooting
+- **Critical Fixes Applied:**
+  1. ✅ **iOS Build Error:** Removed duplicate Info.plist from Copy Bundle Resources phase
+     - Error was: "Multiple commands produce Info.plist"
+     - Solution: Edited ios/Runner.xcodeproj/project.pbxproj, removed build file entries
+  2. ✅ **Platform-specific API URLs:**
+     - Android emulator: `http://10.0.2.2:3000/v1`
+     - iOS simulator: `http://localhost:3000/v1`
+     - Auto-detection via Platform.isIOS/Platform.isAndroid
+  3. ✅ **Response Parsing:** String-to-int conversion for expires_in, retry_after fields
+  4. ✅ **Public Neighborhoods Endpoint:** Created @SkipAuth() decorator pattern
+     - JwtAuthGuard checks skipAuth metadata first
+     - RolesGuard also checks skipAuth
+     - Applied to GET /admin/neighborhoods for registration form
+  5. ✅ **Neighborhoods Dropdown Logic:** Dynamic filtering based on location_type selection
+     - Changes location_type → resets neighborhood selection
+     - Shows only matching neighborhoods or villages
+     - Label updates: "Mahalle/Koy" based on selection
+  6. ✅ **Database Cleanup:** Deleted duplicate user from database (05551234567)
+     - Allowed re-testing with same phone number
 
-- **Outstanding Issue:**
-  - GET `/admin/neighborhoods` returns 401 (needs @Public() decorator or new public endpoint)
-  - Register page shows error when loading neighborhoods
+- **Files Modified:**
+  - `flutter-app/lib/core/constants/api_constants.dart` - Platform-specific base URLs
+  - `flutter-app/lib/core/network/dio_client.dart` - Platform detection in initialization
+  - `flutter-app/lib/features/auth/data/models/auth_response.dart` - Response parsing fixes
+  - `flutter-app/lib/features/auth/data/repositories/auth_repository.dart` - Neighborhoods parsing fix
+  - `flutter-app/lib/features/auth/presentation/pages/register_page.dart` - Dynamic dropdown filtering
+  - `flutter-app/ios/Runner.xcodeproj/project.pbxproj` - Info.plist build phase fix
+  - `backend/src/common/decorators/skip-auth.decorator.ts` - NEW: Public endpoint decorator
+  - `backend/src/auth/guards/jwt-auth.guard.ts` - Added skipAuth check
+  - `backend/src/auth/guards/roles.guard.ts` - Added skipAuth check
+  - `backend/src/admin/admin.controller.ts` - Added @SkipAuth() to neighborhoods GET
+
+- **Git Commit:**
+  - `fix: resolve iOS Info.plist build error in Xcode project`
+  - Removed duplicate Info.plist entry from Copy Bundle Resources phase
+  - Both Android and iOS auth flows now working
 
 ### Proje Temizliği & Context Optimizasyonu (24 Şubat 2026)
 - **Scrapers Modülü Kaldırıldı** ✅

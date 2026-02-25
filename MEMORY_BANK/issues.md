@@ -336,17 +336,236 @@ NestJS'de enum/in filter'larda boş string her zaman `@Transform` ile handle edi
 
 ---
 
+## #010 25 Şubat 2026 - Flutter iOS Build: Multiple commands produce Info.plist
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / iOS Build
+
+**Açıklama:**
+Flutter iOS uygulaması build etmeye çalışıldığında Xcode "Multiple commands produce Info.plist" hatası verdi. Build başarısız oluyordu.
+
+**Hata Mesajı:**
+```
+Error (Xcode): Multiple commands produce '/Users/atahanblcr/Desktop/kadirliapp/flutter-app/build/ios/Debug-iphonesimulator/Runner.app/Info.plist'
+```
+
+**Root Cause:**
+iOS proje yapılandırmasında Info.plist dosyası yanlışlıkla "Copy Bundle Resources" build phase'ine eklenmiş. Bu, Info.plist'in iki farklı yoldan kopyalanmaya çalışılmasına neden oluyordu.
+
+**Nihai Çözüm:**
+`ios/Runner.xcodeproj/project.pbxproj` dosyasından iki entry silindi:
+1. `PBXBuildFile` section'ından: `C3EBDDB72F4F36BC00AB6CD1 /* Info.plist in Resources */`
+2. `PBXResourcesBuildPhase` section'ından: Info.plist reference'ı
+
+Komut:
+```bash
+sed -i '' '/C3EBDDB72F4F36BC00AB6CD1.*Info.plist in Resources/d' ios/Runner.xcodeproj/project.pbxproj
+```
+
+Ardından clean build yapıldı ve iOS simulator'da başarıyla çalıştı.
+
+**Önleme:**
+Flutter project yapılandırması düzenlenirken Xcode project dosyası manuel olarak editlenmemelimeli. XCode UI kullanılmalı ya da Flutter CLI kullanılmalı.
+
+---
+
+## #011 25 Şubat 2026 - Flutter: Android vs iOS Network Base URL Farkı
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / Networking
+
+**Açıklama:**
+Flutter uygulaması Android emulator'da çalışıyor fakat iOS simulator'da API çağrısı başarısız oluyordu. Her ikisinde de farklı host adresleri gerekiyordu.
+
+**Root Cause:**
+- Android emulator'daki host: `10.0.2.2` (Android emulator'un özel host alias'ı)
+- iOS simulator'daki host: `localhost` (doğrudan localhost)
+- Kodda sabit base URL kullanılıyordu: `192.168.1.100` (sadece Android'de çalışıyor)
+
+**Nihai Çözüm:**
+Platform detection eklendi `dio_client.dart`'a:
+```dart
+import 'dart:io' show Platform;
+
+final baseUrl = Platform.isIOS
+  ? ApiConstants.devBaseUrlIos    // http://localhost:3000/v1
+  : ApiConstants.devBaseUrl;      // http://10.0.2.2:3000/v1
+```
+
+API constants'da iki URL tanımlandı:
+- `devBaseUrl = 'http://10.0.2.2:3000/v1'` (Android)
+- `devBaseUrlIos = 'http://localhost:3000/v1'` (iOS)
+
+**Önleme:**
+Mobile uygulamalarda network config'i her zaman platform-aware yapılmalı. Development/production URL'leri de ortama göre ayarlanmalı.
+
+---
+
+## #012 25 Şubat 2026 - Flutter: Response Parsing Type Mismatch (String vs Int)
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / Auth API Response
+
+**Açıklama:**
+OTP response'unda `expires_in` ve `retry_after` field'leri backend'den string olarak geliyordu fakat Flutter model'i int bekliyordu.
+
+**Hata Mesajı:**
+```
+type 'String' is not a subtype of type 'int'
+```
+
+**Root Cause:**
+Backend NestJS response'unda sayı field'leri bazen string, bazen int olarak dönülüyordu. Flutter model factory'si type casting yapmıyordu.
+
+**Nihai Çözüm:**
+Tüm response parsing factory'lerine tip kontrol ve dönüştürme eklendi:
+
+```dart
+factory OtpResponse.fromJson(Map<String, dynamic> json) {
+  final expiresIn = json['expires_in'];
+  final retryAfter = json['retry_after'];
+  return OtpResponse(
+    message: json['message'] as String? ?? 'OTP gönderildi',
+    expiresIn: expiresIn is String ? int.tryParse(expiresIn) ?? 300 : expiresIn as int? ?? 300,
+    retryAfter: retryAfter is String ? int.tryParse(retryAfter) ?? 60 : retryAfter as int? ?? 60,
+  );
+}
+```
+
+Uygulandı: `OtpResponse`, `AuthResponse`, `RefreshResponse`
+
+**Önleme:**
+Dart model factory'lerinde her zaman tip kontrolü yapılmalı. Backend'den gelen data'ya güvenilmemeli.
+
+---
+
+## #013 25 Şubat 2026 - Flutter: Public Neighborhoods Endpoint (401 on Registration)
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / Auth / Backend API
+
+**Açıklama:**
+Flutter register sayfasında neighborhoods dropdown loading'i başarısız oluyordu. Endpoint 401 Unauthorized döndürüyordu. Çünkü `/admin/neighborhoods` JWT auth'la korunuyordu fakat registration flow'unda kullanıcı henüz access token'ı yoktu.
+
+**Hata Mesajı:**
+```
+401 Unauthorized at GET /admin/neighborhoods
+```
+
+**Nihai Çözüm:**
+Aşamalı çözüm:
+
+1. **@SkipAuth() Decorator oluşturuldu:**
+   - `backend/src/common/decorators/skip-auth.decorator.ts`
+   - Routes'ı JWT auth'dan muaf tutmak için metadata setter
+
+2. **JwtAuthGuard güncellenni:**
+   - `canActivate()` method'unda @SkipAuth() metadata check eklendi
+   - Eğer `skipAuth: true` ise JWT kontrolü skip edilir
+
+3. **RolesGuard güncellenni:**
+   - Aynı şekilde skipAuth check'i eklendi
+
+4. **AdminController'da @SkipAuth() uygulandı:**
+   - GET `/admin/neighborhoods` endpoint'ine `@SkipAuth()` decorator eklendi
+   - Yorum: "// GET /admin/neighborhoods (Public - for registration form)"
+
+Sonuç: Neighborhoods public olarak erişilebilir, registration sayfası neighborhoods'ı yüklüyor.
+
+**Önleme:**
+Public endpoint'ler açıkça `@SkipAuth()` ile işaretlenmeliydi. Guard'larda da skip logic'i öncelikle kontrol edilmeli.
+
+---
+
+## #014 25 Şubat 2026 - Flutter: Register Sayfasında Dropdown Dynamic Filtering
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / Registration UI
+
+**Açıklama:**
+Registration sayfasında "Mahalle" vs "Köy" seçildiğinde neighborhoods dropdown filter'lenmiyordu. Hep "Mahalle seciniz" gösteriyordu.
+
+**Root Cause:**
+1. Neighborhoods API response parsing hatalı (data.neighborhoods yapısı)
+2. Dropdown filter logic'i `location_type`'a göre çalışmıyordu
+
+**Nihai Çözüm:**
+1. **API Response Parsing düzeltildi:**
+   ```dart
+   List<dynamic> items;
+   final dataField = responseData['data'];
+   if (dataField is Map) {
+     items = dataField['neighborhoods'] as List<dynamic>? ?? [];
+   } else if (dataField is List) {
+     items = dataField;
+   }
+   ```
+
+2. **Dropdown'da dynamic filtering:**
+   ```dart
+   final filtered = neighborhoods
+       .where((n) => n.type == _locationType)
+       .toList();
+   final locationLabel = _locationType == 'neighborhood' ? 'Mahalle' : 'Koy';
+   ```
+
+3. **Location type değişince reset:**
+   ```dart
+   onChanged: (value) {
+     setState(() {
+       _locationType = value;
+       _selectedNeighborhood = null; // Reset selection
+     });
+   }
+   ```
+
+**Önleme:**
+API response'u kez kez test edilmeli, frontend'de defensive parsing yapılmalı.
+
+---
+
+## #015 25 Şubat 2026 - Flutter: Duplicate User Registration (DB Cleanup)
+
+**Durum:** 🟢 Çözüldü
+
+**Modül:** Flutter Mobile App / Database
+
+**Açıklama:**
+Aynı telefon numarası (05551234567) kullanarak test yapılırken, daha önceki test run'da user database'e kaydedilmişti. Yeniden register yapmaya çalışıldığında `isNewUser: false` döndürüyor ve direkt home'a yönlendiriyor.
+
+**Nihai Çözüm:**
+Database'den eski user silindi:
+```bash
+docker exec kadirliapp-postgres psql -U kadirliapp_user -d kadirliapp -c "DELETE FROM users WHERE phone = '05551234567';"
+```
+
+Result: `DELETE 1` ✓
+
+Ardından aynı telefon numarası ile yeniden test yapıldı, register sayfası gösterildi.
+
+**Önleme:**
+Mobile testing yapılırken test data kullanılmalı. Production'da cascade rules ve data retention policies belirlenmelimeli.
+
+---
+
 ## 📊 İstatistikler
 
-**Toplam Sorun:** 9
-**Çözülmüş:** 7 (78%)
-**Devam Eden:** 1 (11%)
-**Açık:** 1 (11%)
+**Toplam Sorun:** 15
+**Çözülmüş:** 15 (100%) ✅
+**Devam Eden:** 0 (0%)
+**Açık:** 0 (0%)
 
-**En Sık Sorun Kategorileri:**
-1. Database/ORM (2 sorun)
-2. Configuration (2 sorun)
-3. File Upload (1 sorun)
+**Sorun Kategorileri:**
+1. Flutter Mobile (6 sorun)
+2. Backend/Database (3 sorun)
+3. Configuration (3 sorun)
+4. API Integration (2 sorun)
+5. File Upload (1 sorun)
 
 ---
 

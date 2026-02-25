@@ -77,6 +77,57 @@
 
 ---
 
+### 8. Flutter Platform-Specific Networking
+**Karar:** Platform detection ile dynamic base URL
+**Tarih:** 25 Şubat 2026
+**Neden:**
+- Android emulator: special host alias `10.0.2.2` gerekli
+- iOS simulator: `localhost` çalışıyor
+- Development flexibility (dev machine IP yerine standart URL'ler)
+
+**Uygulama:**
+```dart
+final baseUrl = Platform.isIOS
+  ? 'http://localhost:3000/v1'      // iOS
+  : 'http://10.0.2.2:3000/v1';      // Android
+```
+
+**Benefit:** Single codebase, her platform'da çalışıyor
+
+---
+
+### 9. Flutter API Response Defensive Parsing
+**Karar:** Tüm number field'lerde String→Int type conversion
+**Tarih:** 25 Şubat 2026
+**Neden:**
+- Backend'den gelen response inconsistent olabiliyor
+- JSON parsing edge cases: `"300"` vs `300`
+- Type safety: Dart strongly typed
+
+**Uygulama:**
+```dart
+final value = json['expires_in'];
+return value is String ? int.tryParse(value) ?? 300 : value as int? ?? 300;
+```
+
+---
+
+### 10. Public API Endpoints Strategy
+**Karar:** @SkipAuth() decorator ile JWT'den muaf endpoint'ler
+**Tarih:** 25 Şubat 2026
+**Neden:**
+- Registration flow'unda token yok (OTP doğrulandıktan sonra temp_token)
+- GET /admin/neighborhoods herkese açık olmalı
+- Clean separation: public vs protected endpoints
+
+**Uygulama:**
+- Decorator: `skip-auth.decorator.ts`
+- JwtAuthGuard: skipAuth metadata check before canActivate()
+- RolesGuard: skipAuth check before role validation
+- Endpoint: `@SkipAuth() @Get('neighborhoods')`
+
+---
+
 ### 8. Deployment Strategy
 **Karar:** Docker + NGINX + PM2
 **Tarih:** 23 Şubat 2026
