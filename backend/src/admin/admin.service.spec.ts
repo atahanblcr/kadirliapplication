@@ -43,6 +43,7 @@ function makeSelectQb(data: any[] = []) {
   chain.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getMany = jest.fn().mockResolvedValue(data);
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, data.length]);
+  qb.getOne = jest.fn().mockResolvedValue(data[0] || null);
   return qb;
 }
 
@@ -164,6 +165,33 @@ const makeNeighborhood = (overrides: Partial<Neighborhood> = {}): Neighborhood =
     ...overrides,
   } as Neighborhood);
 
+const makeIntercityRoute = (overrides: Partial<IntercityRoute> = {}): IntercityRoute =>
+  ({
+    id: 'ic-route-1',
+    company_name: 'Test Turizm',
+    from_city: 'İstanbul',
+    destination: 'Ankara',
+    duration_minutes: 300,
+    price: 50,
+    is_active: true,
+    schedules: [],
+    ...overrides,
+  } as IntercityRoute);
+
+const makeIntracityRoute = (overrides: Partial<IntracityRoute> = {}): IntracityRoute =>
+  ({
+    id: 'ir-route-1',
+    route_number: '1',
+    route_name: 'İstasyon - Merkez',
+    first_departure: '06:00',
+    last_departure: '23:00',
+    frequency_minutes: 15,
+    fare: '2.5',
+    is_active: true,
+    stops: [],
+    ...overrides,
+  } as IntracityRoute);
+
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
 describe('AdminService', () => {
@@ -183,6 +211,8 @@ describe('AdminService', () => {
   let cemeteryRepo: any;
   let mosqueRepo: any;
   let neighborhoodRepo: any;
+  let intercityRouteRepo: any;
+  let intracityRouteRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -249,6 +279,8 @@ describe('AdminService', () => {
     cemeteryRepo = module.get(getRepositoryToken(Cemetery));
     mosqueRepo = module.get(getRepositoryToken(Mosque));
     neighborhoodRepo = module.get(getRepositoryToken(Neighborhood));
+    intercityRouteRepo = module.get(getRepositoryToken(IntercityRoute));
+    intracityRouteRepo = module.get(getRepositoryToken(IntracityRoute));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -2071,6 +2103,119 @@ describe('AdminService', () => {
 
       await expect(
         service.deleteNeighborhood('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── Transport Operations (Phase 2.4) ────────────────────────────────────
+
+  describe('Intercity Transport Operations', () => {
+    // Test 1: getAdminIntercityRoutes - listele
+    it('getAdminIntercityRoutes - şehirlerarası hatları döndürmeli', async () => {
+      const route1 = makeIntercityRoute({ id: 'ic-1', company_name: 'Turizm A' });
+      const route2 = makeIntercityRoute({ id: 'ic-2', company_name: 'Turizm B' });
+      const qb = makeSelectQb([route1, route2]);
+      intercityRouteRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminIntercityRoutes({ page: 1, limit: 20 });
+
+      expect(result.routes).toHaveLength(2);
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getAdminIntercityRoutes - arama filtresi
+    it('getAdminIntercityRoutes - arama filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([makeIntercityRoute()]);
+      intercityRouteRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminIntercityRoutes({ search: 'İstanbul' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(r.company_name ILIKE :search OR r.company ILIKE :search OR r.destination ILIKE :search)',
+        expect.objectContaining({ search: '%İstanbul%' }),
+      );
+    });
+
+    // Test 3: getAdminIntercityRoutes - pagination
+    it('getAdminIntercityRoutes - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeIntercityRoute()]);
+      intercityRouteRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminIntercityRoutes({ page: 2, limit: 10 });
+
+      expect(qb.skip).toHaveBeenCalledWith(10);
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
+
+    // Test 4: deleteIntercityRoute - başarılı silme
+    it('deleteIntercityRoute - şehirlerarası hat başarıyla silinebilmeli', async () => {
+      const route = makeIntercityRoute({ id: 'ic-1' });
+      intercityRouteRepo.findOne.mockResolvedValue(route);
+      intercityRouteRepo.remove.mockResolvedValue(route);
+
+      await service.deleteIntercityRoute('ic-1');
+
+      expect(intercityRouteRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'ic-1' },
+      });
+      expect(intercityRouteRepo.remove).toHaveBeenCalledWith(route);
+    });
+
+    // Test 6: deleteIntercityRoute - hat bulunamadı
+    it('deleteIntercityRoute - hat bulunamazsa NotFoundException', async () => {
+      intercityRouteRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteIntercityRoute('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('Intracity Transport Operations', () => {
+    // Test 1: getAdminIntracityRoutes - listele
+    it('getAdminIntracityRoutes - şehir içi hatları döndürmeli', async () => {
+      const route1 = makeIntracityRoute({ id: 'ir-1', route_name: 'Hat 1' });
+      const route2 = makeIntracityRoute({ id: 'ir-2', route_name: 'Hat 2' });
+      const qb = makeSelectQb([route1, route2]);
+      intracityRouteRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminIntracityRoutes({ page: 1, limit: 20 });
+
+      expect(result.routes).toHaveLength(2);
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getAdminIntracityRoutes - pagination
+    it('getAdminIntracityRoutes - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeIntracityRoute()]);
+      intracityRouteRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminIntracityRoutes({ page: 2, limit: 15 });
+
+      expect(qb.skip).toHaveBeenCalledWith(15);
+      expect(qb.take).toHaveBeenCalledWith(15);
+    });
+
+    // Test 3: deleteIntracityRoute - başarılı silme
+    it('deleteIntracityRoute - şehir içi hat başarıyla silinebilmeli', async () => {
+      const route = makeIntracityRoute({ id: 'ir-1' });
+      intracityRouteRepo.findOne.mockResolvedValue(route);
+      intracityRouteRepo.remove.mockResolvedValue(route);
+
+      await service.deleteIntracityRoute('ir-1');
+
+      expect(intracityRouteRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'ir-1' },
+      });
+      expect(intracityRouteRepo.remove).toHaveBeenCalledWith(route);
+    });
+
+    // Test 4: deleteIntracityRoute - hat bulunamadı
+    it('deleteIntracityRoute - hat bulunamazsa NotFoundException', async () => {
+      intracityRouteRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteIntracityRoute('nonexistent'),
       ).rejects.toThrow(NotFoundException);
     });
   });
