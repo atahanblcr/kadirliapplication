@@ -1,0 +1,177 @@
+# COVERAGE IMPROVEMENT ANALYSIS - EXECUTIVE SUMMARY
+Created: 27 February 2026
+
+## Current State
+- Statements: 65%
+- Branches: 55% ⚠️ (Bottleneck)
+- Lines: 66%
+- **Gap to 75% Target: 10% improvement needed**
+
+## Root Cause: Missing Spec Files
+6 admin service files have ZERO test coverage (no spec files created):
+
+| Service | Lines | Methods | Branches | Current |
+|---------|-------|---------|----------|---------|
+| **transport-admin.service.ts** | 468 | 18 | 171 | 4% |
+| **campaign-admin.service.ts** | 311 | 11 | 117 | 8.7% |
+| **guide-admin.service.ts** | 314 | 9 | 98 | 7.9% |
+| places-admin.service.ts | 325 | 12 | ? | ~8% |
+| event-admin.service.ts | 260 | 7 | ? | ~12% |
+| users-admin.service.ts | 130 | 5 | ? | ~16% |
+
+## Top 3 Highest Impact Files (Quick Wins)
+
+### #1: transport-admin.service.ts ⭐⭐⭐
+- **Impact Score: 1,251** (highest of all files)
+- **18 async methods** covering Intercity/Intracity routes & schedules
+- **171 branches** = massive untested conditional logic
+- **Current: 4% statements, 7% branches**
+- **Expected After Tests: 85-90% statements, 75-80% branches**
+- **Estimated Coverage Gain: +4-5% to total**
+- **Effort: 1.5 hours**
+
+**Key Test Areas:**
+- Intercity routes with search/filter params (search, company_name, from_city, to_city, is_active)
+- Schedule operations (add, update, delete with NotFoundException)
+- Intracity route/stop management with neighborhood joins
+- Private mappers: `mapIntercitySchedule()` handles 3 code paths for days_of_week parsing
+- Null coalescing patterns: `?? null`, `?? []`, `?? 0`
+
+### #2: campaign-admin.service.ts ⭐⭐
+- **Impact Score: 796**
+- **11 async methods** (CRUD + approval workflow + slugs)
+- **117 branches** (approval logic, status transitions, slug uniqueness)
+- **Current: 8.7% statements, 12.8% branches**
+- **Expected After Tests: 80-85% statements, 70-75% branches**
+- **Estimated Coverage Gain: +2.5-3% to total**
+- **Effort: 1 hour**
+
+**Key Test Areas:**
+- Campaign CRUD with query filters
+- Approval workflow (approveCampaign/rejectCampaign with notifications)
+- Business/category management
+- Slug generation and uniqueness retry logic (while loop)
+- Status validation branches
+
+### #3: guide-admin.service.ts ⭐
+- **Impact Score: 706**
+- **9 async methods** (categories + items + hierarchy validation)
+- **98 branches** (parent_id checks, hierarchy enforcement, slug generation)
+- **Current: 7.9% statements, 6.1% branches**
+- **Expected After Tests: 75-80% statements, 60-65% branches**
+- **Estimated Coverage Gain: +2-2.5% to total**
+- **Effort: 1 hour**
+
+**Key Test Areas:**
+- Category hierarchy management (max 2 levels, no circular refs)
+- Guide items CRUD with filters
+- Slug generation (Turkish character handling)
+- Parent category validation (prevent deletion if children exist)
+- Null/undefined path checks
+
+## Implementation Plan
+
+### Phase 1: Core Tests (3.5 hours) → **+8-10% Coverage**
+1. **transport-admin.service.spec.ts** (1.5 hours)
+   - 40+ test cases covering all branches
+   - Focus: Query filters, null handling, error paths
+
+2. **campaign-admin.service.spec.ts** (1 hour)
+   - 25+ test cases
+   - Focus: Status transitions, approval logic, slug uniqueness
+
+3. **guide-admin.service.spec.ts** (1 hour)
+   - 20+ test cases
+   - Focus: Hierarchy validation, filters, slug generation
+
+### Phase 2: Secondary Services (2 hours) → **+1-2% Coverage**
+- places-admin.service.spec.ts (image management)
+- event-admin.service.spec.ts (categories + slug generation)
+- users-admin.service.spec.ts (ban/unban + role changes)
+
+### Phase 3: Edge Cases (1 hour) → **+0.5-1% Coverage**
+- Controller error paths
+- Validation edge cases
+- Turkish error message verification
+
+**TOTAL TIME: 6-7 hours → Expected Result: ✅ 75%+ Coverage**
+
+## Critical Testing Patterns
+
+### 1. Branch Coverage (Highest Priority)
+Every `if/else` and ternary operator must have both paths tested:
+```typescript
+// Pattern: Optional field filter
+if (search) { qb.andWhere(...) }  // Test with & without search
+if (is_active !== undefined) { ... }  // Test undefined & true/false
+```
+
+### 2. Null Coalescing Operators
+Test both paths:
+```typescript
+r.company_name ?? r.company ?? ''  // Test null, empty, and provided values
+```
+
+### 3. Error Paths (NotFoundException)
+Every `.findOne()` needs a "not found" test:
+```typescript
+repository.findOne.mockResolvedValue(null);
+expect(() => service.deleteRoute(id)).toThrow(NotFoundException);
+```
+
+### 4. Private Helper Methods
+Access via `service['methodName']()` to test mappers:
+```typescript
+const mapped = service['mapIntercitySchedule'](mockSchedule);
+```
+
+## Why Branch Coverage is Critical
+- **Statements: 65%** (what code ran)
+- **Branches: 55%** (conditional paths taken)
+- **Gap = 10%** because conditional logic untested
+
+Branch testing provides biggest ROI:
+- One service test might cover 50+ branches
+- Fastest path to 75% target
+
+## Key Constraints
+✅ **DO:**
+- Test existing business logic as-is
+- Focus on branch/conditional coverage
+- Create spec files for missing services
+- Use provided mock patterns
+
+❌ **DON'T:**
+- Refactor business logic
+- Add new features/methods
+- Change service implementations
+- Modify DTOs or entities
+
+## Expected Results After Implementation
+
+```
+BEFORE:
+├─ Statements: 65%
+├─ Branches: 55% ⚠️
+└─ Lines: 66%
+
+AFTER (Phase 1):
+├─ Statements: 72-74%
+├─ Branches: 65-67%
+└─ Lines: 73-75%
+
+AFTER (All Phases):
+├─ Statements: 75%+
+├─ Branches: 70%+
+└─ Lines: 76%+
+✅ TARGET ACHIEVED
+```
+
+## Documentation
+- **COVERAGE_IMPROVEMENT_PLAN.md** - Full technical plan (1093 lines)
+- **This file** - Executive summary
+- **Coverage report** - `/backend/coverage/coverage-final.json`
+
+---
+
+Ready to implement? Start with `transport-admin.service.spec.ts` for maximum impact!
