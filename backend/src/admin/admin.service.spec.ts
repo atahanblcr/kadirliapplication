@@ -1042,4 +1042,165 @@ describe('AdminService', () => {
       ).rejects.toThrow(NotFoundException);
     });
   });
+
+  // ── Ad Operations (Phase 2.1b) ──────────────────────────────────────────
+
+  describe('Ad Operations', () => {
+    // Test 1: getAdminAds - tüm ilanlar
+    it('getAdminAds - tüm uygun ilanları döndürmeli', async () => {
+      const ad1 = makeAd({ id: 'ad-1', title: 'iPhone' });
+      const ad2 = makeAd({ id: 'ad-2', title: 'Samsung' });
+      const qb = makeSelectQb([ad1, ad2]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminAds({ page: 1, limit: 20 });
+
+      expect(result.ads).toHaveLength(2);
+      expect(result.ads[0].title).toBe('iPhone');
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getAdminAds - status filtresi
+    it('getAdminAds - status filtresi uygulanmalı', async () => {
+      const pendingAd = makeAd({ status: 'pending' });
+      const qb = makeSelectQb([pendingAd]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ status: 'pending' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.status = :status', {
+        status: 'pending',
+      });
+    });
+
+    // Test 3: getAdminAds - arama filtresi
+    it('getAdminAds - arama filtresi uygulanmalı', async () => {
+      const ad = makeAd({ title: 'Samsung Galaxy' });
+      const qb = makeSelectQb([ad]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ search: 'Samsung' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(ad.title ILIKE :search OR ad.description ILIKE :search)',
+        expect.objectContaining({ search: '%Samsung%' }),
+      );
+    });
+
+    // Test 4: getAdminAds - pagination
+    it('getAdminAds - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeAd()]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ page: 2, limit: 10 });
+
+      // page 2, limit 10 => skip(10)
+      expect(qb.skip).toHaveBeenCalledWith(10);
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
+
+    // Test 5: approveAd - başarılı onay
+    it('approveAd - pending ilan başarıyla onaylanmalı', async () => {
+      const pendingAd = makeAd({ status: 'pending', user_id: 'user-1' });
+      adRepo.findOne.mockResolvedValue(pendingAd);
+      adRepo.update.mockResolvedValue({ affected: 1 });
+      notifRepo.create.mockReturnValue({ id: 'notif-1' });
+      notifRepo.save.mockResolvedValue({ id: 'notif-1' });
+
+      const result = await service.approveAd('admin-uuid', 'ad-uuid-1');
+
+      expect(adRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'ad-uuid-1', status: 'pending' },
+      });
+      expect(adRepo.update).toHaveBeenCalledWith('ad-uuid-1', {
+        status: 'approved',
+        approved_by: 'admin-uuid',
+        approved_at: expect.any(Date),
+      });
+      expect(result.message).toBe('İlan onaylandı');
+    });
+
+    // Test 6: approveAd - bildirim
+    it('approveAd - bildirim oluşturulmalı', async () => {
+      const ad = makeAd({ status: 'pending', user_id: 'user-1', title: 'Test İlan' });
+      adRepo.findOne.mockResolvedValue(ad);
+      adRepo.update.mockResolvedValue({ affected: 1 });
+      notifRepo.create.mockReturnValue({});
+      notifRepo.save.mockResolvedValue({});
+
+      await service.approveAd('admin-uuid', 'ad-uuid-1');
+
+      expect(notifRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'user-1',
+          type: 'ad_approved',
+          related_type: 'ad',
+        }),
+      );
+    });
+
+    // Test 7: approveAd - ilan bulunamadı
+    it('approveAd - pending olmayan ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      adRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.approveAd('admin-uuid', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 8: rejectAd - başarılı ret
+    it('rejectAd - pending ilan başarıyla reddedilebilmeli', async () => {
+      const pendingAd = makeAd({ status: 'pending', user_id: 'user-1' });
+      adRepo.findOne.mockResolvedValue(pendingAd);
+      adRepo.update.mockResolvedValue({ affected: 1 });
+      notifRepo.create.mockReturnValue({});
+      notifRepo.save.mockResolvedValue({});
+
+      const result = await service.rejectAd('admin-uuid', 'ad-uuid-1', {
+        rejected_reason: 'Hatalı bilgiler',
+      });
+
+      expect(adRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'ad-uuid-1', status: 'pending' },
+      });
+      expect(adRepo.update).toHaveBeenCalledWith('ad-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'Hatalı bilgiler',
+        rejected_at: expect.any(Date),
+      });
+      expect(result.message).toBe('İlan reddedildi');
+    });
+
+    // Test 9: rejectAd - red bildirimi
+    it('rejectAd - red bildirimi oluşturulmalı', async () => {
+      const ad = makeAd({ status: 'pending', user_id: 'user-1', title: 'Test' });
+      adRepo.findOne.mockResolvedValue(ad);
+      adRepo.update.mockResolvedValue({ affected: 1 });
+      notifRepo.create.mockReturnValue({});
+      notifRepo.save.mockResolvedValue({});
+
+      await service.rejectAd('admin-uuid', 'ad-uuid-1', {
+        rejected_reason: 'Uygunsuz',
+      });
+
+      expect(notifRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'user-1',
+          type: 'ad_rejected',
+          related_type: 'ad',
+        }),
+      );
+    });
+
+    // Test 10: rejectAd - ilan bulunamadı
+    it('rejectAd - pending olmayan ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      adRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.rejectAd('admin-uuid', 'nonexistent', {
+          rejected_reason: 'Test',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 });
