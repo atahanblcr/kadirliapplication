@@ -41,6 +41,7 @@ import { GuideAdminController } from './guide-admin.controller';
 import { PlacesAdminController } from './places-admin.controller';
 import { ComplaintsAdminController } from './complaints-admin.controller';
 import { ComplaintsAdminService } from './complaints-admin.service';
+import { TaxiAdminService } from './taxi-admin.service';
 import { StaffAdminService } from './staff-admin.service';
 import { StaffAdminController } from './staff-admin.controller';
 
@@ -93,6 +94,6 @@ import { StaffAdminController } from './staff-admin.controller';
     ComplaintsAdminController,
     StaffAdminController,
   ],
-  providers: [AdminService, ComplaintsAdminService, StaffAdminService],
+  providers: [AdminService, ComplaintsAdminService, TaxiAdminService, StaffAdminService],
 })
 export class AdminModule {}

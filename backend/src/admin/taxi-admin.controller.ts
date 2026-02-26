@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
-import { AdminService } from './admin.service';
+import { TaxiAdminService } from './taxi-admin.service';
 import { CreateTaxiDriverDto } from './dto/create-taxi-driver.dto';
 import { UpdateTaxiDriverDto } from './dto/update-taxi-driver.dto';
 import { QueryTaxiDriversDto } from './dto/query-taxi-drivers.dto';
@@ -25,27 +25,27 @@ import { QueryTaxiDriversDto } from './dto/query-taxi-drivers.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class TaxiAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly taxiAdminService: TaxiAdminService) {}
 
   // ── LİSTE ─────────────────────────────────────────────────────────────────
 
   @Get()
   async getTaxiDrivers(@Query() dto: QueryTaxiDriversDto) {
-    return this.adminService.getAdminTaxiDrivers(dto);
+    return this.taxiAdminService.getAdminTaxiDrivers(dto);
   }
 
   // ── DETAY ─────────────────────────────────────────────────────────────────
 
   @Get(':id')
   async getTaxiDriver(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getAdminTaxiDriver(id);
+    return this.taxiAdminService.getAdminTaxiDriver(id);
   }
 
   // ── OLUŞTUR ───────────────────────────────────────────────────────────────
 
   @Post()
   async createTaxiDriver(@Body() dto: CreateTaxiDriverDto) {
-    return this.adminService.createTaxiDriver(dto);
+    return this.taxiAdminService.createTaxiDriver(dto);
   }
 
   // ── GÜNCELLE ──────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ export class TaxiAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTaxiDriverDto,
   ) {
-    return this.adminService.updateTaxiDriver(id, dto);
+    return this.taxiAdminService.updateTaxiDriver(id, dto);
   }
 
   // ── SİL ───────────────────────────────────────────────────────────────────
@@ -63,6 +63,6 @@ export class TaxiAdminController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTaxiDriver(@Param('id', ParseUUIDPipe) id: string) {
-    await this.adminService.deleteTaxiDriver(id);
+    await this.taxiAdminService.deleteTaxiDriver(id);
   }
 }
