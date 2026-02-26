@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_spacing.dart';
-import '../providers/home_provider.dart';
-import '../widgets/greeting_header.dart';
-import '../widgets/module_card.dart';
-import '../widgets/user_menu.dart';
+import 'package:kadirliapp/core/constants/app_colors.dart';
+import 'package:kadirliapp/core/constants/app_spacing.dart';
+import 'package:kadirliapp/features/home/presentation/providers/home_provider.dart';
+import 'package:kadirliapp/features/home/presentation/widgets/greeting_header.dart';
+import 'package:kadirliapp/features/home/presentation/widgets/module_card.dart';
+import 'package:kadirliapp/features/home/presentation/widgets/user_menu.dart';
+import 'package:kadirliapp/features/announcements/presentation/pages/announcements_list_page.dart';
 
 /// Home Page with 12 module grid and bottom navigation
 class HomePage extends ConsumerStatefulWidget {
@@ -108,11 +109,22 @@ class _HomeTab extends StatelessWidget {
               return ModuleCard(
                 module: module,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${module.title} sayfası yakında açılacak.'),
-                    ),
-                  );
+                  switch (module.key) {
+                    case 'announcements':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AnnouncementsListPage(),
+                        ),
+                      );
+                      break;
+                    default:
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${module.title} sayfası yakında açılacak.'),
+                        ),
+                      );
+                  }
                 },
               );
             },
