@@ -94,6 +94,13 @@ const makeDeath = (overrides: Partial<DeathNotice> = {}): DeathNotice =>
     status: 'pending',
     created_at: new Date('2026-02-20T09:00:00Z'),
     adder: makeUser(),
+    cemetery_id: 'cem-1',
+    mosque_id: 'mosque-1',
+    neighborhood_id: 'neigh-1',
+    funeral_date: '2026-02-22',
+    funeral_time: '14:00',
+    age: 75,
+    condolence_address: 'Ahmet Bey Mahallesi 123',
     ...overrides,
   } as DeathNotice);
 
@@ -131,6 +138,22 @@ const makePharmacySchedule = (overrides: Partial<PharmacySchedule> = {}): Pharma
     ...overrides,
   } as PharmacySchedule);
 
+const makeCemetery = (overrides: Partial<Cemetery> = {}): Cemetery =>
+  ({
+    id: 'cem-uuid-1',
+    name: 'Merkez Mezarlığı',
+    location: 'Merkez Mahallesi',
+    ...overrides,
+  } as Cemetery);
+
+const makeMosque = (overrides: Partial<Mosque> = {}): Mosque =>
+  ({
+    id: 'mosque-uuid-1',
+    name: 'Merkez Camii',
+    location: 'Merkez Mahallesi',
+    ...overrides,
+  } as Mosque);
+
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
 describe('AdminService', () => {
@@ -147,6 +170,9 @@ describe('AdminService', () => {
   let businessCategoryRepo: any;
   let campaignImageRepo: any;
   let fileRepo: any;
+  let cemeteryRepo: any;
+  let mosqueRepo: any;
+  let neighborhoodRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -210,6 +236,9 @@ describe('AdminService', () => {
     businessCategoryRepo = module.get(getRepositoryToken(BusinessCategory));
     campaignImageRepo = module.get(getRepositoryToken(CampaignImage));
     fileRepo = module.get(getRepositoryToken(FileEntity));
+    cemeteryRepo = module.get(getRepositoryToken(Cemetery));
+    mosqueRepo = module.get(getRepositoryToken(Mosque));
+    neighborhoodRepo = module.get(getRepositoryToken(Neighborhood));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -1443,6 +1472,324 @@ describe('AdminService', () => {
           business_id: 'nonexistent',
         }),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── Deaths Admin Operations (Phase 2.2) ─────────────────────────────────
+
+  describe('Deaths Admin Operations', () => {
+    // Test 1: getAllDeaths - listele
+    it('getAllDeaths - vefat ilanlarını sayfalı döndürmeli', async () => {
+      const death1 = makeDeath({ id: 'death-1', deceased_name: 'Ahmet' });
+      const death2 = makeDeath({ id: 'death-2', deceased_name: 'Fatma' });
+      const qb = makeSelectQb([death1, death2]);
+      deathRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAllDeaths({ page: 1, limit: 20 });
+
+      expect(result.notices).toHaveLength(2);
+      expect(result.notices[0].deceased_name).toBe('Ahmet');
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getAllDeaths - arama filtresi
+    it('getAllDeaths - arama filtresine göre vefat ilanlarını döndürmeli', async () => {
+      const death = makeDeath({ deceased_name: 'Mehmet Kaya' });
+      const qb = makeSelectQb([death]);
+      deathRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAllDeaths({ search: 'Mehmet' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'LOWER(d.deceased_name) LIKE :search',
+        expect.objectContaining({ search: '%mehmet%' }),
+      );
+    });
+
+    // Test 3: getAllDeaths - pagination
+    it('getAllDeaths - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeDeath()]);
+      deathRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAllDeaths({ page: 2, limit: 10 });
+
+      // page 2, limit 10 => skip(10)
+      expect(qb.skip).toHaveBeenCalledWith(10);
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
+
+    // Test 4: createDeath - başarılı oluşturma
+    it('createDeath - vefat ilanı başarıyla oluşturulmalı', async () => {
+      const newDeath = makeDeath({ id: 'new-death' });
+      deathRepo.create.mockReturnValue(newDeath);
+      deathRepo.save.mockResolvedValue(newDeath);
+      deathRepo.findOne.mockResolvedValue(newDeath);
+
+      const result = await service.createDeath('admin-1', {
+        deceased_name: 'Test Kişi',
+        age: 70,
+        funeral_date: '2026-02-28',
+        funeral_time: '14:00',
+        cemetery_id: 'cem-1',
+        mosque_id: 'mosque-1',
+        neighborhood_id: 'neigh-1',
+        condolence_address: 'Test Adresi',
+      });
+
+      expect(deathRepo.create).toHaveBeenCalled();
+      expect(deathRepo.save).toHaveBeenCalled();
+      expect(result.notice).toBeDefined();
+    });
+
+    // Test 5: createDeath - auto_archive_at hesaplanmalı
+    it('createDeath - auto_archive_at (funeral_date + 7 gün) hesaplanmalı', async () => {
+      const newDeath = makeDeath({ id: 'new-death' });
+      deathRepo.create.mockReturnValue(newDeath);
+      deathRepo.save.mockResolvedValue(newDeath);
+      deathRepo.findOne.mockResolvedValue(newDeath);
+
+      await service.createDeath('admin-1', {
+        deceased_name: 'Test',
+        age: 70,
+        funeral_date: '2026-02-28',
+        funeral_time: '14:00',
+        cemetery_id: 'cem-1',
+        mosque_id: 'mosque-1',
+        neighborhood_id: 'neigh-1',
+        condolence_address: 'Test',
+      });
+
+      const createCall = deathRepo.create.mock.calls[0][0];
+      // Kontrol et: auto_archive_at = funeral_date + 7 gün
+      expect(createCall.auto_archive_at).toBeDefined();
+      expect(createCall.status).toBe('approved');
+      expect(createCall.added_by).toBe('admin-1');
+    });
+
+    // Test 6: updateDeath - başarılı güncelleme
+    it('updateDeath - vefat ilanı başarıyla güncellenebilmeli', async () => {
+      const existingDeath = makeDeath({ id: 'death-1' });
+      deathRepo.findOne.mockResolvedValue(existingDeath);
+      deathRepo.save.mockResolvedValue(existingDeath);
+
+      const result = await service.updateDeath('admin-1', 'death-1', {
+        deceased_name: 'Güncellenmiş İsim',
+        age: 75,
+      });
+
+      expect(deathRepo.findOne).toHaveBeenCalledWith({ where: { id: 'death-1' } });
+      expect(deathRepo.save).toHaveBeenCalled();
+      expect(result.notice).toBeDefined();
+    });
+
+    // Test 7: updateDeath - funeral_date değişirse auto_archive_at yeniden hesaplanmalı
+    it('updateDeath - funeral_date güncellenirse auto_archive_at yeniden hesaplanmalı', async () => {
+      const death = makeDeath({ id: 'death-1' });
+      deathRepo.findOne.mockResolvedValue(death);
+      deathRepo.save.mockResolvedValue(death);
+
+      await service.updateDeath('admin-1', 'death-1', {
+        funeral_date: '2026-03-10',
+      });
+
+      const saveCall = deathRepo.save.mock.calls[0][0];
+      // Kontrol et: auto_archive_at = new funeral_date + 7 gün
+      expect(saveCall.funeral_date).toBe('2026-03-10');
+      expect(saveCall.auto_archive_at).toBeDefined();
+    });
+
+    // Test 8: updateDeath - ilan bulunamadı
+    it('updateDeath - ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      deathRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateDeath('admin-1', 'nonexistent', {
+          deceased_name: 'Test',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 9: deleteDeath - başarılı silme
+    it('deleteDeath - vefat ilanı başarıyla silinebilmeli', async () => {
+      const death = makeDeath({ id: 'death-1' });
+      deathRepo.findOne.mockResolvedValue(death);
+      deathRepo.softDelete.mockResolvedValue({ affected: 1 });
+
+      const result = await service.deleteDeath('death-1');
+
+      expect(deathRepo.findOne).toHaveBeenCalledWith({ where: { id: 'death-1' } });
+      expect(deathRepo.softDelete).toHaveBeenCalledWith('death-1');
+      expect(result.success).toBe(true);
+    });
+
+    // Test 10: deleteDeath - ilan bulunamadı
+    it('deleteDeath - ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      deathRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteDeath('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 11: getCemeteries - listele
+    it('getCemeteries - mezarlıkları döndürmeli', async () => {
+      const cem1 = makeCemetery({ id: 'cem-1', name: 'Merkez Mezarlığı' });
+      const cem2 = makeCemetery({ id: 'cem-2', name: 'Akdam Mezarlığı' });
+      cemeteryRepo.find.mockResolvedValue([cem1, cem2]);
+
+      const result = await service.getCemeteries();
+
+      expect(result.cemeteries).toHaveLength(2);
+      expect(result.cemeteries[0].name).toBe('Merkez Mezarlığı');
+    });
+
+    // Test 12: createCemetery - başarılı oluşturma
+    it('createCemetery - mezarlık başarıyla oluşturulmalı', async () => {
+      const newCem = makeCemetery();
+      cemeteryRepo.create.mockReturnValue(newCem);
+      cemeteryRepo.save.mockResolvedValue(newCem);
+
+      const result = await service.createCemetery({
+        name: 'Yeni Mezarlık',
+        location: 'Test Mahallesi',
+      });
+
+      expect(cemeteryRepo.create).toHaveBeenCalled();
+      expect(cemeteryRepo.save).toHaveBeenCalled();
+      expect(result.cemetery).toBeDefined();
+    });
+
+    // Test 13: updateCemetery - başarılı güncelleme
+    it('updateCemetery - mezarlık başarıyla güncellenebilmeli', async () => {
+      const cem = makeCemetery({ id: 'cem-1' });
+      cemeteryRepo.findOne.mockResolvedValue(cem);
+      cemeteryRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.updateCemetery('cem-1', {
+        name: 'Güncellenmiş İsim',
+      });
+
+      expect(cemeteryRepo.findOne).toHaveBeenCalledWith({ where: { id: 'cem-1' } });
+      expect(cemeteryRepo.update).toHaveBeenCalledWith('cem-1', { name: 'Güncellenmiş İsim' });
+    });
+
+    // Test 14: updateCemetery - mezarlık bulunamadı
+    it('updateCemetery - mezarlık bulunamazsa NotFoundException fırlatmalı', async () => {
+      cemeteryRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateCemetery('nonexistent', { name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 15: deleteCemetery - başarılı silme
+    it('deleteCemetery - mezarlık başarıyla silinebilmeli', async () => {
+      const cem = makeCemetery({ id: 'cem-1' });
+      cemeteryRepo.findOne.mockResolvedValue(cem);
+      cemeteryRepo.remove.mockResolvedValue(cem);
+
+      const result = await service.deleteCemetery('cem-1');
+
+      expect(cemeteryRepo.findOne).toHaveBeenCalledWith({ where: { id: 'cem-1' } });
+      expect(cemeteryRepo.remove).toHaveBeenCalledWith(cem);
+      expect(result.message).toBe('Mezarlık silindi');
+    });
+
+    // Test 16: deleteCemetery - mezarlık bulunamadı
+    it('deleteCemetery - mezarlık bulunamazsa NotFoundException fırlatmalı', async () => {
+      cemeteryRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteCemetery('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 17: getMosques - listele
+    it('getMosques - camileri döndürmeli', async () => {
+      const m1 = makeMosque({ id: 'mosque-1', name: 'Merkez Camii' });
+      const m2 = makeMosque({ id: 'mosque-2', name: 'Akdam Camii' });
+      mosqueRepo.find.mockResolvedValue([m1, m2]);
+
+      const result = await service.getMosques();
+
+      expect(result.mosques).toHaveLength(2);
+      expect(result.mosques[0].name).toBe('Merkez Camii');
+    });
+
+    // Test 18: createMosque - başarılı oluşturma
+    it('createMosque - cami başarıyla oluşturulmalı', async () => {
+      const newMosque = makeMosque();
+      mosqueRepo.create.mockReturnValue(newMosque);
+      mosqueRepo.save.mockResolvedValue(newMosque);
+
+      const result = await service.createMosque({
+        name: 'Yeni Camii',
+        location: 'Test Mahallesi',
+      });
+
+      expect(mosqueRepo.create).toHaveBeenCalled();
+      expect(mosqueRepo.save).toHaveBeenCalled();
+      expect(result.mosque).toBeDefined();
+    });
+
+    // Test 19: updateMosque - başarılı güncelleme
+    it('updateMosque - cami başarıyla güncellenebilmeli', async () => {
+      const mosque = makeMosque({ id: 'mosque-1' });
+      mosqueRepo.findOne.mockResolvedValue(mosque);
+      mosqueRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.updateMosque('mosque-1', {
+        name: 'Güncellenmiş Camii',
+      });
+
+      expect(mosqueRepo.findOne).toHaveBeenCalledWith({ where: { id: 'mosque-1' } });
+      expect(mosqueRepo.update).toHaveBeenCalledWith('mosque-1', { name: 'Güncellenmiş Camii' });
+    });
+
+    // Test 20: updateMosque - cami bulunamadı
+    it('updateMosque - cami bulunamazsa NotFoundException fırlatmalı', async () => {
+      mosqueRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateMosque('nonexistent', { name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 21: deleteMosque - başarılı silme
+    it('deleteMosque - cami başarıyla silinebilmeli', async () => {
+      const mosque = makeMosque({ id: 'mosque-1' });
+      mosqueRepo.findOne.mockResolvedValue(mosque);
+      mosqueRepo.remove.mockResolvedValue(mosque);
+
+      const result = await service.deleteMosque('mosque-1');
+
+      expect(mosqueRepo.findOne).toHaveBeenCalledWith({ where: { id: 'mosque-1' } });
+      expect(mosqueRepo.remove).toHaveBeenCalledWith(mosque);
+      expect(result.message).toBe('Cami silindi');
+    });
+
+    // Test 22: deleteMosque - cami bulunamadı
+    it('deleteMosque - cami bulunamazsa NotFoundException fırlatmalı', async () => {
+      mosqueRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteMosque('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 23: getDeathNeighborhoods - listele
+    it('getDeathNeighborhoods - aktif mahalleleri döndürmeli', async () => {
+      const neigh1 = { id: 'n-1', name: 'Merkez', is_active: true };
+      const neigh2 = { id: 'n-2', name: 'Akdam', is_active: true };
+      neighborhoodRepo.find.mockResolvedValue([neigh1, neigh2]);
+
+      const result = await service.getDeathNeighborhoods();
+
+      expect(result.neighborhoods).toHaveLength(2);
+      expect(neighborhoodRepo.find).toHaveBeenCalledWith({
+        where: { is_active: true },
+        order: expect.any(Object),
+      });
     });
   });
 });
