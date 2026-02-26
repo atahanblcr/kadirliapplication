@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlacesAdminController } from './places-admin.controller';
-import { AdminService } from './admin.service';
+import { PlacesAdminService } from './places-admin.service';
 
 describe('PlacesAdminController', () => {
   let controller: PlacesAdminController;
-  let adminService: jest.Mocked<AdminService>;
+  let placesAdminService: jest.Mocked<PlacesAdminService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PlacesAdminController],
       providers: [
         {
-          provide: AdminService,
+          provide: PlacesAdminService,
           useValue: {
             getPlaceCategories: jest.fn(),
             createPlaceCategory: jest.fn(),
@@ -32,24 +32,24 @@ describe('PlacesAdminController', () => {
     }).compile();
 
     controller = module.get<PlacesAdminController>(PlacesAdminController);
-    adminService = module.get(AdminService) as jest.Mocked<AdminService>;
+    placesAdminService = module.get(PlacesAdminService) as jest.Mocked<PlacesAdminService>;
   });
 
   describe('getPlaceCategories', () => {
     it('should return place categories', () => {
-      adminService.getPlaceCategories.mockReturnValue({ success: true, data: [] });
+      placesAdminService.getPlaceCategories.mockReturnValue({ success: true, data: [] });
       const result = controller.getPlaceCategories();
       expect(result.success).toBe(true);
-      expect(adminService.getPlaceCategories).toHaveBeenCalled();
+      expect(placesAdminService.getPlaceCategories).toHaveBeenCalled();
     });
   });
 
   describe('createPlaceCategory', () => {
     it('should create place category', () => {
       const dto = { name: 'Restaurant' };
-      adminService.createPlaceCategory.mockReturnValue({ success: true, data: {} });
+      placesAdminService.createPlaceCategory.mockReturnValue({ success: true, data: {} });
       const result = controller.createPlaceCategory(dto);
-      expect(adminService.createPlaceCategory).toHaveBeenCalledWith(dto);
+      expect(placesAdminService.createPlaceCategory).toHaveBeenCalledWith(dto);
     });
   });
 
@@ -57,36 +57,36 @@ describe('PlacesAdminController', () => {
     it('should update place category', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      adminService.updatePlaceCategory.mockReturnValue({ success: true, data: {} });
+      placesAdminService.updatePlaceCategory.mockReturnValue({ success: true, data: {} });
       const result = controller.updatePlaceCategory(id, dto);
-      expect(adminService.updatePlaceCategory).toHaveBeenCalledWith(id, dto);
+      expect(placesAdminService.updatePlaceCategory).toHaveBeenCalledWith(id, dto);
     });
   });
 
   describe('deletePlaceCategory', () => {
     it('should delete place category', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      adminService.deletePlaceCategory.mockResolvedValue(undefined);
+      placesAdminService.deletePlaceCategory.mockResolvedValue(undefined);
       await controller.deletePlaceCategory(id);
-      expect(adminService.deletePlaceCategory).toHaveBeenCalledWith(id);
+      expect(placesAdminService.deletePlaceCategory).toHaveBeenCalledWith(id);
     });
   });
 
   describe('getPlaces', () => {
     it('should return places list', () => {
       const dto = { search: 'test' };
-      adminService.getAdminPlaces.mockReturnValue({ success: true, data: [] });
+      placesAdminService.getAdminPlaces.mockReturnValue({ success: true, data: [] });
       const result = controller.getPlaces(dto);
-      expect(adminService.getAdminPlaces).toHaveBeenCalledWith(dto);
+      expect(placesAdminService.getAdminPlaces).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('getPlace', () => {
     it('should return place details', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      adminService.getAdminPlace.mockReturnValue({ success: true, data: {} });
+      placesAdminService.getAdminPlace.mockReturnValue({ success: true, data: {} });
       const result = controller.getPlace(id);
-      expect(adminService.getAdminPlace).toHaveBeenCalledWith(id);
+      expect(placesAdminService.getAdminPlace).toHaveBeenCalledWith(id);
     });
   });
 
@@ -94,9 +94,9 @@ describe('PlacesAdminController', () => {
     it('should create place', () => {
       const dto = { name: 'New Place', category_id: '123' };
       const userId = 'user-123';
-      adminService.createPlace.mockReturnValue({ success: true, data: {} });
+      placesAdminService.createPlace.mockReturnValue({ success: true, data: {} });
       const result = controller.createPlace(dto, userId);
-      expect(adminService.createPlace).toHaveBeenCalledWith(dto, userId);
+      expect(placesAdminService.createPlace).toHaveBeenCalledWith(dto, userId);
     });
   });
 
@@ -104,18 +104,18 @@ describe('PlacesAdminController', () => {
     it('should update place', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      adminService.updatePlace.mockReturnValue({ success: true, data: {} });
+      placesAdminService.updatePlace.mockReturnValue({ success: true, data: {} });
       const result = controller.updatePlace(id, dto);
-      expect(adminService.updatePlace).toHaveBeenCalledWith(id, dto);
+      expect(placesAdminService.updatePlace).toHaveBeenCalledWith(id, dto);
     });
   });
 
   describe('deletePlace', () => {
     it('should delete place', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      adminService.deletePlace.mockResolvedValue(undefined);
+      placesAdminService.deletePlace.mockResolvedValue(undefined);
       await controller.deletePlace(id);
-      expect(adminService.deletePlace).toHaveBeenCalledWith(id);
+      expect(placesAdminService.deletePlace).toHaveBeenCalledWith(id);
     });
   });
 
@@ -123,27 +123,27 @@ describe('PlacesAdminController', () => {
     it('should add place images', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { file_ids: ['file-1'] };
-      adminService.addPlaceImages.mockResolvedValue({ success: true, data: {} });
+      placesAdminService.addPlaceImages.mockResolvedValue({ success: true, data: {} });
       const result = await controller.addPlaceImages(id, dto);
-      expect(adminService.addPlaceImages).toHaveBeenCalledWith(id, dto);
+      expect(placesAdminService.addPlaceImages).toHaveBeenCalledWith(id, dto);
     });
   });
 
   describe('deletePlaceImage', () => {
     it('should delete place image', async () => {
       const imageId = '123e4567-e89b-12d3-a456-426614174000';
-      adminService.deletePlaceImage.mockResolvedValue(undefined);
+      placesAdminService.deletePlaceImage.mockResolvedValue(undefined);
       await controller.deletePlaceImage(imageId);
-      expect(adminService.deletePlaceImage).toHaveBeenCalledWith(imageId);
+      expect(placesAdminService.deletePlaceImage).toHaveBeenCalledWith(imageId);
     });
   });
 
   describe('setPlaceCoverImage', () => {
     it('should set place cover image', async () => {
       const imageId = '123e4567-e89b-12d3-a456-426614174000';
-      adminService.setPlaceCoverImage.mockResolvedValue({ success: true, data: {} });
+      placesAdminService.setPlaceCoverImage.mockResolvedValue({ success: true, data: {} });
       const result = await controller.setPlaceCoverImage(imageId);
-      expect(adminService.setPlaceCoverImage).toHaveBeenCalledWith(imageId);
+      expect(placesAdminService.setPlaceCoverImage).toHaveBeenCalledWith(imageId);
     });
   });
 
@@ -151,9 +151,9 @@ describe('PlacesAdminController', () => {
     it('should reorder place images', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { ordered_image_ids: ['img1', 'img2'] };
-      adminService.reorderPlaceImages.mockReturnValue({ success: true, data: {} });
+      placesAdminService.reorderPlaceImages.mockReturnValue({ success: true, data: {} });
       const result = controller.reorderPlaceImages(id, dto);
-      expect(adminService.reorderPlaceImages).toHaveBeenCalledWith(id, dto);
+      expect(placesAdminService.reorderPlaceImages).toHaveBeenCalledWith(id, dto);
     });
   });
 });

@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CampaignAdminController } from './campaign-admin.controller';
-import { AdminService } from './admin.service';
+import { CampaignAdminService } from './campaign-admin.service';
 
 describe('CampaignAdminController', () => {
   let controller: CampaignAdminController;
-  let adminService: jest.Mocked<AdminService>;
+  let campaignAdminService: jest.Mocked<CampaignAdminService>;
 
   const mockCampaign = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -29,7 +29,7 @@ describe('CampaignAdminController', () => {
       controllers: [CampaignAdminController],
       providers: [
         {
-          provide: AdminService,
+          provide: CampaignAdminService,
           useValue: {
             getAdminBusinesses: jest.fn(),
             getBusinessCategories: jest.fn(),
@@ -46,12 +46,12 @@ describe('CampaignAdminController', () => {
     }).compile();
 
     controller = module.get<CampaignAdminController>(CampaignAdminController);
-    adminService = module.get(AdminService) as jest.Mocked<AdminService>;
+    campaignAdminService = module.get(CampaignAdminService) as jest.Mocked<CampaignAdminService>;
   });
 
   describe('getAdminBusinesses', () => {
     it('should return list of businesses', async () => {
-      adminService.getAdminBusinesses.mockResolvedValue({
+      campaignAdminService.getAdminBusinesses.mockResolvedValue({
         success: true,
         data: [mockBusiness],
       });
@@ -60,13 +60,13 @@ describe('CampaignAdminController', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual([mockBusiness]);
-      expect(adminService.getAdminBusinesses).toHaveBeenCalled();
+      expect(campaignAdminService.getAdminBusinesses).toHaveBeenCalled();
     });
   });
 
   describe('getBusinessCategories', () => {
     it('should return business categories', async () => {
-      adminService.getBusinessCategories.mockResolvedValue({
+      campaignAdminService.getBusinessCategories.mockResolvedValue({
         success: true,
         data: [mockBusinessCategory],
       });
@@ -74,14 +74,14 @@ describe('CampaignAdminController', () => {
       const result = await controller.getBusinessCategories();
 
       expect(result.success).toBe(true);
-      expect(adminService.getBusinessCategories).toHaveBeenCalled();
+      expect(campaignAdminService.getBusinessCategories).toHaveBeenCalled();
     });
   });
 
   describe('createBusinessCategory', () => {
     it('should create a business category', async () => {
       const dto = { name: 'New Category' };
-      adminService.createBusinessCategory.mockResolvedValue({
+      campaignAdminService.createBusinessCategory.mockResolvedValue({
         success: true,
         data: mockBusinessCategory,
       });
@@ -89,14 +89,14 @@ describe('CampaignAdminController', () => {
       const result = await controller.createBusinessCategory(dto);
 
       expect(result.success).toBe(true);
-      expect(adminService.createBusinessCategory).toHaveBeenCalledWith(dto);
+      expect(campaignAdminService.createBusinessCategory).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('createAdminBusiness', () => {
     it('should create a business', async () => {
       const dto = { name: 'New Business', category_id: mockBusinessCategory.id };
-      adminService.createAdminBusiness.mockResolvedValue({
+      campaignAdminService.createAdminBusiness.mockResolvedValue({
         success: true,
         data: mockBusiness,
       });
@@ -104,14 +104,14 @@ describe('CampaignAdminController', () => {
       const result = await controller.createAdminBusiness(dto);
 
       expect(result.success).toBe(true);
-      expect(adminService.createAdminBusiness).toHaveBeenCalledWith(dto);
+      expect(campaignAdminService.createAdminBusiness).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('getAdminCampaigns', () => {
     it('should return list of campaigns', async () => {
       const dto = { status: 'active' };
-      adminService.getAdminCampaigns.mockResolvedValue({
+      campaignAdminService.getAdminCampaigns.mockResolvedValue({
         success: true,
         data: [mockCampaign],
       });
@@ -119,13 +119,13 @@ describe('CampaignAdminController', () => {
       const result = await controller.getAdminCampaigns(dto);
 
       expect(result.success).toBe(true);
-      expect(adminService.getAdminCampaigns).toHaveBeenCalledWith(dto);
+      expect(campaignAdminService.getAdminCampaigns).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('getAdminCampaignDetail', () => {
     it('should return campaign details', async () => {
-      adminService.getAdminCampaignDetail.mockResolvedValue({
+      campaignAdminService.getAdminCampaignDetail.mockResolvedValue({
         success: true,
         data: mockCampaign,
       });
@@ -133,7 +133,7 @@ describe('CampaignAdminController', () => {
       const result = await controller.getAdminCampaignDetail(mockCampaign.id);
 
       expect(result.success).toBe(true);
-      expect(adminService.getAdminCampaignDetail).toHaveBeenCalledWith(mockCampaign.id);
+      expect(campaignAdminService.getAdminCampaignDetail).toHaveBeenCalledWith(mockCampaign.id);
     });
   });
 
@@ -141,7 +141,7 @@ describe('CampaignAdminController', () => {
     it('should create a campaign', async () => {
       const dto = { title: 'New Campaign', description: 'Description' };
       const adminId = 'admin-123';
-      adminService.createAdminCampaign.mockResolvedValue({
+      campaignAdminService.createAdminCampaign.mockResolvedValue({
         success: true,
         data: mockCampaign,
       });
@@ -149,14 +149,14 @@ describe('CampaignAdminController', () => {
       const result = await controller.createAdminCampaign(adminId, dto);
 
       expect(result.success).toBe(true);
-      expect(adminService.createAdminCampaign).toHaveBeenCalledWith(adminId, dto);
+      expect(campaignAdminService.createAdminCampaign).toHaveBeenCalledWith(adminId, dto);
     });
   });
 
   describe('updateAdminCampaign', () => {
     it('should update a campaign', async () => {
       const dto = { title: 'Updated Campaign' };
-      adminService.updateAdminCampaign.mockResolvedValue({
+      campaignAdminService.updateAdminCampaign.mockResolvedValue({
         success: true,
         data: { ...mockCampaign, title: 'Updated Campaign' },
       });
@@ -164,13 +164,13 @@ describe('CampaignAdminController', () => {
       const result = await controller.updateAdminCampaign(mockCampaign.id, dto);
 
       expect(result.success).toBe(true);
-      expect(adminService.updateAdminCampaign).toHaveBeenCalledWith(mockCampaign.id, dto);
+      expect(campaignAdminService.updateAdminCampaign).toHaveBeenCalledWith(mockCampaign.id, dto);
     });
   });
 
   describe('deleteAdminCampaign', () => {
     it('should delete a campaign', async () => {
-      adminService.deleteAdminCampaign.mockResolvedValue({
+      campaignAdminService.deleteAdminCampaign.mockResolvedValue({
         success: true,
         data: {},
       });
@@ -178,7 +178,7 @@ describe('CampaignAdminController', () => {
       const result = await controller.deleteAdminCampaign(mockCampaign.id);
 
       expect(result.success).toBe(true);
-      expect(adminService.deleteAdminCampaign).toHaveBeenCalledWith(mockCampaign.id);
+      expect(campaignAdminService.deleteAdminCampaign).toHaveBeenCalledWith(mockCampaign.id);
     });
   });
 });

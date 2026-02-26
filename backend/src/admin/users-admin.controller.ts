@@ -9,7 +9,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { UsersAdminService } from './users-admin.service';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { ChangeRoleDto } from './dto/change-role.dto';
@@ -23,18 +23,18 @@ import { UserRole } from '../common/enums/user-role.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class UsersAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly usersAdminService: UsersAdminService) {}
 
   // GET /admin/users
   @Get()
   async getUsers(@Query() dto: QueryUsersDto) {
-    return this.adminService.getUsers(dto);
+    return this.usersAdminService.getUsers(dto);
   }
 
   // GET /admin/users/:id
   @Get(':id')
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getUser(id);
+    return this.usersAdminService.getUser(id);
   }
 
   // POST /admin/users/:id/ban
@@ -44,7 +44,7 @@ export class UsersAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: BanUserDto,
   ) {
-    return this.adminService.banUser(adminId, id, dto);
+    return this.usersAdminService.banUser(adminId, id, dto);
   }
 
   // POST /admin/users/:id/unban
@@ -53,7 +53,7 @@ export class UsersAdminController {
     @CurrentUser('user_id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
-    return this.adminService.unbanUser(adminId, id);
+    return this.usersAdminService.unbanUser(adminId, id);
   }
 
   // PATCH /admin/users/:id/role
@@ -63,6 +63,6 @@ export class UsersAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ChangeRoleDto,
   ) {
-    return this.adminService.changeUserRole(adminId, id, dto);
+    return this.usersAdminService.changeUserRole(adminId, id, dto);
   }
 }

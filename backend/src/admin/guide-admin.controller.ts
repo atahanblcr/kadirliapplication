@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
-import { AdminService } from './admin.service';
+import { GuideAdminService } from './guide-admin.service';
 import { CreateGuideCategoryDto } from './dto/create-guide-category.dto';
 import { UpdateGuideCategoryDto } from './dto/update-guide-category.dto';
 import { CreateGuideItemDto } from './dto/create-guide-item.dto';
@@ -27,20 +27,20 @@ import { QueryGuideItemsDto } from './dto/query-guide-items.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class GuideAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly guideAdminService: GuideAdminService) {}
 
   // ── KATEGORİLER ──────────────────────────────────────────────────────────
 
   // GET /admin/guide/categories
   @Get('categories')
   getGuideCategories() {
-    return this.adminService.getGuideCategories();
+    return this.guideAdminService.getGuideCategories();
   }
 
   // POST /admin/guide/categories
   @Post('categories')
   createGuideCategory(@Body() dto: CreateGuideCategoryDto) {
-    return this.adminService.createGuideCategory(dto);
+    return this.guideAdminService.createGuideCategory(dto);
   }
 
   // PATCH /admin/guide/categories/:id
@@ -49,14 +49,14 @@ export class GuideAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateGuideCategoryDto,
   ) {
-    return this.adminService.updateGuideCategory(id, dto);
+    return this.guideAdminService.updateGuideCategory(id, dto);
   }
 
   // DELETE /admin/guide/categories/:id
   @Delete('categories/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteGuideCategory(@Param('id', ParseUUIDPipe) id: string) {
-    await this.adminService.deleteGuideCategory(id);
+    await this.guideAdminService.deleteGuideCategory(id);
   }
 
   // ── İÇERİKLER ────────────────────────────────────────────────────────────
@@ -64,13 +64,13 @@ export class GuideAdminController {
   // GET /admin/guide/items
   @Get('items')
   getGuideItems(@Query() dto: QueryGuideItemsDto) {
-    return this.adminService.getGuideItems(dto);
+    return this.guideAdminService.getGuideItems(dto);
   }
 
   // POST /admin/guide/items
   @Post('items')
   createGuideItem(@Body() dto: CreateGuideItemDto) {
-    return this.adminService.createGuideItem(dto);
+    return this.guideAdminService.createGuideItem(dto);
   }
 
   // PATCH /admin/guide/items/:id
@@ -79,13 +79,13 @@ export class GuideAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateGuideItemDto,
   ) {
-    return this.adminService.updateGuideItem(id, dto);
+    return this.guideAdminService.updateGuideItem(id, dto);
   }
 
   // DELETE /admin/guide/items/:id
   @Delete('items/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteGuideItem(@Param('id', ParseUUIDPipe) id: string) {
-    await this.adminService.deleteGuideItem(id);
+    await this.guideAdminService.deleteGuideItem(id);
   }
 }

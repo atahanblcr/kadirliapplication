@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { DeathsAdminService } from './deaths-admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -28,24 +28,24 @@ import { UpdateMosqueDto } from './dto/update-mosque.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class DeathsAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly deathsAdminService: DeathsAdminService) {}
 
   // GET /admin/deaths
   @Get()
   async getAllDeaths(@Query() dto: QueryDeathsDto) {
-    return this.adminService.getAllDeaths(dto);
+    return this.deathsAdminService.getAllDeaths(dto);
   }
 
   // GET /admin/deaths/cemeteries
   @Get('cemeteries')
   async getCemeteries() {
-    return this.adminService.getCemeteries();
+    return this.deathsAdminService.getCemeteries();
   }
 
   // POST /admin/deaths/cemeteries
   @Post('cemeteries')
   async createCemetery(@Body() dto: CreateCemeteryDto) {
-    return this.adminService.createCemetery(dto);
+    return this.deathsAdminService.createCemetery(dto);
   }
 
   // PATCH /admin/deaths/cemeteries/:id
@@ -54,25 +54,25 @@ export class DeathsAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCemeteryDto,
   ) {
-    return this.adminService.updateCemetery(id, dto);
+    return this.deathsAdminService.updateCemetery(id, dto);
   }
 
   // DELETE /admin/deaths/cemeteries/:id
   @Delete('cemeteries/:id')
   async deleteCemetery(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteCemetery(id);
+    return this.deathsAdminService.deleteCemetery(id);
   }
 
   // GET /admin/deaths/mosques
   @Get('mosques')
   async getMosques() {
-    return this.adminService.getMosques();
+    return this.deathsAdminService.getMosques();
   }
 
   // POST /admin/deaths/mosques
   @Post('mosques')
   async createMosque(@Body() dto: CreateMosqueDto) {
-    return this.adminService.createMosque(dto);
+    return this.deathsAdminService.createMosque(dto);
   }
 
   // PATCH /admin/deaths/mosques/:id
@@ -81,19 +81,19 @@ export class DeathsAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateMosqueDto,
   ) {
-    return this.adminService.updateMosque(id, dto);
+    return this.deathsAdminService.updateMosque(id, dto);
   }
 
   // DELETE /admin/deaths/mosques/:id
   @Delete('mosques/:id')
   async deleteMosque(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteMosque(id);
+    return this.deathsAdminService.deleteMosque(id);
   }
 
   // GET /admin/deaths/neighborhoods
   @Get('neighborhoods')
   async getNeighborhoods() {
-    return this.adminService.getDeathNeighborhoods();
+    return this.deathsAdminService.getDeathNeighborhoods();
   }
 
   // POST /admin/deaths
@@ -102,7 +102,7 @@ export class DeathsAdminController {
     @CurrentUser('id') adminId: string,
     @Body() dto: CreateDeathDto,
   ) {
-    return this.adminService.createDeath(adminId, dto);
+    return this.deathsAdminService.createDeath(adminId, dto);
   }
 
   // PATCH /admin/deaths/:id
@@ -112,12 +112,12 @@ export class DeathsAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateDeathDto,
   ) {
-    return this.adminService.updateDeath(adminId, id, dto);
+    return this.deathsAdminService.updateDeath(adminId, id, dto);
   }
 
   // DELETE /admin/deaths/:id
   @Delete(':id')
   async deleteDeath(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteDeath(id);
+    return this.deathsAdminService.deleteDeath(id);
   }
 }

@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { TransportAdminService } from './transport-admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -33,26 +33,26 @@ import { ReorderStopDto } from './dto/reorder-stop.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class TransportAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly transportAdminService: TransportAdminService) {}
 
   // ── ŞEHİRLERARASI ──────────────────────────────────────────────────────────
 
   // GET /admin/transport/intercity
   @Get('intercity')
   async getIntercityRoutes(@Query() dto: QueryIntercityRoutesDto) {
-    return this.adminService.getAdminIntercityRoutes(dto);
+    return this.transportAdminService.getAdminIntercityRoutes(dto);
   }
 
   // GET /admin/transport/intercity/:id
   @Get('intercity/:id')
   async getIntercityRoute(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getAdminIntercityRoute(id);
+    return this.transportAdminService.getAdminIntercityRoute(id);
   }
 
   // POST /admin/transport/intercity
   @Post('intercity')
   async createIntercityRoute(@Body() dto: CreateIntercityRouteDto) {
-    return this.adminService.createIntercityRoute(dto);
+    return this.transportAdminService.createIntercityRoute(dto);
   }
 
   // PATCH /admin/transport/intercity/:id
@@ -61,14 +61,14 @@ export class TransportAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateIntercityRouteDto,
   ) {
-    return this.adminService.updateIntercityRoute(id, dto);
+    return this.transportAdminService.updateIntercityRoute(id, dto);
   }
 
   // DELETE /admin/transport/intercity/:id
   @Delete('intercity/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteIntercityRoute(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteIntercityRoute(id);
+    return this.transportAdminService.deleteIntercityRoute(id);
   }
 
   // POST /admin/transport/intercity/:id/schedules
@@ -77,7 +77,7 @@ export class TransportAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: CreateIntercityScheduleDto,
   ) {
-    return this.adminService.addIntercitySchedule(id, dto);
+    return this.transportAdminService.addIntercitySchedule(id, dto);
   }
 
   // PATCH /admin/transport/intercity/schedules/:scheduleId
@@ -86,7 +86,7 @@ export class TransportAdminController {
     @Param('scheduleId', ParseUUIDPipe) scheduleId: string,
     @Body() dto: UpdateIntercityScheduleDto,
   ) {
-    return this.adminService.updateIntercitySchedule(scheduleId, dto);
+    return this.transportAdminService.updateIntercitySchedule(scheduleId, dto);
   }
 
   // DELETE /admin/transport/intercity/schedules/:scheduleId
@@ -95,7 +95,7 @@ export class TransportAdminController {
   async deleteIntercitySchedule(
     @Param('scheduleId', ParseUUIDPipe) scheduleId: string,
   ) {
-    return this.adminService.deleteIntercitySchedule(scheduleId);
+    return this.transportAdminService.deleteIntercitySchedule(scheduleId);
   }
 
   // ── ŞEHİR İÇİ ─────────────────────────────────────────────────────────────
@@ -103,19 +103,19 @@ export class TransportAdminController {
   // GET /admin/transport/intracity
   @Get('intracity')
   async getIntracityRoutes(@Query() dto: QueryIntracityRoutesDto) {
-    return this.adminService.getAdminIntracityRoutes(dto);
+    return this.transportAdminService.getAdminIntracityRoutes(dto);
   }
 
   // GET /admin/transport/intracity/:id
   @Get('intracity/:id')
   async getIntracityRoute(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getAdminIntracityRoute(id);
+    return this.transportAdminService.getAdminIntracityRoute(id);
   }
 
   // POST /admin/transport/intracity
   @Post('intracity')
   async createIntracityRoute(@Body() dto: CreateIntracityRouteDto) {
-    return this.adminService.createIntracityRoute(dto);
+    return this.transportAdminService.createIntracityRoute(dto);
   }
 
   // PATCH /admin/transport/intracity/:id
@@ -124,14 +124,14 @@ export class TransportAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateIntracityRouteDto,
   ) {
-    return this.adminService.updateIntracityRoute(id, dto);
+    return this.transportAdminService.updateIntracityRoute(id, dto);
   }
 
   // DELETE /admin/transport/intracity/:id
   @Delete('intracity/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteIntracityRoute(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteIntracityRoute(id);
+    return this.transportAdminService.deleteIntracityRoute(id);
   }
 
   // POST /admin/transport/intracity/:id/stops
@@ -140,7 +140,7 @@ export class TransportAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: CreateIntracityStopDto,
   ) {
-    return this.adminService.addIntracityStop(id, dto);
+    return this.transportAdminService.addIntracityStop(id, dto);
   }
 
   // PATCH /admin/transport/intracity/stops/:stopId
@@ -149,14 +149,14 @@ export class TransportAdminController {
     @Param('stopId', ParseUUIDPipe) stopId: string,
     @Body() dto: UpdateIntracityStopDto,
   ) {
-    return this.adminService.updateIntracityStop(stopId, dto);
+    return this.transportAdminService.updateIntracityStop(stopId, dto);
   }
 
   // DELETE /admin/transport/intracity/stops/:stopId
   @Delete('intracity/stops/:stopId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteIntracityStop(@Param('stopId', ParseUUIDPipe) stopId: string) {
-    return this.adminService.deleteIntracityStop(stopId);
+    return this.transportAdminService.deleteIntracityStop(stopId);
   }
 
   // PATCH /admin/transport/intracity/stops/:stopId/reorder
@@ -165,6 +165,6 @@ export class TransportAdminController {
     @Param('stopId', ParseUUIDPipe) stopId: string,
     @Body() dto: ReorderStopDto,
   ) {
-    return this.adminService.reorderIntracityStop(stopId, dto);
+    return this.transportAdminService.reorderIntracityStop(stopId, dto);
   }
 }

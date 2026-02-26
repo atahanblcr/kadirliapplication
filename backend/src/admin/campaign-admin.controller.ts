@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { CampaignAdminService } from './campaign-admin.service';
 import { QueryAdminCampaignsDto } from './dto/query-admin-campaigns.dto';
 import { AdminCreateCampaignDto } from './dto/admin-create-campaign.dto';
 import { AdminUpdateCampaignDto } from './dto/admin-update-campaign.dto';
@@ -26,42 +26,42 @@ import { UserRole } from '../common/enums/user-role.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class CampaignAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly campaignAdminService: CampaignAdminService) {}
 
   // GET /admin/campaigns/businesses
   @Get('businesses')
   async getAdminBusinesses() {
-    return this.adminService.getAdminBusinesses();
+    return this.campaignAdminService.getAdminBusinesses();
   }
 
   // GET /admin/campaigns/businesses/categories
   @Get('businesses/categories')
   async getBusinessCategories() {
-    return this.adminService.getBusinessCategories();
+    return this.campaignAdminService.getBusinessCategories();
   }
 
   // POST /admin/campaigns/businesses/categories
   @Post('businesses/categories')
   async createBusinessCategory(@Body() dto: CreateBusinessCategoryDto) {
-    return this.adminService.createBusinessCategory(dto);
+    return this.campaignAdminService.createBusinessCategory(dto);
   }
 
   // POST /admin/campaigns/businesses
   @Post('businesses')
   async createAdminBusiness(@Body() dto: CreateAdminBusinessDto) {
-    return this.adminService.createAdminBusiness(dto);
+    return this.campaignAdminService.createAdminBusiness(dto);
   }
 
   // GET /admin/campaigns
   @Get()
   async getAdminCampaigns(@Query() dto: QueryAdminCampaignsDto) {
-    return this.adminService.getAdminCampaigns(dto);
+    return this.campaignAdminService.getAdminCampaigns(dto);
   }
 
   // GET /admin/campaigns/:id
   @Get(':id')
   async getAdminCampaignDetail(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.getAdminCampaignDetail(id);
+    return this.campaignAdminService.getAdminCampaignDetail(id);
   }
 
   // POST /admin/campaigns
@@ -70,7 +70,7 @@ export class CampaignAdminController {
     @CurrentUser('id') adminId: string,
     @Body() dto: AdminCreateCampaignDto,
   ) {
-    return this.adminService.createAdminCampaign(adminId, dto);
+    return this.campaignAdminService.createAdminCampaign(adminId, dto);
   }
 
   // PATCH /admin/campaigns/:id
@@ -79,12 +79,12 @@ export class CampaignAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: AdminUpdateCampaignDto,
   ) {
-    return this.adminService.updateAdminCampaign(id, dto);
+    return this.campaignAdminService.updateAdminCampaign(id, dto);
   }
 
   // DELETE /admin/campaigns/:id
   @Delete(':id')
   async deleteAdminCampaign(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteAdminCampaign(id);
+    return this.campaignAdminService.deleteAdminCampaign(id);
   }
 }

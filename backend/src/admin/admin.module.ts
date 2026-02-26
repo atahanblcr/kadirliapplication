@@ -43,6 +43,13 @@ import { ComplaintsAdminController } from './complaints-admin.controller';
 import { ComplaintsAdminService } from './complaints-admin.service';
 import { TaxiAdminService } from './taxi-admin.service';
 import { PharmacyAdminService } from './pharmacy-admin.service';
+import { DeathsAdminService } from './deaths-admin.service';
+import { TransportAdminService } from './transport-admin.service';
+import { UsersAdminService } from './users-admin.service';
+import { EventAdminService } from './event-admin.service';
+import { GuideAdminService } from './guide-admin.service';
+import { PlacesAdminService } from './places-admin.service';
+import { CampaignAdminService } from './campaign-admin.service';
 import { StaffAdminService } from './staff-admin.service';
 import { StaffAdminController } from './staff-admin.controller';
 
@@ -95,6 +102,19 @@ import { StaffAdminController } from './staff-admin.controller';
     ComplaintsAdminController,
     StaffAdminController,
   ],
-  providers: [AdminService, ComplaintsAdminService, TaxiAdminService, PharmacyAdminService, StaffAdminService],
+  providers: [
+    AdminService,
+    ComplaintsAdminService,
+    TaxiAdminService,
+    PharmacyAdminService,
+    DeathsAdminService,
+    TransportAdminService,
+    UsersAdminService,
+    EventAdminService,
+    GuideAdminService,
+    PlacesAdminService,
+    CampaignAdminService,
+    StaffAdminService,
+  ],
 })
 export class AdminModule {}
