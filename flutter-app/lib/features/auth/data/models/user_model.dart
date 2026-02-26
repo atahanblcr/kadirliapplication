@@ -24,6 +24,7 @@ class UserModel {
   final String? username;
   final String? role;
   final int? age;
+  final String? profilePhotoUrl;
   final NeighborhoodModel? primaryNeighborhood;
 
   UserModel({
@@ -32,6 +33,7 @@ class UserModel {
     this.username,
     this.role,
     this.age,
+    this.profilePhotoUrl,
     this.primaryNeighborhood,
   });
 
@@ -42,6 +44,7 @@ class UserModel {
       username: json['username'] as String?,
       role: json['role'] as String?,
       age: json['age'] as int?,
+      profilePhotoUrl: json['profile_photo_url'] as String?,
       primaryNeighborhood: json['primary_neighborhood'] != null
           ? NeighborhoodModel.fromJson(
               json['primary_neighborhood'] as Map<String, dynamic>)
@@ -56,6 +59,7 @@ class UserModel {
       'username': username,
       'role': role,
       'age': age,
+      'profile_photo_url': profilePhotoUrl,
     };
   }
 }

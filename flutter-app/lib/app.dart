@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/pages/phone_input_page.dart';
+import 'features/home/presentation/pages/home_page.dart';
 
 class KadirliApp extends ConsumerWidget {
   const KadirliApp({super.key});
@@ -65,45 +66,7 @@ class _AuthGateState extends ConsumerState<_AuthGate> {
         return const PhoneInputPage();
 
       case AuthStatus.authenticated:
-        // Temporary home screen — will be replaced with real home
-        return const _TempHomePage();
+        return const HomePage();
     }
-  }
-}
-
-/// Temporary home page until the real home module is built
-class _TempHomePage extends ConsumerWidget {
-  const _TempHomePage();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('KadirliApp'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-            },
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, size: 64, color: AppColors.success),
-            SizedBox(height: 16),
-            Text(
-              'Giris Basarili!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('Ana sayfa yakin zamanda eklenecek.'),
-          ],
-        ),
-      ),
-    );
   }
 }
