@@ -143,6 +143,10 @@ describe('AdminService', () => {
   let notifRepo: any;
   let pharmRepo: any;
   let pharmScheduleRepo: any;
+  let businessRepo: any;
+  let businessCategoryRepo: any;
+  let campaignImageRepo: any;
+  let fileRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -202,6 +206,10 @@ describe('AdminService', () => {
     notifRepo = module.get(getRepositoryToken(Notification));
     pharmRepo = module.get(getRepositoryToken(Pharmacy));
     pharmScheduleRepo = module.get(getRepositoryToken(PharmacySchedule));
+    businessRepo = module.get(getRepositoryToken(Business));
+    businessCategoryRepo = module.get(getRepositoryToken(BusinessCategory));
+    campaignImageRepo = module.get(getRepositoryToken(CampaignImage));
+    fileRepo = module.get(getRepositoryToken(FileEntity));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -1359,6 +1367,81 @@ describe('AdminService', () => {
 
       await expect(
         service.deleteAdminCampaign('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── Business & Category Operations ──────────────────────────────────────
+
+  describe('Business Operations', () => {
+    // Test 1: getAdminBusinesses
+    it('getAdminBusinesses - işletmeleri döndürmeli', async () => {
+      const businesses = [
+        { id: 'biz-1', business_name: 'Ahmet Market' },
+        { id: 'biz-2', business_name: 'Ayşe Dükkanı' },
+      ];
+      businessRepo.find.mockResolvedValue(businesses);
+
+      const result = await service.getAdminBusinesses();
+
+      expect(result.businesses).toHaveLength(2);
+      expect(result.businesses[0].business_name).toBe('Ahmet Market');
+    });
+
+    // Test 2: getBusinessCategories
+    it('getBusinessCategories - aktif kategorileri döndürmeli', async () => {
+      const categories = [
+        { id: 'cat-1', name: 'Gıda' },
+        { id: 'cat-2', name: 'Elektrik' },
+      ];
+      businessCategoryRepo.find.mockResolvedValue(categories);
+
+      const result = await service.getBusinessCategories();
+
+      expect(result.categories).toHaveLength(2);
+      expect(result.categories[0].name).toBe('Gıda');
+      expect(businessCategoryRepo.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { is_active: true },
+        }),
+      );
+    });
+
+    // Test 3: createAdminCampaign - işletme bulunamadı
+    it('createAdminCampaign - işletme bulunamazsa NotFoundException fırlatmalı', async () => {
+      businessRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.createAdminCampaign('admin-1', {
+          business_id: 'nonexistent',
+          title: 'Test',
+          description: 'Test',
+          discount_rate: 20,
+          valid_from: '2026-03-01',
+          valid_until: '2026-03-31',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 4: updateAdminCampaign - kampanya bulunamadı
+    it('updateAdminCampaign - kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateAdminCampaign('nonexistent', { title: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 5: updateAdminCampaign - işletme bulunamadı
+    it('updateAdminCampaign - işletme bulunamadığında NotFoundException fırlatmalı', async () => {
+      const campaign = makeCampaign({ id: 'camp-1' });
+      campaignRepo.findOne.mockResolvedValue(campaign);
+      businessRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateAdminCampaign('camp-1', {
+          business_id: 'nonexistent',
+        }),
       ).rejects.toThrow(NotFoundException);
     });
   });
