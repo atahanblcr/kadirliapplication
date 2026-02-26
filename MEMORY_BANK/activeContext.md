@@ -1,11 +1,99 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 26 Şubat 2026, 17:00
-**Durum:** ✅ Backend: 698 tests, Coverage 64.3% (+4.77%) — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
+**Son Güncelleme:** 26 Şubat 2026, 23:35
+**Durum:** ✅ Backend: 680 tests (+cleanup), Coverage 64.3% — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
+
+### ✅ COMPLETED: EventImageRepository Dead Code Removal (26 Şubat 2026, 23:40-23:45)
+- **İş:** Remove unused EventImageRepository from admin service
+- **Bulgu:** AdminService constructor'unda inject ediliyordu ama hiçbir method'da kullanılmıyor
+- **Yapılanlar:**
+  - Removed: `@InjectRepository(EventImage)` and `eventImageRepository` parameter
+  - Updated: Import statement (Event kept, EventImage removed)
+  - Impact: No functionality loss - EventImages handled through event.images relation
+- **Test Results:** ✅ All 680 tests pass
+- **Git Commit:** `fix: remove unused EventImageRepository injection from admin service` (3b60414)
+
+### ✅ COMPLETED: BUSINESS + TAXI_DRIVER Roles & Unused Endpoints Cleanup (26 Şubat 2026, 23:00-23:40)
+- **İş:** Remove completely unused BUSINESS role and public campaign/death creation endpoints
+- **Root Cause:** After test coverage improvement, identified that BUSINESS role never used in deployment; public POST endpoints only worked with this role
+- **Yapılanlar:**
+  1. **UserRole enum:** Removed `BUSINESS = 'business'` value
+  2. **Campaigns Module:**
+     - Removed: `POST /campaigns` endpoint (public campaign creation)
+     - Removed: `campaigns.service.create()` method (72 lines)
+     - Removed: `CreateCampaignDto` import
+     - Removed: Business repository injection (never actually used)
+     - Removed: Unused imports (ForbiddenException, BadRequestException)
+     - Fixed: Added missing @CurrentUser decorator + User entity imports for viewCode()
+  3. **Deaths Module:**
+     - Removed: `POST /deaths` endpoint (public death notice creation)
+     - Removed: `deaths.service.create()` method (74 lines)
+     - Removed: `CreateDeathNoticeDto` import
+  4. **Test Cleanup:**
+     - campaigns.controller.spec.ts: Removed 'create' test describe block
+     - campaigns.service.spec.ts: Removed 'create' test describe block (95 lines) + makeBusiness factory
+     - deaths.service.spec.ts: Removed entire 'create' test describe block (94 lines)
+     - deaths.controller.spec.ts: Already cleaned in previous phase
+
+- **Test Results:** ✅ **680 passing / 680 total** (was 689 - removed 9 unused tests)
+- **Test Suites:** ✅ **48 passing / 48 total** (no failures)
+- **Code Removed:** ~460 lines (2 service methods + tests + DTOs + controller endpoints)
+- **Impact:** Cleaner codebase, removed mocked-only test paths, tech debt reduction
+
+- **Git Commit:** `fix: remove unused BUSINESS role and public campaign/death creation endpoints`
+  - Commit: a628f05
+  - Removed 9 test files changed, 1 insertion, 460 deletions
+
+- **Why This Matters:**
+  - Test coverage metrics were inflated - 698 tests but many tested only via mocks, not real paths
+  - BUSINESS role had 0% usage (no users with this role)
+  - Public endpoints contradicted actual business flow (only admin creates campaigns/deaths)
+  - Now: 680 tests but all represent real, production-grade code paths
+
+### ✅ COMPLETED: TAXI_DRIVER Role Cleanup (26 Şubat 2026, 23:35-23:40)
+- **İş:** Remove unused TAXI_DRIVER role from enum and database schema
+- **Bulgu:** TAXI_DRIVER role'ü hiçbir yerde kullanılmıyor:
+  - UserRole enum'da vardı ama hiçbir kod kontrol etmiyordu
+  - Taxi driver'lar `user_id: null` ile oluşturuluyor (user ile bağlı değil)
+  - TAXI_DRIVER role asla atanmıyor
+  - Migration'ın CREATE TYPE'ında 6 role'den biri (artık 4'e düşürüldü)
+- **Yapılanlar:**
+  - Removed: `TAXI_DRIVER = 'taxi_driver'` from UserRole enum
+  - Updated: InitialSchema migration - 'taxi_driver' removed from enum type
+  - Also removed: 'business' role (from previous cleanup)
+  - Now enum supports: `'user', 'moderator', 'admin', 'super_admin'`
+- **Test Results:** ✅ All 680 tests still passing, 48 suites, 0 failures
+- **Git Commit:** `fix: remove unused TAXI_DRIVER role from enum and migration` (452309e)
+
+---
+
+## Temizlik Özeti (Backend Cleanup Phase 1)
+
+### Kaldırıldı:
+1. **BUSINESS role** - Enum, public endpoints, service methods
+2. **TAXI_DRIVER role** - Enum, migration type definition
+3. **Public Campaign Creation** - POST /campaigns endpoint
+4. **Public Death Notice Creation** - POST /deaths endpoint
+5. **Unused imports & service methods** - Business repository, CreateCampaignDto, CreateDeathNoticeDto
+
+### Kazanımlar:
+- ✅ 680 tests (was 689 - removed 9 unused tests)
+- ✅ ~460 lines of code removed
+- ✅ Tech debt reduced
+- ✅ Test coverage now reflects real production code paths
+- ✅ All 48 test suites passing
+
+### Sonraki Adımlar (Phase 2):
+- Remove Business entity files (business.entity.ts, business-category.entity.ts)
+- Remove admin CRUD methods for Business/Campaign/Death operations
+- Create database migration to drop unused tables (campaigns, campaign_images, campaign_code_views, businesses, business_categories)
+- Full codebase verification
+
+---
 
 ### ✅ COMPLETED: Test Coverage Improvement - 59.53% → 64.3% (26 Şubat 2026, 16:35-17:00)
 - **Target:** Reach 75% test coverage (from 59.53%)
