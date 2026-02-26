@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { User } from '../database/entities/user.entity';
 import { TaxiDriver } from '../database/entities/taxi-driver.entity';
-import { Event, EventImage } from '../database/entities/event.entity';
+import { Event } from '../database/entities/event.entity';
 import { EventCategory } from '../database/entities/event-category.entity';
 import { Ad } from '../database/entities/ad.entity';
 import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice.entity';
@@ -139,8 +139,6 @@ export class AdminService {
     private readonly taxiDriverRepository: Repository<TaxiDriver>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
-    @InjectRepository(EventImage)
-    private readonly eventImageRepository: Repository<EventImage>,
     @InjectRepository(EventCategory)
     private readonly eventCategoryRepository: Repository<EventCategory>,
     @InjectRepository(GuideCategory)
