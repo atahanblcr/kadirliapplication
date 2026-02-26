@@ -1,7 +1,7 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 25 Şubat 2026
+**Son Güncelleme:** 26 Şubat 2026
 
 ---
 
@@ -10,7 +10,7 @@
 ```
 Backend:      [██████████] 100% ✅ (17 modül + Staff Admin, 489 test)
 Admin Panel:  [██████████] 100% ✅ (17/17 modül + Staff yönetimi tamamlandı)
-Flutter App:  [███░░░░░░░]  25% (Auth modülü ✅ TAMAMLANDI - Android & iOS tested)
+Flutter App:  [███░░░░░░░]  30% (Auth ✅ + Home ✅ + Announcements ✅)
 Testing:      [██████████] 100% ✅ (Tüm testler passed)
 Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 bekliyor)
 ```
@@ -129,10 +129,26 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 
 ### Phase 7: Flutter Mobile App (Başladı - 25 Şubat 2026)
 
-| Modül | Özellikler | Tarih |
-|-------|-----------|-------|
-| Firebase Setup | FCM + iOS/Android config | 25 Şub |
-| **Auth** | **Phone→OTP→Register flow + JWT + Auto-refresh** | **25 Şub** |
+| Modül | Özellikler | Tarih | Status |
+|-------|-----------|-------|--------|
+| Firebase Setup | FCM + iOS/Android config | 25 Şub | ✅ |
+| **Auth** | **Phone→OTP→Register flow + JWT + Auto-refresh** | **25 Şub** | **✅** |
+| **Home Screen** | **12-module grid + greeting + bottom nav** | **26 Şub** | **✅** |
+| **Announcements** | **List (infinite scroll) + Detail (PDF/link)** | **26 Şub** | **✅** |
+
+**Flutter Announcements Dosyaları (26 Şub):**
+
+| Dosya | İçerik |
+|-------|--------|
+| `features/announcements/data/models/announcement_type_model.dart` | Type icon→IconData mapping |
+| `features/announcements/data/models/announcement_model.dart` | Unified model (list + detail) |
+| `features/announcements/data/repositories/announcements_repository.dart` | API + error handling |
+| `features/announcements/presentation/providers/announcements_provider.dart` | StateNotifier + FutureProvider |
+| `features/announcements/presentation/pages/announcements_list_page.dart` | ConsumerStatefulWidget + refresh/scroll |
+| `features/announcements/presentation/pages/announcement_detail_page.dart` | ConsumerWidget + SelectableText |
+| `features/announcements/presentation/widgets/announcement_card.dart` | List item UI |
+| `features/announcements/presentation/widgets/announcement_shimmer.dart` | Loading skeleton |
+| `features/announcements/presentation/widgets/priority_badge.dart` | Badge widget |
 
 **Flutter Auth Dosyaları:**
 
@@ -152,11 +168,12 @@ Deployment:   [████░░░░░░]  40% (Docker hazır, NGINX/PM2 be
 
 ## 🔴 Bekleyen Görevler (Öncelik Sırasıyla)
 
-1. **📱 Flutter: Announcements** — List + Detail pages
-2. **📱 Flutter: Ads** — List + Detail + Favorites
+1. ~~**📱 Flutter: Announcements**~~ — ✅ **TAMAMLANDI (26 Şub)**
+2. **📱 Flutter: Ads** — List + Detail + Favorites (estimated 26 Şub PM)
 3. **📱 Flutter: Profile** — View + Edit
-4. **🚀 Production deployment** — NGINX + PM2 + SSL
-5. **📲 flutter_local_notifications** — Re-add with compatible version
+4. **📱 Flutter: Remaining Modules** — Deaths, Campaigns, Events, vb.
+5. **🚀 Production deployment** — NGINX + PM2 + SSL
+6. **📲 flutter_local_notifications** — Re-add with compatible version
 
 ---
 
