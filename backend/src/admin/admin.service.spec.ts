@@ -104,6 +104,9 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     status: 'pending',
     created_at: new Date('2026-02-20T10:00:00Z'),
     business: { user: makeUser() } as any,
+    discount_percentage: 20,
+    business_id: 'business-1',
+    images: [],
     ...overrides,
   } as Campaign);
 
@@ -1200,6 +1203,162 @@ describe('AdminService', () => {
         service.rejectAd('admin-uuid', 'nonexistent', {
           rejected_reason: 'Test',
         }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── Campaign Operations (Phase 2.1c) ────────────────────────────────────
+
+  describe('Campaign Operations', () => {
+    // Test 1: getAdminCampaigns - listele
+    it('getAdminCampaigns - kampanjaları sayfalı döndürmeli', async () => {
+      const camp1 = makeCampaign({ id: 'camp-1', title: 'Yaz İndirimi' });
+      const camp2 = makeCampaign({ id: 'camp-2', title: 'Kış İndirimi' });
+      const qb = makeSelectQb([camp1, camp2]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminCampaigns({ page: 1, limit: 20 });
+
+      expect(result.campaigns).toHaveLength(2);
+      expect(result.campaigns[0].title).toBe('Yaz İndirimi');
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getAdminCampaigns - status filtresi
+    it('getAdminCampaigns - status filtresine göre kampanyaları döndürmeli', async () => {
+      const pendingCamp = makeCampaign({ status: 'pending' });
+      const qb = makeSelectQb([pendingCamp]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminCampaigns({ status: 'pending' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('c.status = :status', {
+        status: 'pending',
+      });
+    });
+
+    // Test 3: getAdminCampaigns - arama filtresi
+    it('getAdminCampaigns - arama filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([makeCampaign()]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminCampaigns({ search: 'Test' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(c.title ILIKE :search OR business.business_name ILIKE :search)',
+        expect.objectContaining({ search: '%Test%' }),
+      );
+    });
+
+    // Test 4: getAdminCampaigns - pagination
+    it('getAdminCampaigns - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeCampaign()]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminCampaigns({ page: 3, limit: 10 });
+
+      // page 3, limit 10 => skip(20)
+      expect(qb.skip).toHaveBeenCalledWith(20);
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
+
+    // Test 5: approveCampaign - başarılı onay
+    it('approveCampaign - pending kampanya başarıyla onaylanmalı', async () => {
+      const pendingCamp = makeCampaign({ status: 'pending' });
+      campaignRepo.findOne.mockResolvedValue(pendingCamp);
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.approveCampaign('admin-1', 'camp-uuid');
+
+      expect(campaignRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'camp-uuid', status: 'pending' },
+      });
+      expect(campaignRepo.update).toHaveBeenCalledWith('camp-uuid', {
+        status: 'approved',
+        approved_by: 'admin-1',
+        approved_at: expect.any(Date),
+      });
+      expect(result.message).toBe('Kampanya onaylandı');
+    });
+
+    // Test 6: approveCampaign - ilan bulunamadı
+    it('approveCampaign - pending olmayan kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.approveCampaign('admin-1', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 7: rejectCampaign - başarılı ret
+    it('rejectCampaign - pending kampanya başarıyla reddedilebilmeli', async () => {
+      const pendingCamp = makeCampaign({ status: 'pending' });
+      campaignRepo.findOne.mockResolvedValue(pendingCamp);
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.rejectCampaign('admin-1', 'camp-uuid', {
+        reason: 'Hatalı bilgiler',
+      });
+
+      expect(campaignRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'camp-uuid', status: 'pending' },
+      });
+      expect(campaignRepo.update).toHaveBeenCalledWith('camp-uuid', {
+        status: 'rejected',
+        rejected_reason: 'Hatalı bilgiler',
+      });
+      expect(result.message).toBe('Kampanya reddedildi');
+    });
+
+    // Test 8: rejectCampaign - reason + note ile
+    it('rejectCampaign - reason ve note concatenation yapmalı', async () => {
+      const pendingCamp = makeCampaign({ status: 'pending' });
+      campaignRepo.findOne.mockResolvedValue(pendingCamp);
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      await service.rejectCampaign('admin-1', 'camp-uuid', {
+        reason: 'Hatalı bilgiler',
+        note: 'Referans eksik',
+      });
+
+      expect(campaignRepo.update).toHaveBeenCalledWith('camp-uuid', {
+        status: 'rejected',
+        rejected_reason: 'Hatalı bilgiler: Referans eksik',
+      });
+    });
+
+    // Test 9: rejectCampaign - kampanya bulunamadı
+    it('rejectCampaign - pending olmayan kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.rejectCampaign('admin-1', 'nonexistent', {
+          reason: 'Test',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 10: deleteAdminCampaign - başarılı silme
+    it('deleteAdminCampaign - kampanya başarıyla silinebilmeli', async () => {
+      const camp = makeCampaign({ id: 'camp-uuid' });
+      campaignRepo.findOne.mockResolvedValue(camp);
+      campaignRepo.softRemove.mockResolvedValue(camp);
+
+      const result = await service.deleteAdminCampaign('camp-uuid');
+
+      expect(campaignRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'camp-uuid' },
+      });
+      expect(campaignRepo.softRemove).toHaveBeenCalledWith(camp);
+      expect(result.message).toBe('Kampanya silindi');
+    });
+
+    // Test 11: deleteAdminCampaign - kampanya bulunamadı
+    it('deleteAdminCampaign - kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteAdminCampaign('nonexistent'),
       ).rejects.toThrow(NotFoundException);
     });
   });
