@@ -1,11 +1,37 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 26 Şubat 2026, 15:45
-**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅ — 📚 API Documentation UPDATED
+**Son Güncelleme:** 26 Şubat 2026, 16:15
+**Durum:** ⏳ Backend: 479 tests ✅ + Coverage %43 (admin tests eksik) — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
+
+### ✅ FIXED: Backend RolesGuard Tests (26 Şubat 2026, 16:00-16:15)
+- **Sorun:** 3 test fail ediyordu (roles.guard.spec.ts)
+  - "Kullanıcı yetersiz role sahipse → false dönmeli"
+  - "Kullanıcı null ise → false dönmeli"
+  - "SUPER_ADMIN sadece super_admin gerektiğinde geçmeli"
+- **Root Cause:** Guard'da `getAllAndOverride` iki kez çağrılıyor (SKIP_AUTH_KEY + ROLES_KEY) ama test'te `mockReturnValue` sadece bir kez değer dönüyordu
+- **Çözüm:** Her test'te `mockImplementation((key) => key === ROLES_KEY ? [...] : undefined)` patterni kullanıldı
+- **Sonuç:** ✅ **479 passing / 479 total** (0 fail)
+- **Commit:** `fix: resolve RolesGuard test mocks to handle multiple guard calls`
+- **CLAUDE.md Güncellendi:**
+  - "492 unit test" → "**479 unit test**"
+  - Coverage: %43 (admin testleri eksik)
+  - "100% Tamamlandı" → "95% Tamamlandı (Admin Testleri Eksik)"
+
+### ⚠️ KNOWN ISSUE: Low Test Coverage
+- **Mevcut Coverage:** 43.06% (hepsi pass ✅ ama coverage düşük)
+- **Sebebi:** Admin modülünün hiç testi yok
+  - `src/admin: 9.65%` → admin.service.ts sadece %11
+  - 11 admin controller: 0% coverage
+- **TODO:** Admin panel testleri yazılmalı (~5-6 saat iş)
+  - campaign-admin.controller.spec.ts
+  - deaths-admin.controller.spec.ts
+  - places-admin.controller.spec.ts
+  - vb...
+
 
 ### ✅ COMPLETED: Full API Audit & Documentation Update (26 Şubat 2026, 15:00-15:45)
 - **Durum:** ✅ FULLY COMPLETED - 16 modules tested + docs updated + response keys standardized

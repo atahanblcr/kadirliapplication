@@ -22,7 +22,10 @@ describe('RolesGuard', () => {
 
   beforeEach(() => {
     reflector = {
-      getAllAndOverride: jest.fn(),
+      getAllAndOverride: jest.fn().mockImplementation((key: string) => {
+        // SKIP_AUTH_KEY için undefined, ROLES_KEY için mock value dön
+        return undefined;
+      }),
     } as unknown as jest.Mocked<Reflector>;
 
     guard = new RolesGuard(reflector);
@@ -33,46 +36,55 @@ describe('RolesGuard', () => {
   });
 
   it('Rol gerekmiyorsa (ROLES_KEY yok) → true dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue(undefined);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation(() => undefined);
     const ctx = makeContext(UserRole.USER);
 
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
   it('Kullanıcı doğru role sahipse → true dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([UserRole.ADMIN]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY) return [UserRole.ADMIN];
+      return undefined;
+    });
     const ctx = makeContext(UserRole.ADMIN);
 
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
   it('Kullanıcı yetersiz role sahipse → false dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([UserRole.ADMIN]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY) return [UserRole.ADMIN];
+      return undefined;
+    });
     const ctx = makeContext(UserRole.USER);
 
     expect(guard.canActivate(ctx)).toBe(false);
   });
 
   it('Birden fazla izinli rolden biri eşleşirse → true dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([
-      UserRole.ADMIN,
-      UserRole.SUPER_ADMIN,
-      UserRole.MODERATOR,
-    ]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY)
+        return [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR];
+      return undefined;
+    });
     const ctx = makeContext(UserRole.MODERATOR);
 
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
   it('Kullanıcı null ise → false dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([UserRole.ADMIN]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY) return [UserRole.ADMIN];
+      return undefined;
+    });
     const ctx = makeContext(null);
 
     expect(guard.canActivate(ctx)).toBe(false);
   });
 
   it('Reflector ROLES_KEY ile çağrılmalı', () => {
-    reflector.getAllAndOverride.mockReturnValue(undefined);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation(() => undefined);
     const ctx = makeContext(UserRole.USER);
 
     guard.canActivate(ctx);
@@ -84,14 +96,20 @@ describe('RolesGuard', () => {
   });
 
   it('SUPER_ADMIN sadece super_admin gerektiğinde geçmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([UserRole.SUPER_ADMIN]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY) return [UserRole.SUPER_ADMIN];
+      return undefined;
+    });
     const ctx = makeContext(UserRole.ADMIN);
 
     expect(guard.canActivate(ctx)).toBe(false);
   });
 
   it('SUPER_ADMIN → super_admin rolü gerektiğinde true dönmeli', () => {
-    reflector.getAllAndOverride.mockReturnValue([UserRole.SUPER_ADMIN]);
+    (reflector.getAllAndOverride as jest.Mock).mockImplementation((key: string) => {
+      if (key === ROLES_KEY) return [UserRole.SUPER_ADMIN];
+      return undefined;
+    });
     const ctx = makeContext(UserRole.SUPER_ADMIN);
 
     expect(guard.canActivate(ctx)).toBe(true);
