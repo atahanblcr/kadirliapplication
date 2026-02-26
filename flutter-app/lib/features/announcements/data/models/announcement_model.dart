@@ -39,6 +39,15 @@ class AnnouncementModel {
     this.createdBy,
   });
 
+  /// Safely parse target_neighborhoods - can be null, List, or other type
+  static List<String>? _parseTargetNeighborhoods(dynamic value) {
+    if (value == null) return null;
+    if (value is List<dynamic>) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return null;
+  }
+
   factory AnnouncementModel.fromJson(Map<String, dynamic> json) {
     final createdAtStr = json['created_at'] as String?;
     DateTime createdAt;
@@ -65,11 +74,9 @@ class AnnouncementModel {
       viewCount: json['view_count'] as int? ?? 0,
       createdAt: createdAt,
       isViewed: json['is_viewed'] as bool? ?? false,
-      targetNeighborhoods: (json['target_neighborhoods'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      targetNeighborhoods: _parseTargetNeighborhoods(json['target_neighborhoods']),
       pdfFile: json['pdf_file'] as Map<String, dynamic>?,
-      createdBy: json['created_by'] as Map<String, dynamic>?,
+      createdBy: null, // created_by is String ID, not needed for mobile
     );
   }
 
