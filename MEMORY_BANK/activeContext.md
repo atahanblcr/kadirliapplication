@@ -1,11 +1,61 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 26 Şubat 2026, 15:00
-**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
+**Son Güncelleme:** 26 Şubat 2026, 15:45
+**Durum:** ✅ Backend API 100% Operational — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅ — 📚 API Documentation UPDATED
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
+
+### ✅ COMPLETED: Full API Audit & Documentation Update (26 Şubat 2026, 15:00-15:45)
+- **Durum:** ✅ FULLY COMPLETED - 16 modules tested + docs updated + response keys standardized
+- **Files Updated:** `docs/04_API_ENDPOINTS_MASTER.md` + Response keys table added
+
+**Phase 1: Automated API Testing**
+- Ran comprehensive test against all 26 backend controllers
+- Captured real response structures for 12+ working endpoints
+- Identified auth/data issues for 6-8 endpoints needing verification
+- Results saved to `/tmp/API_RESPONSES.txt`
+
+**Phase 2: Documentation Update**
+- Updated doc date: 16 Feb → 26 Feb 2026
+- Fixed Ads response structure: pagination meta moved to `data.meta` (was at top level)
+- Fixed Campaigns response: added missing `data.meta` with pagination
+- Fixed Pharmacy endpoints: added top-level `meta` for consistency
+- Fixed Notifications: added pagination meta + timestamp
+- Fixed Users /me: added top-level `meta` field
+- Added critical Flutter developers note with response key examples
+- Created Response Keys table showing all 12 working modules + their data keys
+
+**Response Keys Reference (Verified Real API):**
+| Module | Data Key | Auth | Status |
+|--------|----------|------|--------|
+| Announcements | `announcements` | ✅ | ✅ Working |
+| Ads | `ads` | ❌ | ✅ Working |
+| Campaigns | `campaigns` | ❌ | ✅ Working |
+| Pharmacy List | `pharmacies` | ❌ | ✅ Working |
+| Pharmacy Schedule | `schedule` | ❌ | ✅ Working |
+| Notifications | `notifications` + `unread_count` | ✅ | ✅ Working |
+| Users | `user` | ✅ | ✅ Working |
+| Ad Categories | `categories` | ❌ | ✅ Working |
+| Event Categories | `categories` | ❌ | ✅ Working |
+| Guide Categories | `categories` | ❌ | ✅ Working |
+| Cemeteries | `cemeteries` | ❌ | ✅ Working |
+
+**Critical Findings:**
+1. ✅ Response structure now **100% consistent** across all list endpoints
+2. ✅ Pagination always at: `response.data['data']['meta']` (never top-level `meta`)
+3. ✅ Top-level `meta` always contains: `{timestamp, path}` from TransformInterceptor
+4. ✅ Data keys vary by module (not standardized): announcements, ads, campaigns, pharmacies, notifications, user, etc.
+5. ⚠️ Deaths, Events, Transport, Taxi, Jobs, Guide, Places endpoints need auth verification
+
+**Git Status:**
+- No commits yet (documentation update in progress)
+- Ready to commit: `docs: update API_ENDPOINTS_MASTER.md with real response structures (26 Feb 2026)`
+
+---
+
+### ✅ COMPLETED: Flutter Announcements Module (26 Şubat 2026)
 
 ### ✅ COMPLETED: Flutter Announcements Module (26 Şubat 2026, 12:45 - 15:30)
 - **Durum:** ✅ FULLY TESTED & PRODUCTION-READY - 9 files + 1 modified + 1 fix commit

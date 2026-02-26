@@ -1,8 +1,8 @@
 # KadirliApp - API Endpoints Documentation
 
-**Version:** 1.0  
-**Base URL:** `https://api.kadirliapp.com/v1`  
-**Date:** 16 Şubat 2026
+**Version:** 1.0
+**Base URL:** `https://api.kadirliapp.com/v1`
+**Date:** 26 Şubat 2026 (Updated with real API responses)
 
 ---
 
@@ -83,20 +83,56 @@ Authorization: Bearer <token>
 ?page=1&limit=20&sort=-created_at
 ```
 
-**Response:**
+**CRITICAL - Response Structure (Real):**
 ```json
 {
-  "data": [...],
+  "success": true,
+  "data": {
+    "announcements": [...],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 150,
+      "total_pages": 8,
+      "has_next": true,
+      "has_prev": false
+    }
+  },
   "meta": {
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "total_pages": 8,
-    "has_next": true,
-    "has_prev": false
+    "timestamp": "2026-02-26T12:46:25.542Z",
+    "path": "/v1/announcements?page=1&limit=5"
   }
 }
 ```
+
+**⚠️ IMPORTANT FOR FLUTTER DEVELOPERS:**
+- **Pagination data:** `response.data['data']['meta']` ← Contains page, total, total_pages
+- **API meta:** `response.data['meta']` ← Contains timestamp + path (from TransformInterceptor)
+- **List items:** `response.data['data']['announcements']` (key varies by module: ads, campaigns, pharmacies, notifications, etc.)
+
+---
+
+## Response Keys by Module (Real API - 26 Feb 2026)
+
+| Module | Endpoint | Data Key | Auth | Status |
+|--------|----------|----------|------|--------|
+| Announcements | GET /announcements | `announcements` | ✅ | ✅ Working |
+| Ads | GET /ads | `ads` | ❌ | ✅ Working |
+| Ads Categories | GET /ads/categories | `categories` | ❌ | ✅ Working |
+| Campaigns | GET /campaigns | `campaigns` | ❌ | ✅ Working |
+| Pharmacy List | GET /pharmacy/list | `pharmacies` | ❌ | ✅ Working |
+| Pharmacy Schedule | GET /pharmacy/schedule | `schedule` | ❌ | ✅ Working |
+| Pharmacy Current | GET /pharmacy/current | `pharmacy` | ❌ | ✅ Working |
+| Notifications | GET /notifications | `notifications` + `unread_count` | ✅ | ✅ Working |
+| Users | GET /users/me | `user` | ✅ | ✅ Working |
+| Events Categories | GET /events/categories | `categories` | ❌ | ✅ Working |
+| Guide Categories | GET /guide/categories | `categories` | ❌ | ✅ Working |
+| Cemeteries | GET /deaths/cemeteries | `cemeteries` | ❌ | ✅ Working |
+
+**Status Legend:**
+- ✅ Verified working (tested 26 Feb 2026)
+- ⚠️ Requires verification (possible auth or data issues)
+- List endpoints return `meta` with pagination: `{page, limit, total, total_pages}`
 
 ### Rate Limiting
 
@@ -371,6 +407,10 @@ X-RateLimit-Reset: 1234567890
       "is_active": true,
       "created_at": "2026-01-15T10:30:00Z"
     }
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.843Z",
+    "path": "/v1/users/me"
   }
 }
 ```
@@ -828,13 +868,17 @@ module_id: "uuid" (optional)
         "created_at": "2026-02-10T14:30:00Z",
         "expires_at": "2026-02-17T14:30:00Z"
       }
-    ]
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 150,
+      "total_pages": 8
+    }
   },
   "meta": {
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "total_pages": 8
+    "timestamp": "2026-02-26T12:46:25.559Z",
+    "path": "/v1/ads?page=1&limit=5"
   }
 }
 ```
@@ -1584,6 +1628,10 @@ Max: 3 uzatma
       "duty_hours": "19:00 - 09:00",
       "pharmacist_name": "Ecz. Ali YILMAZ"
     }
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.741Z",
+    "path": "/v1/pharmacy/current"
   }
 }
 ```
@@ -1631,6 +1679,10 @@ Max: 3 uzatma
         }
       }
     ]
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.750Z",
+    "path": "/v1/pharmacy/schedule"
   }
 }
 ```
@@ -1659,7 +1711,17 @@ Max: 3 uzatma
         "working_hours": "08:30-19:00",
         "pharmacist_name": "Ecz. Ali YILMAZ"
       }
-    ]
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 15,
+      "total_pages": 1
+    }
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.741Z",
+    "path": "/v1/pharmacy/list?page=1&limit=5"
   }
 }
 ```
@@ -1836,9 +1898,18 @@ Max: 3 uzatma
         },
         "created_at": "2026-02-10T10:00:00Z"
       }
-    ]
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 50,
+      "total_pages": 3
+    }
   },
-  "meta": { ... }
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.640Z",
+    "path": "/v1/campaigns?page=1&limit=5"
+  }
 }
 ```
 
@@ -2218,9 +2289,18 @@ Max: 3 uzatma
         "created_at": "2026-02-16T10:30:00Z"
       }
     ],
-    "unread_count": 5
+    "unread_count": 5,
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 50,
+      "total_pages": 3
+    }
   },
-  "meta": { ... }
+  "meta": {
+    "timestamp": "2026-02-26T12:46:25.831Z",
+    "path": "/v1/notifications?page=1&limit=5"
+  }
 }
 ```
 
