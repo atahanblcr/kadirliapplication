@@ -1,11 +1,49 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 26 Şubat 2026, 16:35
-**Durum:** ✅ Backend: 577 tests, Coverage 59% — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
+**Son Güncelleme:** 26 Şubat 2026, 17:00
+**Durum:** ✅ Backend: 698 tests, Coverage 64.3% (+4.77%) — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
+
+### ✅ COMPLETED: Test Coverage Improvement - 59.53% → 64.3% (26 Şubat 2026, 16:35-17:00)
+- **Target:** Reach 75% test coverage (from 59.53%)
+- **Approach:** Strategic test file creation for untested modules
+- **Results:**
+  - **Starting Coverage:** 59.53% (642 tests)
+  - **After BATCH 1** (quick wins - 0% files): 61.36% (+1.83%)
+    - ✅ `http-exception.filter.spec.ts` (12 tests)
+    - ✅ `transform.interceptor.spec.ts` (10 tests)
+    - ✅ `permission.guard.spec.ts` (7 tests)
+    - ✅ deaths.service.spec.ts extended (+4 admin tests)
+  - **After Extended Admin Tests:** 62.29% (+0.93%)
+    - Added tests to admin.service.spec.ts for:
+      - unbanUser, changeUserRole, getAdminAds, getAdminPharmacies
+      - getAdminCampaigns, approveCampaign, rejectCampaign, deleteAdminCampaign
+  - **After StaffAdminService Tests:** 64.3% (+2.01%)
+    - ✅ `staff-admin.service.spec.ts` (31 comprehensive tests)
+    - Covers: getStaffList, getStaffDetail, createStaff, updateStaff
+    - updateStaffPermissions, deactivateStaff, resetStaffPassword
+
+  **Total Tests:** 642 → **698 (+56 new tests)**
+  **Total Coverage Gain:** +4.77% (need +10.7% more to reach 75%)
+
+- **Files Created:**
+  - `backend/src/common/filters/http-exception.filter.spec.ts` (9 tests)
+  - `backend/src/common/interceptors/transform.interceptor.spec.ts` (10 tests)
+  - `backend/src/auth/guards/permission.guard.spec.ts` (7 tests)
+  - `backend/src/admin/staff-admin.service.spec.ts` (31 tests)
+
+- **Files Modified:**
+  - `backend/src/deaths/deaths.service.spec.ts` (+4 admin method tests)
+  - `backend/src/admin/admin.service.spec.ts` (+13 additional test cases)
+
+- **Next Steps:** Continue with BATCH 2/3 to reach 75%
+  - Need to add tests for: transport methods, events/guide operations, places, etc.
+  - Focus on high-impact uncovered areas in admin.service.ts (currently 12.98% → target 45%+)
+
+### ✅ COMPLETED: Admin Controller Tests - All 11 Controllers (26 Şubat 2026, 16:15-16:35)
 
 ### ✅ COMPLETED: Admin Controller Tests - All 11 Controllers (26 Şubat 2026, 16:15-16:35)
 - **Yapılan:** 11 admin controller için comprehensive test file'ları oluşturuldu

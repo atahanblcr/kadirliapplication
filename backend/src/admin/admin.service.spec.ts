@@ -117,6 +117,7 @@ describe('AdminService', () => {
   let campaignRepo: any;
   let announcementRepo: any;
   let notifRepo: any;
+  let pharmRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -126,6 +127,9 @@ describe('AdminService', () => {
       update: jest.fn(),
       save: jest.fn(),
       create: jest.fn(),
+      softDelete: jest.fn(),
+      softRemove: jest.fn(),
+      find: jest.fn(),
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -170,6 +174,7 @@ describe('AdminService', () => {
     campaignRepo = module.get(getRepositoryToken(Campaign));
     announcementRepo = module.get(getRepositoryToken(Announcement));
     notifRepo = module.get(getRepositoryToken(Notification));
+    pharmRepo = module.get(getRepositoryToken(Pharmacy));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -549,6 +554,340 @@ describe('AdminService', () => {
       await expect(
         service.banUser('admin-uuid', 'user-uuid-1', { ban_reason: 'Spam' }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  // ── getAdminAds ───────────────────────────────────────────────────────────
+
+  describe('getAdminAds', () => {
+    it('ilan listesini döndürmeli', async () => {
+      const ads = [makeAd()];
+      const qb = makeSelectQb(ads);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminAds({ page: 1, limit: 20 });
+
+      expect(result.ads).toEqual(ads);
+      expect(result.meta.total).toBe(1);
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('ad.user', 'user');
+      expect(qb.where).toHaveBeenCalledWith('ad.deleted_at IS NULL');
+    });
+
+    it('status filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ status: 'pending' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.status = :status', {
+        status: 'pending',
+      });
+    });
+
+    it('category_id filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ category_id: 'cat-uuid-1' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.category_id = :category_id', {
+        category_id: 'cat-uuid-1',
+      });
+    });
+
+    it('user_id filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ user_id: 'user-uuid-1' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.user_id = :user_id', {
+        user_id: 'user-uuid-1',
+      });
+    });
+
+    it('search filtresi (title ve description) uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminAds({ search: 'iPhone' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(ad.title ILIKE :search OR ad.description ILIKE :search)',
+        { search: '%iPhone%' },
+      );
+    });
+  });
+
+  // ── getAdminPharmacies ────────────────────────────────────────────────────
+
+  describe('getAdminPharmacies', () => {
+    it('eczane listesini döndürmeli', async () => {
+      const pharmacies = [
+        { id: 'pharm-1', name: 'Merkez Eczanesi' },
+        { id: 'pharm-2', name: 'Şehir Eczanesi' },
+      ];
+      const qb = makeSelectQb(pharmacies);
+      pharmRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminPharmacies();
+
+      expect(result.pharmacies).toEqual(pharmacies);
+      expect(qb.orderBy).toHaveBeenCalledWith('p.name', 'ASC');
+    });
+
+    it('search parametresi verildiğinde filtreleme yapmalı', async () => {
+      const qb = makeSelectQb([]);
+      pharmRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminPharmacies('Merkez');
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(p.name ILIKE :search OR p.address ILIKE :search)',
+        { search: '%Merkez%' },
+      );
+    });
+  });
+
+  // ── unbanUser ─────────────────────────────────────────────────────────────
+
+  describe('unbanUser', () => {
+    it('kullanıcının banını kaldırmalı', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ is_banned: true }));
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.unbanUser('admin-uuid', 'user-uuid-1');
+
+      expect(userRepo.update).toHaveBeenCalledWith('user-uuid-1', {
+        is_banned: false,
+        ban_reason: null,
+        banned_at: null,
+        banned_by: null,
+      });
+      expect(result.message).toBe('Ban kaldırıldı');
+    });
+
+    it('banlı olmayan kullanıcı için BadRequestException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ is_banned: false }));
+
+      await expect(
+        service.unbanUser('admin-uuid', 'user-uuid-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('kullanıcı bulunamazsa NotFoundException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.unbanUser('admin-uuid', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── changeUserRole ────────────────────────────────────────────────────────
+
+  describe('changeUserRole', () => {
+    it('kullanıcının rolünü değiştirmeli', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser());
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.changeUserRole('admin-uuid', 'user-uuid-1', {
+        role: 'business' as any,
+      });
+
+      expect(userRepo.update).toHaveBeenCalledWith('user-uuid-1', {
+        role: 'business',
+      });
+      expect(result.message).toBe('Rol güncellendi');
+      expect(result.role).toBe('business');
+    });
+
+    it('kullanıcı bulunamazsa NotFoundException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.changeUserRole('admin-uuid', 'nonexistent', { role: 'business' as any }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── getAdminCampaigns ─────────────────────────────────────────────────────
+
+  describe('getAdminCampaigns', () => {
+    it('kampanya listesini döndürmeli (mapped)', async () => {
+      const campaign = makeCampaign({
+        id: 'campaign-uuid-1',
+        title: '%20 İndirim',
+        business: { user: makeUser() } as any,
+        images: [],
+      });
+      const qb = makeSelectQb([campaign]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminCampaigns({ page: 1, limit: 20 });
+
+      expect(result.campaigns).toHaveLength(1);
+      expect(result.campaigns[0].id).toBe('campaign-uuid-1');
+      expect(result.campaigns[0].title).toBe('%20 İndirim');
+      expect(result.meta.total).toBe(1);
+    });
+
+    it('status filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminCampaigns({ status: 'pending' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('c.status = :status', {
+        status: 'pending',
+      });
+    });
+
+    it('search filtresi (title ve business name) uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getAdminCampaigns({ search: 'Kampanya' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(c.title ILIKE :search OR business.business_name ILIKE :search)',
+        { search: '%Kampanya%' },
+      );
+    });
+  });
+
+  // ── approveCampaign ───────────────────────────────────────────────────────
+
+  describe('approveCampaign', () => {
+    it('kampanyayı onaylamalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(makeCampaign({ status: 'pending' }));
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.approveCampaign('admin-uuid', 'campaign-uuid-1');
+
+      expect(campaignRepo.update).toHaveBeenCalledWith('campaign-uuid-1', {
+        status: 'approved',
+        approved_by: 'admin-uuid',
+        approved_at: expect.any(Date),
+      });
+      expect(result.message).toBe('Kampanya onaylandı');
+    });
+
+    it('kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.approveCampaign('admin-uuid', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── rejectCampaign ────────────────────────────────────────────────────────
+
+  describe('rejectCampaign', () => {
+    it('kampanyayı reddedebilmeli (sadece reason)', async () => {
+      campaignRepo.findOne.mockResolvedValue(makeCampaign({ status: 'pending' }));
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.rejectCampaign('admin-uuid', 'campaign-uuid-1', {
+        reason: 'İçerik uygunsuz',
+      } as any);
+
+      expect(campaignRepo.update).toHaveBeenCalledWith('campaign-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'İçerik uygunsuz',
+      });
+      expect(result.message).toBe('Kampanya reddedildi');
+    });
+
+    it('kampanyayı reddedebilmeli (reason + note)', async () => {
+      campaignRepo.findOne.mockResolvedValue(makeCampaign({ status: 'pending' }));
+      campaignRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.rejectCampaign('admin-uuid', 'campaign-uuid-1', {
+        reason: 'İçerik uygunsuz',
+        note: 'Düzeltip yeniden deneyin',
+      } as any);
+
+      expect(campaignRepo.update).toHaveBeenCalledWith('campaign-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'İçerik uygunsuz: Düzeltip yeniden deneyin',
+      });
+      expect(result.message).toBe('Kampanya reddedildi');
+    });
+
+    it('kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.rejectCampaign('admin-uuid', 'nonexistent', { reason: 'Test' } as any),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── deleteAdminCampaign ───────────────────────────────────────────────────
+
+  describe('deleteAdminCampaign', () => {
+    it('kampanyayı soft remove yapmalı', async () => {
+      const campaign = makeCampaign();
+      campaignRepo.findOne.mockResolvedValue(campaign);
+      campaignRepo.softRemove.mockResolvedValue(campaign);
+
+      const result = await service.deleteAdminCampaign('campaign-uuid-1');
+
+      expect(campaignRepo.softRemove).toHaveBeenCalledWith(campaign);
+      expect(result.message).toBe('Kampanya silindi');
+    });
+
+    it('kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
+      campaignRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteAdminCampaign('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+
+  // ── getApprovals ────────────────────────────────────────────────────────
+
+  describe('getApprovals', () => {
+    it('onay bekleyen ilan listesi döndürmeli (type=ad)', async () => {
+      const ad = makeAd({ status: 'pending', user: makeUser() });
+      const qb = makeSelectQb([ad]);
+      adRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getApprovals({ type: 'ad' });
+
+      expect(result.approvals).toHaveLength(1);
+      expect(result.approvals[0].type).toBe('ad');
+      expect(result.approvals[0].content.title).toBe(ad.title);
+    });
+
+    it('onay bekleyen vefat ilanları listesi döndürmeli (type=death)', async () => {
+      const death = makeDeath({ status: 'pending', adder: makeUser() });
+      const qb = makeSelectQb([death]);
+      deathRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getApprovals({ type: 'death' });
+
+      expect(result.approvals).toHaveLength(1);
+      expect(result.approvals[0].type).toBe('death');
+      expect(result.approvals[0].content.title).toBe(death.deceased_name);
+    });
+
+    it('onay bekleyen kampanyalar listesi döndürmeli (type=campaign)', async () => {
+      const campaign = makeCampaign({
+        status: 'pending',
+        business: { user: makeUser() } as any,
+      });
+      const qb = makeSelectQb([campaign]);
+      campaignRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getApprovals({ type: 'campaign' });
+
+      expect(result.approvals).toHaveLength(1);
+      expect(result.approvals[0].type).toBe('campaign');
     });
   });
 });

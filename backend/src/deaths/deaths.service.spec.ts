@@ -71,6 +71,8 @@ describe('DeathsService', () => {
       save: jest.fn(),
       create: jest.fn((dto: any) => dto),
       createQueryBuilder: jest.fn(),
+      update: jest.fn(),
+      softDelete: jest.fn(),
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -303,6 +305,212 @@ describe('DeathsService', () => {
       noticeRepo.createQueryBuilder.mockReturnValue(qb);
 
       await expect(service.handleAutoArchive()).resolves.not.toThrow();
+    });
+  });
+
+  // ── ADMIN: TÜM VEFAT İLANLARI (findAllAdmin) ────────────────────────────────
+
+  describe('findAllAdmin', () => {
+    it('tüm vefat ilanlarını sayfalı döndürmeli (status filtresi yok)', async () => {
+      const notices = [
+        makeNotice({ status: 'pending' }),
+        makeNotice({ status: 'approved' }),
+        makeNotice({ status: 'rejected' }),
+      ];
+      const qb = makeQb(notices, 3);
+      noticeRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.findAllAdmin({ page: 1, limit: 20 });
+
+      expect(result.notices).toEqual(notices);
+      expect(result.meta.total).toBe(3);
+      expect(qb.leftJoinAndSelect).toHaveBeenCalled();
+      expect(qb.where).toHaveBeenCalledWith('d.deleted_at IS NULL');
+      expect(qb.orderBy).toHaveBeenCalledWith('d.created_at', 'DESC');
+    });
+
+    it('status filtresine göre ilanları döndürmeli', async () => {
+      const notices = [makeNotice({ status: 'pending' })];
+      const qb = makeQb(notices, 1);
+      noticeRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findAllAdmin({ page: 1, limit: 20, status: 'pending' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', { status: 'pending' });
+    });
+
+    it('arama filtresine göre ilanları döndürmeli (deceased_name ILIKE)', async () => {
+      const notices = [makeNotice({ deceased_name: 'Ahmet YILMAZ' })];
+      const qb = makeQb(notices, 1);
+      noticeRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findAllAdmin({ page: 1, limit: 20, search: 'Ahmet' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('d.deceased_name ILIKE :search', {
+        search: '%Ahmet%',
+      });
+    });
+
+    it('hem status hem search filtresi uygulanabilmeli', async () => {
+      const qb = makeQb([], 0);
+      noticeRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findAllAdmin({ page: 2, limit: 10, status: 'approved', search: 'Test' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', { status: 'approved' });
+      expect(qb.andWhere).toHaveBeenCalledWith('d.deceased_name ILIKE :search', {
+        search: '%Test%',
+      });
+      expect(qb.skip).toHaveBeenCalled();
+      expect(qb.take).toHaveBeenCalled();
+    });
+
+    it('varsayılan pagination (page=1, limit=20) kullanmalı', async () => {
+      const qb = makeQb([], 0);
+      noticeRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findAllAdmin({});
+
+      expect(qb.skip).toHaveBeenCalled();
+      expect(qb.take).toHaveBeenCalled();
+    });
+  });
+
+  // ── ADMIN: ONAYLA (approveNotice) ──────────────────────────────────────────
+
+  describe('approveNotice', () => {
+    it('pending ilanı onaylamalı', async () => {
+      const notice = makeNotice({ status: 'pending' });
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.approveNotice('notice-uuid-1', 'admin-uuid-1');
+
+      expect(result.message).toBe('Vefat ilanı onaylandı');
+      expect(noticeRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'notice-uuid-1', status: 'pending' },
+      });
+      expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
+        status: 'approved',
+        approved_by: 'admin-uuid-1',
+        approved_at: expect.any(Date),
+      });
+    });
+
+    it('pending olmayan ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      noticeRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.approveNotice('x', 'admin-uuid-1')).rejects.toThrow(
+        new NotFoundException('Vefat ilanı bulunamadı veya zaten işlenmiş'),
+      );
+    });
+
+    it('approved_at timestamp\'inin güncel olması gerekir', async () => {
+      const notice = makeNotice({ status: 'pending' });
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.update.mockResolvedValue({ affected: 1 });
+
+      const beforeCall = new Date();
+      await service.approveNotice('notice-uuid-1', 'admin-uuid-1');
+      const afterCall = new Date();
+
+      const updateCall = noticeRepo.update.mock.calls[0];
+      const approvedAt = updateCall[1].approved_at;
+
+      expect(approvedAt.getTime()).toBeGreaterThanOrEqual(beforeCall.getTime());
+      expect(approvedAt.getTime()).toBeLessThanOrEqual(afterCall.getTime());
+    });
+  });
+
+  // ── ADMIN: REDDET (rejectNotice) ───────────────────────────────────────────
+
+  describe('rejectNotice', () => {
+    it('pending ilanı reddedebilmeli (sadece reason)', async () => {
+      const notice = makeNotice({ status: 'pending' });
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.rejectNotice('notice-uuid-1', 'Geçersiz tarih');
+
+      expect(result.message).toBe('Vefat ilanı reddedildi');
+      expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'Geçersiz tarih',
+      });
+    });
+
+    it('reason ve note ile reddedebilmeli (concatenation)', async () => {
+      const notice = makeNotice({ status: 'pending' });
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.update.mockResolvedValue({ affected: 1 });
+
+      await service.rejectNotice('notice-uuid-1', 'Geçersiz tarih', 'Lütfen düzeltip yeniden deneyin');
+
+      expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'Geçersiz tarih — Lütfen düzeltip yeniden deneyin',
+      });
+    });
+
+    it('pending olmayan ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      noticeRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.rejectNotice('x', 'Sebep')).rejects.toThrow(
+        new NotFoundException('Vefat ilanı bulunamadı veya zaten işlenmiş'),
+      );
+    });
+
+    it('note undefined olsa bile çalışmalı', async () => {
+      const notice = makeNotice({ status: 'pending' });
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.update.mockResolvedValue({ affected: 1 });
+
+      await service.rejectNotice('notice-uuid-1', 'Sebep', undefined);
+
+      expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
+        status: 'rejected',
+        rejected_reason: 'Sebep',
+      });
+    });
+  });
+
+  // ── ADMIN: SİL (adminDelete) ──────────────────────────────────────────────
+
+  describe('adminDelete', () => {
+    it('ilanı soft delete yapmalı', async () => {
+      const notice = makeNotice();
+      noticeRepo.findOne.mockResolvedValue(notice);
+      noticeRepo.softDelete.mockResolvedValue({ affected: 1 });
+
+      const result = await service.adminDelete('notice-uuid-1');
+
+      expect(result.message).toBe('Vefat ilanı silindi');
+      expect(noticeRepo.findOne).toHaveBeenCalledWith({ where: { id: 'notice-uuid-1' } });
+      expect(noticeRepo.softDelete).toHaveBeenCalledWith('notice-uuid-1');
+    });
+
+    it('ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      noticeRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.adminDelete('x')).rejects.toThrow(
+        new NotFoundException('Vefat ilanı bulunamadı'),
+      );
+    });
+
+    it('status ne olursa olsun silebilmeli (pending, approved, rejected)', async () => {
+      const statuses = ['pending', 'approved', 'rejected'];
+
+      for (const status of statuses) {
+        jest.clearAllMocks();
+        const notice = makeNotice({ status: status as any });
+        noticeRepo.findOne.mockResolvedValue(notice);
+        noticeRepo.softDelete.mockResolvedValue({ affected: 1 });
+
+        const result = await service.adminDelete(`notice-${status}`);
+
+        expect(result.message).toBe('Vefat ilanı silindi');
+        expect(noticeRepo.softDelete).toHaveBeenCalled();
+      }
     });
   });
 });
