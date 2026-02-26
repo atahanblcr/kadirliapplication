@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { PharmacyAdminService } from './pharmacy-admin.service';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
 import { AssignScheduleDto } from './dto/assign-schedule.dto';
@@ -23,7 +23,7 @@ import { UserRole } from '../common/enums/user-role.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class PharmacyAdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly pharmacyAdminService: PharmacyAdminService) {}
 
   // GET /admin/pharmacy/schedule  (BEFORE :id to avoid routing conflict)
   @Get('schedule')
@@ -31,31 +31,31 @@ export class PharmacyAdminController {
     @Query('start_date') start_date?: string,
     @Query('end_date') end_date?: string,
   ) {
-    return this.adminService.getAdminSchedule(start_date, end_date);
+    return this.pharmacyAdminService.getAdminSchedule(start_date, end_date);
   }
 
   // POST /admin/pharmacy/schedule
   @Post('schedule')
   async assignSchedule(@Body() dto: AssignScheduleDto) {
-    return this.adminService.assignSchedule(dto);
+    return this.pharmacyAdminService.assignSchedule(dto);
   }
 
   // DELETE /admin/pharmacy/schedule/:id  (BEFORE :id to avoid routing conflict)
   @Delete('schedule/:id')
   async deleteScheduleEntry(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deleteScheduleEntry(id);
+    return this.pharmacyAdminService.deleteScheduleEntry(id);
   }
 
   // GET /admin/pharmacy
   @Get()
   async getAdminPharmacies(@Query('search') search?: string) {
-    return this.adminService.getAdminPharmacies(search);
+    return this.pharmacyAdminService.getAdminPharmacies(search);
   }
 
   // POST /admin/pharmacy
   @Post()
   async createPharmacy(@Body() dto: CreatePharmacyDto) {
-    return this.adminService.createPharmacy(dto);
+    return this.pharmacyAdminService.createPharmacy(dto);
   }
 
   // PATCH /admin/pharmacy/:id
@@ -64,12 +64,12 @@ export class PharmacyAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdatePharmacyDto,
   ) {
-    return this.adminService.updatePharmacy(id, dto);
+    return this.pharmacyAdminService.updatePharmacy(id, dto);
   }
 
   // DELETE /admin/pharmacy/:id
   @Delete(':id')
   async deletePharmacy(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.deletePharmacy(id);
+    return this.pharmacyAdminService.deletePharmacy(id);
   }
 }
