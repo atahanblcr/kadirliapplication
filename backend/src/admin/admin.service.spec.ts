@@ -107,6 +107,27 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     ...overrides,
   } as Campaign);
 
+const makePharmacy = (overrides: Partial<Pharmacy> = {}): Pharmacy =>
+  ({
+    id: 'pharm-uuid-1',
+    name: 'Merkez Eczanesi',
+    address: 'Merkez Mahallesi, Ana Caddesi',
+    phone: '05331234567',
+    is_active: true,
+    created_at: new Date('2026-02-20T08:00:00Z'),
+    ...overrides,
+  } as Pharmacy);
+
+const makePharmacySchedule = (overrides: Partial<PharmacySchedule> = {}): PharmacySchedule =>
+  ({
+    id: 'sched-uuid-1',
+    pharmacy_id: 'pharm-uuid-1',
+    duty_date: '2026-03-01',
+    start_time: '19:00',
+    end_time: '09:00',
+    ...overrides,
+  } as PharmacySchedule);
+
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
 describe('AdminService', () => {
@@ -118,6 +139,7 @@ describe('AdminService', () => {
   let announcementRepo: any;
   let notifRepo: any;
   let pharmRepo: any;
+  let pharmScheduleRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -129,6 +151,7 @@ describe('AdminService', () => {
       create: jest.fn(),
       softDelete: jest.fn(),
       softRemove: jest.fn(),
+      remove: jest.fn(),
       find: jest.fn(),
     });
 
@@ -175,6 +198,7 @@ describe('AdminService', () => {
     announcementRepo = module.get(getRepositoryToken(Announcement));
     notifRepo = module.get(getRepositoryToken(Notification));
     pharmRepo = module.get(getRepositoryToken(Pharmacy));
+    pharmScheduleRepo = module.get(getRepositoryToken(PharmacySchedule));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -888,6 +912,134 @@ describe('AdminService', () => {
 
       expect(result.approvals).toHaveLength(1);
       expect(result.approvals[0].type).toBe('campaign');
+    });
+  });
+
+  // ── Pharmacy CRUD Tests (Phase 2.1a) ────────────────────────────────────
+
+  describe('Pharmacy Operations', () => {
+    // Test 1: getAdminPharmacies - boş arama
+    it('getAdminPharmacies - boş arama yapıldığında tüm eczaneleri döndürmeli', async () => {
+      const pharmacy = makePharmacy();
+      const qb = makeSelectQb([pharmacy]);
+      pharmRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminPharmacies();
+
+      expect(result.pharmacies).toHaveLength(1);
+      expect(result.pharmacies[0].name).toBe('Merkez Eczanesi');
+    });
+
+    // Test 2: getAdminPharmacies - arama filtresi
+    it('getAdminPharmacies - arama filtresi uygulanmalı', async () => {
+      const pharmacy = makePharmacy({ name: 'Akdam Eczanesi' });
+      const qb = makeSelectQb([pharmacy]);
+      pharmRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getAdminPharmacies('Akdam');
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(p.name ILIKE :search OR p.address ILIKE :search)',
+        expect.objectContaining({ search: '%Akdam%' }),
+      );
+      expect(result.pharmacies).toHaveLength(1);
+    });
+
+    // Test 3: createPharmacy - başarılı oluşturma
+    it('createPharmacy - yeni eczane başarıyla oluşturulmalı', async () => {
+      const newPharmacy = makePharmacy();
+      pharmRepo.create.mockReturnValue(newPharmacy);
+      pharmRepo.save.mockResolvedValue(newPharmacy);
+
+      const result = await service.createPharmacy({
+        name: 'Merkez Eczanesi',
+        address: 'Merkez Mahallesi, Ana Caddesi',
+        phone: '05331234567',
+        is_active: true,
+      });
+
+      expect(pharmRepo.create).toHaveBeenCalledWith({
+        name: 'Merkez Eczanesi',
+        address: 'Merkez Mahallesi, Ana Caddesi',
+        phone: '05331234567',
+        is_active: true,
+      });
+      expect(pharmRepo.save).toHaveBeenCalledWith(newPharmacy);
+      expect(result.pharmacy).toEqual(newPharmacy);
+    });
+
+    // Test 4: createPharmacy - dönüş formatı
+    it('createPharmacy - doğru formatta dönüş yapmalı', async () => {
+      const newPharmacy = makePharmacy({
+        name: 'Test Eczanesi',
+        phone: '05331234567',
+      });
+      pharmRepo.create.mockReturnValue(newPharmacy);
+      pharmRepo.save.mockResolvedValue(newPharmacy);
+
+      const result = await service.createPharmacy({
+        name: 'Test Eczanesi',
+        address: 'Test Adresi',
+        phone: '05331234567',
+        is_active: true,
+      });
+
+      expect(result).toHaveProperty('pharmacy');
+      expect(result.pharmacy.name).toBe('Test Eczanesi');
+    });
+
+    // Test 5: updatePharmacy - başarılı güncelleme
+    it('updatePharmacy - eczane başarıyla güncellenebilmeli', async () => {
+      const existingPharmacy = makePharmacy();
+      pharmRepo.findOne.mockResolvedValue(existingPharmacy);
+      pharmRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.updatePharmacy('pharm-uuid-1', {
+        name: 'Güncellenmiş Eczanesi',
+        phone: '05339876543',
+      });
+
+      expect(pharmRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'pharm-uuid-1' },
+      });
+      expect(pharmRepo.update).toHaveBeenCalledWith('pharm-uuid-1', {
+        name: 'Güncellenmiş Eczanesi',
+        phone: '05339876543',
+      });
+      expect(result.pharmacy.name).toBe('Güncellenmiş Eczanesi');
+    });
+
+    // Test 6: updatePharmacy - eczane bulunamadı
+    it('updatePharmacy - eczane bulunamazsa NotFoundException fırlatmalı', async () => {
+      pharmRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updatePharmacy('nonexistent', { name: 'Yeni İsim' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 7: deletePharmacy - başarılı silme
+    it('deletePharmacy - eczane başarıyla silinebilmeli', async () => {
+      const existingPharmacy = makePharmacy();
+      pharmRepo.findOne.mockResolvedValue(existingPharmacy);
+      pharmRepo.remove.mockResolvedValue(existingPharmacy);
+
+      const result = await service.deletePharmacy('pharm-uuid-1');
+
+      expect(pharmRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'pharm-uuid-1' },
+      });
+      expect(pharmRepo.remove).toHaveBeenCalledWith(existingPharmacy);
+      expect(result.message).toBe('Eczane silindi');
+    });
+
+    // Test 8: deletePharmacy - eczane bulunamadı
+    it('deletePharmacy - eczane bulunamazsa NotFoundException fırlatmalı', async () => {
+      pharmRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deletePharmacy('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
