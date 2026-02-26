@@ -36,6 +36,7 @@ function makeSelectQb(data: any[] = []) {
     'where',
     'andWhere',
     'orderBy',
+    'addOrderBy',
     'skip',
     'take',
   ];
@@ -153,6 +154,15 @@ const makeMosque = (overrides: Partial<Mosque> = {}): Mosque =>
     location: 'Merkez Mahallesi',
     ...overrides,
   } as Mosque);
+
+const makeNeighborhood = (overrides: Partial<Neighborhood> = {}): Neighborhood =>
+  ({
+    id: 'neigh-uuid-1',
+    name: 'Merkez Mahallesi',
+    slug: 'merkez-mahallesi',
+    is_active: true,
+    ...overrides,
+  } as Neighborhood);
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -1790,6 +1800,278 @@ describe('AdminService', () => {
         where: { is_active: true },
         order: expect.any(Object),
       });
+    });
+  });
+
+  // ── User & Neighborhood Operations ──────────────────────────────────────
+
+  describe('User Operations', () => {
+    // Test 1: getUsers - listele
+    it('getUsers - kullanıcıları sayfalı döndürmeli', async () => {
+      const user1 = makeUser({ id: 'u-1', username: 'user1' });
+      const user2 = makeUser({ id: 'u-2', username: 'user2' });
+      const qb = makeSelectQb([user1, user2]);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getUsers({ page: 1, limit: 50 });
+
+      expect(result.users).toHaveLength(2);
+      expect(result.users[0].username).toBe('user1');
+      expect(result.total).toBe(2);
+    });
+
+    // Test 2: getUsers - arama filtresi
+    it('getUsers - arama filtresine göre kullanıcıları döndürmeli', async () => {
+      const qb = makeSelectQb([makeUser()]);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getUsers({ search: '0533' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(u.phone ILIKE :search OR u.username ILIKE :search)',
+        expect.objectContaining({ search: '%0533%' }),
+      );
+    });
+
+    // Test 3: getUsers - role filtresi
+    it('getUsers - rol filtersine göre kullanıcıları döndürmeli', async () => {
+      const qb = makeSelectQb([makeUser()]);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getUsers({ role: 'moderator' });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('u.role = :role', {
+        role: 'moderator',
+      });
+    });
+
+    // Test 4: getUsers - pagination
+    it('getUsers - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeUser()]);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getUsers({ page: 2, limit: 25 });
+
+      // page 2, limit 25 => skip(25)
+      expect(qb.skip).toHaveBeenCalledWith(25);
+      expect(qb.take).toHaveBeenCalledWith(25);
+    });
+
+    // Test 5: getUser - detay
+    it('getUser - kullanıcı detayını döndürmeli', async () => {
+      const user = makeUser({ id: 'u-1' });
+      userRepo.findOne.mockResolvedValue(user);
+      adRepo.count.mockResolvedValue(5);
+
+      const result = await service.getUser('u-1');
+
+      expect(userRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'u-1' },
+        relations: ['primary_neighborhood'],
+      });
+      expect(result.stats.total_ads).toBe(5);
+    });
+
+    // Test 6: getUser - kullanıcı bulunamadı
+    it('getUser - kullanıcı bulunamazsa NotFoundException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.getUser('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    // Test 7: banUser - başarılı ban
+    it('banUser - kullanıcı başarıyla banlanabilmeli', async () => {
+      const user = makeUser({ id: 'u-1', is_banned: false });
+      userRepo.findOne.mockResolvedValue(user);
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.banUser('admin-1', 'u-1', {
+        ban_reason: 'Spam aktivitesi',
+        duration_days: 30,
+      });
+
+      expect(userRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'u-1' },
+      });
+      expect(userRepo.update).toHaveBeenCalledWith('u-1', {
+        is_banned: true,
+        ban_reason: 'Spam aktivitesi',
+        banned_at: expect.any(Date),
+        banned_by: 'admin-1',
+      });
+      expect(result.banned_until).toBeDefined();
+    });
+
+    // Test 8: banUser - zaten banlanmış kullanıcı
+    it('banUser - zaten banlanmış kullanıcı banlanmazsa BadRequestException', async () => {
+      const user = makeUser({ id: 'u-1', is_banned: true });
+      userRepo.findOne.mockResolvedValue(user);
+
+      await expect(
+        service.banUser('admin-1', 'u-1', {
+          ban_reason: 'Test',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    // Test 9: unbanUser - başarılı unban
+    it('unbanUser - kullanıcı başarıyla unbanlabilmeli', async () => {
+      const user = makeUser({ id: 'u-1', is_banned: true });
+      userRepo.findOne.mockResolvedValue(user);
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.unbanUser('admin-1', 'u-1');
+
+      expect(userRepo.update).toHaveBeenCalledWith('u-1', {
+        is_banned: false,
+        ban_reason: null,
+        banned_at: null,
+        banned_by: null,
+      });
+      expect(result.message).toBe('Ban kaldırıldı');
+    });
+
+    // Test 10: unbanUser - zaten unbanlı kullanıcı
+    it('unbanUser - zaten unbanlı kullanıcı unbanlanamazsa BadRequestException', async () => {
+      const user = makeUser({ id: 'u-1', is_banned: false });
+      userRepo.findOne.mockResolvedValue(user);
+
+      await expect(
+        service.unbanUser('admin-1', 'u-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    // Test 11: changeUserRole - başarılı değişim
+    it('changeUserRole - rol başarıyla değiştirilmeli', async () => {
+      const user = makeUser({ id: 'u-1', role: 'user' });
+      userRepo.findOne.mockResolvedValue(user);
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.changeUserRole('admin-1', 'u-1', {
+        role: 'moderator',
+      });
+
+      expect(userRepo.update).toHaveBeenCalledWith('u-1', {
+        role: 'moderator',
+      });
+      expect(result.role).toBe('moderator');
+    });
+
+    // Test 12: changeUserRole - kullanıcı bulunamadı
+    it('changeUserRole - kullanıcı bulunamazsa NotFoundException', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.changeUserRole('admin-1', 'nonexistent', { role: 'moderator' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('Neighborhood Operations', () => {
+    // Test 1: getNeighborhoods - listele
+    it('getNeighborhoods - mahalleleri döndürmeli', async () => {
+      const neigh1 = makeNeighborhood({ id: 'n-1', name: 'Merkez' });
+      const neigh2 = makeNeighborhood({ id: 'n-2', name: 'Akdam' });
+      const qb = makeSelectQb([neigh1, neigh2]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getNeighborhoods();
+
+      expect(result.neighborhoods).toHaveLength(2);
+      expect(result.meta.total).toBe(2);
+    });
+
+    // Test 2: getNeighborhoods - arama filtresi
+    it('getNeighborhoods - arama filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([makeNeighborhood()]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods('Merkez');
+
+      expect(qb.andWhere).toHaveBeenCalledWith('n.name ILIKE :search', {
+        search: '%Merkez%',
+      });
+    });
+
+    // Test 3: getNeighborhoods - pagination
+    it('getNeighborhoods - pagination doğru hesaplanmalı', async () => {
+      const qb = makeSelectQb([makeNeighborhood()]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods(undefined, undefined, undefined, 2, 20);
+
+      // page 2, limit 20 => skip(20)
+      expect(qb.skip).toHaveBeenCalledWith(20);
+      expect(qb.take).toHaveBeenCalledWith(20);
+    });
+
+    // Test 4: createNeighborhood - başarılı oluşturma
+    it('createNeighborhood - mahalle başarıyla oluşturulmalı', async () => {
+      const neigh = makeNeighborhood({ id: 'new-n' });
+      neighborhoodRepo.create.mockReturnValue(neigh);
+      neighborhoodRepo.save.mockResolvedValue(neigh);
+
+      const result = await service.createNeighborhood({
+        name: 'Yeni Mahalle',
+        is_active: true,
+      });
+
+      expect(neighborhoodRepo.create).toHaveBeenCalled();
+      expect(neighborhoodRepo.save).toHaveBeenCalled();
+      expect(result.neighborhood).toBeDefined();
+    });
+
+    // Test 5: updateNeighborhood - başarılı güncelleme
+    it('updateNeighborhood - mahalle başarıyla güncellenebilmeli', async () => {
+      const neigh = makeNeighborhood({ id: 'n-1' });
+      neighborhoodRepo.findOne.mockResolvedValue(neigh);
+      neighborhoodRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.updateNeighborhood('n-1', {
+        name: 'Güncellenmiş Mahalle',
+      });
+
+      expect(neighborhoodRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'n-1' },
+      });
+      expect(neighborhoodRepo.update).toHaveBeenCalledWith('n-1', {
+        name: 'Güncellenmiş Mahalle',
+      });
+    });
+
+    // Test 6: updateNeighborhood - mahalle bulunamadı
+    it('updateNeighborhood - mahalle bulunamazsa NotFoundException', async () => {
+      neighborhoodRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateNeighborhood('nonexistent', { name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    // Test 7: deleteNeighborhood - başarılı silme
+    it('deleteNeighborhood - mahalle başarıyla silinebilmeli', async () => {
+      const neigh = makeNeighborhood({ id: 'n-1' });
+      neighborhoodRepo.findOne.mockResolvedValue(neigh);
+      neighborhoodRepo.remove.mockResolvedValue(neigh);
+
+      const result = await service.deleteNeighborhood('n-1');
+
+      expect(neighborhoodRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'n-1' },
+      });
+      expect(neighborhoodRepo.remove).toHaveBeenCalledWith(neigh);
+      expect(result.message).toBe('Mahalle silindi');
+    });
+
+    // Test 8: deleteNeighborhood - mahalle bulunamadı
+    it('deleteNeighborhood - mahalle bulunamazsa NotFoundException', async () => {
+      neighborhoodRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.deleteNeighborhood('nonexistent'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
