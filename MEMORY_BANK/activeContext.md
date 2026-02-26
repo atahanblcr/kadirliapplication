@@ -1,11 +1,31 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 26 Şubat 2026, 16:15
-**Durum:** ⏳ Backend: 479 tests ✅ + Coverage %43 (admin tests eksik) — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
+**Son Güncelleme:** 26 Şubat 2026, 16:35
+**Durum:** ✅ Backend: 577 tests, Coverage 59% — ✅ Admin Panel 100% Complete — 📱 Flutter: Auth ✅ + Home ✅ + Announcements ✅
 
 ---
 
 ## 🎯 SON YAPILAN İŞ
+
+### ✅ COMPLETED: Admin Controller Tests - All 11 Controllers (26 Şubat 2026, 16:15-16:35)
+- **Yapılan:** 11 admin controller için comprehensive test file'ları oluşturuldu
+  - pharmacy-admin.controller.spec.ts (7 CRUD tests)
+  - taxi-admin.controller.spec.ts (5 CRUD tests)
+  - campaign-admin.controller.spec.ts (9 tests)
+  - deaths-admin.controller.spec.ts (13 tests)
+  - event-admin.controller.spec.ts (7 tests)
+  - guide-admin.controller.spec.ts (8 tests)
+  - places-admin.controller.spec.ts (12 tests)
+  - transport-admin.controller.spec.ts (20 tests)
+  - users-admin.controller.spec.ts (5 tests)
+  - complaints-admin.controller.spec.ts (6 tests)
+  - staff-admin.controller.spec.ts (7 tests)
+- **Test Sonuçları:**
+  - ✅ 577/577 tests PASS (was 479)
+  - Overall coverage: 59.06% (was 43.06%) — **+16%**
+  - Admin module: 33.18% (was 9.65%) — **+23%**
+- **Commit:** `feat: add comprehensive admin controller tests - 11 controllers`
+- **CLAUDE.md Güncellendi:** Backend 99% tamamlandı olarak işaretlendi
 
 ### ✅ FIXED: Backend RolesGuard Tests (26 Şubat 2026, 16:00-16:15)
 - **Sorun:** 3 test fail ediyordu (roles.guard.spec.ts)
