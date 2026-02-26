@@ -19,7 +19,6 @@ describe('DeathsController', () => {
           useValue: {
             findAll: jest.fn(),
             findOne: jest.fn(),
-            create: jest.fn(),
             findCemeteries: jest.fn(),
             findMosques: jest.fn(),
           },
@@ -65,35 +64,6 @@ describe('DeathsController', () => {
       service.findOne.mockResolvedValue(notice as any);
       const result = await controller.findOne('n-1');
       expect(result).toEqual({ notice });
-    });
-  });
-
-  describe('POST /deaths', () => {
-    it('ilan oluşturmalı', async () => {
-      const response = { notice: { id: 'new', status: 'pending' } };
-      service.create.mockResolvedValue(response as any);
-
-      const dto = {
-        deceased_name: 'Ahmet YILMAZ',
-        funeral_date: '2026-02-20',
-        funeral_time: '14:00',
-        cemetery_id: 'cem-1',
-      };
-      const result = await controller.create(mockUser, dto);
-
-      expect(service.create).toHaveBeenCalledWith(mockUser.id, dto);
-      expect(result).toBe(response);
-    });
-
-    it('service hatasını yukarı iletmeli', async () => {
-      service.create.mockRejectedValue(new Error('Limit'));
-      const dto = {
-        deceased_name: 'Test',
-        funeral_date: '2026-02-20',
-        funeral_time: '14:00',
-        cemetery_id: 'cem-1',
-      };
-      await expect(controller.create(mockUser, dto)).rejects.toThrow('Limit');
     });
   });
 });

@@ -3,7 +3,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import {
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import {
@@ -11,7 +10,6 @@ import {
   CampaignImage,
   CampaignCodeView,
 } from '../database/entities/campaign.entity';
-import { Business } from '../database/entities/business.entity';
 
 // ─── QueryBuilder mock ──────────────────────────────────────────────────────
 
@@ -35,15 +33,6 @@ function makeUpdateQb() {
 }
 
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
-
-const makeBusiness = (overrides: Partial<Business> = {}): Business =>
-  ({
-    id: 'biz-uuid-1',
-    user_id: 'user-uuid-1',
-    business_name: 'Merkez Kafe',
-    category: { id: 'bizcat-uuid-1', name: 'Yeme-İçme' },
-    ...overrides,
-  } as Business);
 
 const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
   ({
@@ -74,7 +63,6 @@ describe('CampaignsService', () => {
   let campaignRepo: any;
   let campaignImageRepo: any;
   let codeViewRepo: any;
-  let businessRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -91,7 +79,6 @@ describe('CampaignsService', () => {
         { provide: getRepositoryToken(Campaign), useFactory: mockRepo },
         { provide: getRepositoryToken(CampaignImage), useFactory: mockRepo },
         { provide: getRepositoryToken(CampaignCodeView), useFactory: mockRepo },
-        { provide: getRepositoryToken(Business), useFactory: mockRepo },
       ],
     }).compile();
 
@@ -99,7 +86,6 @@ describe('CampaignsService', () => {
     campaignRepo = module.get(getRepositoryToken(Campaign));
     campaignImageRepo = module.get(getRepositoryToken(CampaignImage));
     codeViewRepo = module.get(getRepositoryToken(CampaignCodeView));
-    businessRepo = module.get(getRepositoryToken(Business));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -289,111 +275,4 @@ describe('CampaignsService', () => {
 
   // ── create ────────────────────────────────────────────────────────────────
 
-  describe('create', () => {
-    const validDto = {
-      title: 'Kahvelerde %50 İndirim',
-      description: 'Tüm kahvelerde geçerli',
-      discount_percentage: 50,
-      discount_code: 'KAHVE50',
-      start_date: '2026-02-15',
-      end_date: '2026-02-28',
-      image_ids: ['file-uuid-1', 'file-uuid-2'],
-      cover_image_id: 'file-uuid-1',
-    };
-
-    it('kampanya başarıyla oluşturulmalı (status=pending)', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const monthlyQb = makeListQb([], 0);
-      monthlyQb.getCount.mockResolvedValue(0);
-      campaignRepo.createQueryBuilder.mockReturnValue(monthlyQb);
-      campaignRepo.save.mockResolvedValue({
-        id: 'new-camp',
-        status: 'pending',
-      });
-      campaignImageRepo.save.mockResolvedValue([]);
-
-      const result = await service.create('user-uuid-1', validDto);
-
-      expect(result.campaign.status).toBe('pending');
-      expect(result.campaign.id).toBe('new-camp');
-      expect(result.campaign.message).toBe('Kampanyanız incelemeye alındı.');
-    });
-
-    it('kampanya görselleri kaydedilmeli', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const monthlyQb = makeListQb([], 0);
-      monthlyQb.getCount.mockResolvedValue(0);
-      campaignRepo.createQueryBuilder.mockReturnValue(monthlyQb);
-      campaignRepo.save.mockResolvedValue({ id: 'new-camp', status: 'pending' });
-      campaignImageRepo.save.mockResolvedValue([]);
-
-      await service.create('user-uuid-1', validDto);
-
-      expect(campaignImageRepo.create).toHaveBeenCalledTimes(2);
-      expect(campaignImageRepo.save).toHaveBeenCalled();
-    });
-
-    it('işletme hesabı bulunamazsa ForbiddenException fırlatmalı', async () => {
-      businessRepo.findOne.mockResolvedValue(null);
-
-      await expect(service.create('user-uuid-1', validDto)).rejects.toThrow(
-        ForbiddenException,
-      );
-    });
-
-    it('start_date > end_date ise BadRequestException fırlatmalı', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const invalidDto = {
-        ...validDto,
-        start_date: '2026-03-01',
-        end_date: '2026-02-01',
-      };
-
-      await expect(service.create('user-uuid-1', invalidDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('aylık 5 kampanya limitini aşınca BadRequestException fırlatmalı', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const monthlyQb = makeListQb([], 5);
-      monthlyQb.getCount.mockResolvedValue(5);
-      campaignRepo.createQueryBuilder.mockReturnValue(monthlyQb);
-
-      await expect(service.create('user-uuid-1', validDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('cover_image_id verilmezse image_ids[0] kullanılmalı', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const monthlyQb = makeListQb([], 0);
-      monthlyQb.getCount.mockResolvedValue(0);
-      campaignRepo.createQueryBuilder.mockReturnValue(monthlyQb);
-      campaignRepo.save.mockResolvedValue({ id: 'new-camp', status: 'pending' });
-      campaignImageRepo.save.mockResolvedValue([]);
-
-      const dtoWithoutCover = { ...validDto, cover_image_id: undefined };
-      await service.create('user-uuid-1', dtoWithoutCover);
-
-      const createdArg = campaignRepo.create.mock.calls[0][0];
-      expect(createdArg.cover_image_id).toBe('file-uuid-1');
-    });
-
-    it('görsel display_order sıra numarasıyla kaydedilmeli', async () => {
-      businessRepo.findOne.mockResolvedValue(makeBusiness());
-      const monthlyQb = makeListQb([], 0);
-      monthlyQb.getCount.mockResolvedValue(0);
-      campaignRepo.createQueryBuilder.mockReturnValue(monthlyQb);
-      campaignRepo.save.mockResolvedValue({ id: 'new-camp', status: 'pending' });
-      campaignImageRepo.save.mockResolvedValue([]);
-
-      await service.create('user-uuid-1', validDto);
-
-      const firstImage = campaignImageRepo.create.mock.calls[0][0];
-      const secondImage = campaignImageRepo.create.mock.calls[1][0];
-      expect(firstImage.display_order).toBe(0);
-      expect(secondImage.display_order).toBe(1);
-    });
-  });
 });

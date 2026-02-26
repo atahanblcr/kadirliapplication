@@ -7,7 +7,7 @@ import { Campaign } from '../database/entities/campaign.entity';
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
 
 const makeUser = (): User =>
-  ({ id: 'user-uuid-1', role: 'business' } as User);
+  ({ id: 'user-uuid-1', role: 'user' } as User);
 
 const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
   ({
@@ -28,7 +28,6 @@ describe('CampaignsController', () => {
       findAll: jest.fn(),
       findOne: jest.fn(),
       viewCode: jest.fn(),
-      create: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -109,34 +108,4 @@ describe('CampaignsController', () => {
     });
   });
 
-  // ── POST /campaigns ───────────────────────────────────────────────────────
-
-  describe('create', () => {
-    const validDto = {
-      title: 'Kahvelerde %50 İndirim',
-      start_date: '2026-02-15',
-      end_date: '2026-02-28',
-      image_ids: ['file-uuid-1'],
-    };
-
-    it('kampanya oluşturma sonucunu döndürmeli', async () => {
-      const expected = {
-        campaign: { id: 'new-camp', status: 'pending', message: 'Kampanyanız incelemeye alındı.' },
-      };
-      service.create.mockResolvedValue(expected);
-
-      const result = await controller.create(makeUser(), validDto as any);
-
-      expect(result).toEqual(expected);
-      expect(service.create).toHaveBeenCalledWith('user-uuid-1', validDto);
-    });
-
-    it('service hatası yayılmalı', async () => {
-      service.create.mockRejectedValue(new Error('Limit aşıldı'));
-
-      await expect(
-        controller.create(makeUser(), validDto as any),
-      ).rejects.toThrow('Limit aşıldı');
-    });
-  });
 });

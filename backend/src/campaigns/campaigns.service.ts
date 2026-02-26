@@ -1,8 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
-  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,9 +10,7 @@ import {
   CampaignImage,
   CampaignCodeView,
 } from '../database/entities/campaign.entity';
-import { Business } from '../database/entities/business.entity';
 import { QueryCampaignDto } from './dto/query-campaign.dto';
-import { CreateCampaignDto } from './dto/create-campaign.dto';
 import {
   getPaginationMeta,
   getPaginationOffset,
@@ -31,8 +27,6 @@ export class CampaignsService {
     private readonly campaignImageRepository: Repository<CampaignImage>,
     @InjectRepository(CampaignCodeView)
     private readonly codeViewRepository: Repository<CampaignCodeView>,
-    @InjectRepository(Business)
-    private readonly businessRepository: Repository<Business>,
   ) {}
 
   // ── KAMPANYA LİSTESİ ──────────────────────────────────────────────────────
@@ -127,78 +121,4 @@ export class CampaignsService {
   }
 
   // ── KAMPANYA OLUŞTUR (Business) ───────────────────────────────────────────
-  // status=pending, 5/ay limit, start_date <= end_date
-
-  async create(userId: string, dto: CreateCampaignDto) {
-    // İşletme hesabını bul
-    const business = await this.businessRepository.findOne({
-      where: { user_id: userId },
-    });
-
-    if (!business) {
-      throw new ForbiddenException('İşletme hesabı bulunamadı');
-    }
-
-    // start_date <= end_date kontrolü
-    if (new Date(dto.start_date) > new Date(dto.end_date)) {
-      throw new BadRequestException(
-        'Başlangıç tarihi bitiş tarihinden sonra olamaz',
-      );
-    }
-
-    // Aylık limit kontrolü (5 kampanya/ay)
-    const firstDayOfMonth = new Date();
-    firstDayOfMonth.setDate(1);
-    firstDayOfMonth.setHours(0, 0, 0, 0);
-
-    const monthlyCount = await this.campaignRepository
-      .createQueryBuilder('c')
-      .where('c.business_id = :businessId', { businessId: business.id })
-      .andWhere('c.created_at >= :firstDay', { firstDay: firstDayOfMonth })
-      .getCount();
-
-    if (monthlyCount >= 5) {
-      throw new BadRequestException(
-        'Aylık kampanya limitine ulaştınız (maksimum 5)',
-      );
-    }
-
-    // Kampanya oluştur
-    const campaign = this.campaignRepository.create({
-      business_id: business.id,
-      title: dto.title,
-      description: dto.description,
-      discount_percentage: dto.discount_percentage,
-      discount_code: dto.discount_code,
-      terms: dto.terms,
-      minimum_amount: dto.minimum_amount,
-      stock_limit: dto.stock_limit,
-      start_date: dto.start_date,
-      end_date: dto.end_date,
-      cover_image_id: dto.cover_image_id ?? dto.image_ids[0],
-      status: 'pending',
-    });
-
-    const saved = await this.campaignRepository.save(campaign);
-
-    // Kampanya görsellerini kaydet
-    const images = dto.image_ids.map((fileId, index) =>
-      this.campaignImageRepository.create({
-        campaign_id: saved.id,
-        file_id: fileId,
-        display_order: index,
-      }),
-    );
-    await this.campaignImageRepository.save(images);
-
-    this.logger.log(`Kampanya oluşturuldu: ${saved.id} (işletme: ${business.id})`);
-
-    return {
-      campaign: {
-        id: saved.id,
-        status: saved.status,
-        message: 'Kampanyanız incelemeye alındı.',
-      },
-    };
-  }
 }

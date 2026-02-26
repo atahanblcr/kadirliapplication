@@ -18,7 +18,6 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
 import { User } from '../database/entities/user.entity';
-import { CreateDeathNoticeDto } from './dto/create-death-notice.dto';
 import { QueryDeathNoticeDto } from './dto/query-death-notice.dto';
 import { RejectDeathNoticeDto } from './dto/reject-death-notice.dto';
 
@@ -113,12 +112,4 @@ export class DeathsController {
     return { notice };
   }
 
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  async create(
-    @CurrentUser() user: User,
-    @Body() dto: CreateDeathNoticeDto,
-  ) {
-    return this.deathsService.create(user.id, dto);
-  }
 }

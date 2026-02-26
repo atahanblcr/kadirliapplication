@@ -10,12 +10,8 @@ import {
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { QueryCampaignDto } from './dto/query-campaign.dto';
-import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { UserRole } from '../common/enums/user-role.enum';
 import { User } from '../database/entities/user.entity';
 
 @Controller('campaigns')
@@ -47,15 +43,4 @@ export class CampaignsController {
     return this.campaignsService.viewCode(user.id, id);
   }
 
-  // POST /campaigns
-  // Kampanya oluştur (auth, sadece business rolü)
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS)
-  async create(
-    @CurrentUser() user: User,
-    @Body() dto: CreateCampaignDto,
-  ) {
-    return this.campaignsService.create(user.id, dto);
-  }
 }

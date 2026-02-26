@@ -12,7 +12,6 @@ import {
   Cemetery,
   Mosque,
 } from '../database/entities/death-notice.entity';
-import { CreateDeathNoticeDto } from './dto/create-death-notice.dto';
 import { QueryDeathNoticeDto } from './dto/query-death-notice.dto';
 import { getPaginationMeta, getPaginationOffset } from '../common/utils/pagination.util';
 
@@ -68,81 +67,6 @@ export class DeathsService {
     }
 
     return notice;
-  }
-
-  // ── VEFAT İLANI OLUŞTUR ───────────────────────────────────────────────────
-
-  async create(userId: string, dto: CreateDeathNoticeDto) {
-    // En az biri zorunlu: cemetery_id veya mosque_id
-    if (!dto.cemetery_id && !dto.mosque_id) {
-      throw new BadRequestException('Mezarlık veya cami bilgisinden en az biri girilmelidir');
-    }
-
-    // Günlük limit kontrolü (2 vefat ilanı/gün)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const dailyCount = await this.noticeRepository
-      .createQueryBuilder('d')
-      .where('d.added_by = :userId', { userId })
-      .andWhere('d.created_at >= :today', { today })
-      .getCount();
-
-    if (dailyCount >= 2) {
-      throw new BadRequestException('Günlük vefat ilanı limitine ulaştınız (maksimum 2)');
-    }
-
-    // Mezarlık kontrolü
-    if (dto.cemetery_id) {
-      const cemetery = await this.cemeteryRepository.findOne({
-        where: { id: dto.cemetery_id, is_active: true },
-      });
-      if (!cemetery) {
-        throw new BadRequestException('Seçilen mezarlık bulunamadı');
-      }
-    }
-
-    // Cami kontrolü
-    if (dto.mosque_id) {
-      const mosque = await this.mosqueRepository.findOne({
-        where: { id: dto.mosque_id, is_active: true },
-      });
-      if (!mosque) {
-        throw new BadRequestException('Seçilen cami bulunamadı');
-      }
-    }
-
-    // auto_archive_at = funeral_date + 7 gün (CLAUDE.md iş kuralı)
-    const funeralDate = new Date(dto.funeral_date);
-    const autoArchiveAt = new Date(funeralDate);
-    autoArchiveAt.setDate(autoArchiveAt.getDate() + 7);
-
-    const notice = this.noticeRepository.create({
-      deceased_name: dto.deceased_name,
-      age: dto.age,
-      photo_file_id: dto.photo_file_id,
-      funeral_date: dto.funeral_date,
-      funeral_time: dto.funeral_time,
-      cemetery_id: dto.cemetery_id,
-      mosque_id: dto.mosque_id,
-      condolence_address: dto.condolence_address,
-      added_by: userId,
-      status: 'pending',
-      auto_archive_at: autoArchiveAt,
-    } as DeepPartial<DeathNotice>);
-
-    const saved = await this.noticeRepository.save(notice);
-
-    this.logger.log(`Vefat ilanı oluşturuldu: ${saved.id} (kullanıcı: ${userId})`);
-
-    return {
-      notice: {
-        id: saved.id,
-        status: saved.status,
-        auto_archive_at: saved.auto_archive_at,
-        message: 'Vefat ilanınız incelemeye alındı. Kısa sürede onaylanacak.',
-      },
-    };
   }
 
   // ── ADMIN: TÜM VEFAT İLANLARI ────────────────────────────────────────────
