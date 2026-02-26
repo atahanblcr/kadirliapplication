@@ -512,34 +512,51 @@ module_id: "uuid" (optional)
     "announcements": [
       {
         "id": "uuid",
+        "type_id": "uuid",
         "type": {
           "id": "uuid",
-          "name": "Elektrik Kesintisi",
-          "slug": "power-outage",
-          "icon": "flash_on",
-          "color": "#FFC107"
+          "name": "Genel Duyuru",
+          "slug": "general",
+          "icon": "info",
+          "color": "#9E9E9E"
         },
         "title": "Merkez Mahallesi Elektrik Kesintisi",
         "body": "15 Şubat Pazartesi günü saat 10:00-16:00 arası...",
         "priority": "high",
-        "has_pdf": true,
-        "pdf_url": "https://cdn.kadirliapp.com/...",
-        "has_link": true,
-        "external_link": "https://toroslaedas.com.tr/...",
+        "target_type": "all",
+        "target_neighborhoods": null,
+        "has_pdf": false,
+        "pdf_file_id": null,
+        "has_link": false,
+        "external_link": null,
         "view_count": 1234,
+        "click_count": 0,
+        "status": "published",
         "created_at": "2026-02-10T08:00:00Z",
+        "updated_at": "2026-02-10T08:00:00Z",
         "is_viewed": false
       }
-    ]
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 50,
+      "total_pages": 3,
+      "has_next": true,
+      "has_prev": false
+    }
   },
   "meta": {
-    "page": 1,
-    "limit": 20,
-    "total": 50,
-    "total_pages": 3
+    "timestamp": "2026-02-26T12:20:58.008Z",
+    "path": "/v1/announcements?page=1&limit=20"
   }
 }
 ```
+
+**Note:**
+- `data.meta` = Pagination info (page, limit, total, has_next/prev)
+- `meta` = TransformInterceptor (timestamp, path)
+- Flutter mobile uses `data.data.meta` for pagination
 
 **Filtering Logic:**
 ```
@@ -566,29 +583,48 @@ module_id: "uuid" (optional)
   "data": {
     "announcement": {
       "id": "uuid",
-      "type": { ... },
-      "title": "...",
-      "body": "...",
-      "priority": "high",
-      "target_neighborhoods": ["merkez", "akdam"],
-      "pdf_file": {
+      "type_id": "uuid",
+      "type": {
         "id": "uuid",
-        "name": "kesinti_listesi.pdf",
-        "url": "https://cdn.kadirliapp.com/...",
-        "size_bytes": 123456
+        "name": "Genel Duyuru",
+        "slug": "general",
+        "icon": "info",
+        "color": "#9E9E9E"
       },
-      "external_link": "https://...",
+      "title": "Merkez Mahallesi Elektrik Kesintisi",
+      "body": "15 Şubat Pazartesi günü saat 10:00-16:00 arası...",
+      "priority": "high",
+      "target_type": "neighborhoods",
+      "target_neighborhoods": ["merkez", "akdam"],
+      "scheduled_for": null,
+      "sent_at": "2026-02-26T12:17:04.483Z",
+      "is_recurring": false,
+      "send_push_notification": true,
+      "visible_until": null,
+      "has_pdf": false,
+      "pdf_file_id": null,
+      "has_link": false,
+      "external_link": null,
       "view_count": 1234,
+      "click_count": 0,
+      "status": "published",
+      "created_by": "uuid",
+      "approved_by": null,
       "created_at": "2026-02-10T08:00:00Z",
-      "created_by": {
-        "id": "uuid",
-        "username": "admin",
-        "role": "admin"
-      }
+      "updated_at": "2026-02-10T08:00:00Z",
+      "deleted_at": null
     }
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:20:58.008Z",
+    "path": "/v1/announcements/uuid"
   }
 }
 ```
+
+**Note:**
+- Mobile app safely parses `target_neighborhoods` (handles null/List)
+- `created_by` is String UUID (not user object)
 
 **Side Effect:**
 - Create `announcement_views` record
@@ -609,14 +645,22 @@ module_id: "uuid" (optional)
   "data": {
     "types": [
       {
-        "id": "uuid",
-        "name": "Elektrik Kesintisi",
-        "slug": "power-outage",
-        "icon": "flash_on",
-        "color": "#FFC107",
-        "description": "Planlı elektrik kesintileri"
+        "id": "aef94727-23c9-4b11-83e4-61e3012495e5",
+        "name": "Genel Duyuru",
+        "slug": "general",
+        "icon": "info",
+        "color": "#9E9E9E",
+        "description": null,
+        "display_order": 0,
+        "is_active": true,
+        "created_at": "2026-02-24T02:07:01.842Z",
+        "updated_at": "2026-02-24T02:07:01.842Z"
       }
     ]
+  },
+  "meta": {
+    "timestamp": "2026-02-26T12:20:58.008Z",
+    "path": "/v1/announcements/types"
   }
 }
 ```
