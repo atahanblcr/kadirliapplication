@@ -14,7 +14,7 @@ describe('Admin Neighborhoods E2E Tests', () => {
       .post('/v1/auth/admin/login')
       .send({
         email: 'admin@kadirliapp.com',
-        password: 'Admin123a',
+        password: 'Admin123!',
       });
 
     // Handle login response properly
@@ -23,7 +23,6 @@ describe('Admin Neighborhoods E2E Tests', () => {
     } else {
       // If login fails, use a dummy token (tests will fail appropriately)
       adminAccessToken = 'invalid-token-for-testing';
-      console.warn('[E2E] Admin login failed:', loginRes.body);
     }
   });
 

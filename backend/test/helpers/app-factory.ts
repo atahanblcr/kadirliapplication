@@ -7,14 +7,9 @@ import * as fs from 'fs';
  * This ensures all environment variables are set before NestJS loads them.
  */
 const envTestPath = path.resolve(__dirname, '../../.env.test');
-console.log('[E2E] Loading .env.test from:', envTestPath);
-console.log('[E2E] File exists:', fs.existsSync(envTestPath));
 const result = dotenv.config({ path: envTestPath });
 if (result.error) {
-  console.error('[E2E] Failed to load .env.test:', result.error);
-} else {
-  console.log('[E2E] Successfully loaded .env.test with', Object.keys(result.parsed || {}).length, 'variables');
-  console.log('[E2E] DATABASE_NAME:', process.env.DATABASE_NAME);
+  throw new Error(`Failed to load .env.test: ${result.error.message}`);
 }
 
 import { INestApplication, ValidationPipe } from '@nestjs/common';

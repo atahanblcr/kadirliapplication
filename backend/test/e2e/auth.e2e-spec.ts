@@ -20,7 +20,7 @@ describe('Auth Module E2E Tests', () => {
         .post('/v1/auth/admin/login')
         .send({
           email: 'admin@kadirliapp.com',
-          password: 'Admin123a',
+          password: 'Admin123!',
         })
         .expect(200);
 
@@ -189,8 +189,9 @@ describe('Auth Module E2E Tests', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('id');
-      expect(res.body.data).toHaveProperty('email');
+      expect(res.body.data).toHaveProperty('user');
+      expect(res.body.data.user).toHaveProperty('id');
+      expect(res.body.data.user).toHaveProperty('email');
       expect(res.body.meta).toHaveProperty('timestamp');
     });
   });
