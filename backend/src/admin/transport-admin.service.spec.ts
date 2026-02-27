@@ -1468,4 +1468,134 @@ describe('TransportAdminService', () => {
       expect(intracityStopRepository.orderBy).toHaveBeenCalledWith('s.stop_order', 'ASC');
     });
   });
+
+  describe('mapIntercityRoute - Branch Coverage', () => {
+    it('should handle route with null schedules', () => {
+      const route = {
+        id: 'route-1',
+        company_name: null,
+        company: 'Test Company',
+        from_city: null,
+        destination: 'Istanbul',
+        duration_minutes: 120,
+        price: 150,
+        contact_phone: null,
+        contact_website: null,
+        amenities: null,
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        schedules: null,
+      };
+
+      const result = service['mapIntercityRoute'](route);
+
+      expect(result.company_name).toBe('Test Company');
+      expect(result.from_city).toBe('Kadirli');
+      expect(result.amenities).toEqual([]);
+      expect(result.schedules).toEqual([]);
+    });
+
+    it('should handle route with empty amenities', () => {
+      const route = {
+        id: 'route-1',
+        company_name: 'Company',
+        company: null,
+        from_city: 'Kadirli',
+        destination: 'Istanbul',
+        duration_minutes: 120,
+        price: 150,
+        contact_phone: '+905551234567',
+        contact_website: 'https://example.com',
+        amenities: [],
+        is_active: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        schedules: [],
+      };
+
+      const result = service['mapIntercityRoute'](route);
+
+      expect(result.amenities).toEqual([]);
+      expect(result.contact_phone).toBe('+905551234567');
+      expect(result.contact_website).toBe('https://example.com');
+      expect(result.is_active).toBe(false);
+    });
+  });
+
+  describe('mapIntercitySchedule - Branch Coverage', () => {
+    it('should handle days_of_week as array of numbers', () => {
+      const schedule = {
+        id: 'sched-1',
+        route_id: 'route-1',
+        departure_time: '08:00',
+        days_of_week: [1, 2, 3, 4, 5],
+        is_active: true,
+        created_at: new Date(),
+      };
+
+      const result = service['mapIntercitySchedule'](schedule);
+
+      expect(result.days_of_week).toEqual([1, 2, 3, 4, 5]);
+    });
+
+    it('should handle days_of_week as comma-separated string', () => {
+      const schedule = {
+        id: 'sched-1',
+        route_id: 'route-1',
+        departure_time: '08:00',
+        days_of_week: '1,2,3,4,5',
+        is_active: true,
+        created_at: new Date(),
+      };
+
+      const result = service['mapIntercitySchedule'](schedule);
+
+      expect(result.days_of_week).toEqual([1, 2, 3, 4, 5]);
+    });
+
+    it('should handle empty days_of_week string', () => {
+      const schedule = {
+        id: 'sched-1',
+        route_id: 'route-1',
+        departure_time: '08:00',
+        days_of_week: '',
+        is_active: false,
+        created_at: new Date(),
+      };
+
+      const result = service['mapIntercitySchedule'](schedule);
+
+      expect(result.days_of_week).toEqual([]);
+      expect(result.is_active).toBe(false);
+    });
+  });
+
+  describe('Filter Combinations - Branch Coverage', () => {
+    it('should apply all intercity route filters together', async () => {
+      intercityRouteRepository.getManyAndCount.mockResolvedValue([[], 0]);
+
+      await service.getAdminIntercityRoutes({
+        search: 'test',
+        company_name: 'TestCo',
+        from_city: 'Kadirli',
+        to_city: 'Istanbul',
+        is_active: true,
+        page: 2,
+        limit: 10,
+      });
+
+      expect(intercityRouteRepository.skip).toHaveBeenCalledWith(10);
+      expect(intercityRouteRepository.take).toHaveBeenCalledWith(10);
+    });
+
+    it('should handle pagination with default values', async () => {
+      intercityRouteRepository.getManyAndCount.mockResolvedValue([[], 0]);
+
+      await service.getAdminIntercityRoutes({});
+
+      expect(intercityRouteRepository.skip).toHaveBeenCalledWith(0);
+      expect(intercityRouteRepository.take).toHaveBeenCalledWith(20);
+    });
+  });
 });
