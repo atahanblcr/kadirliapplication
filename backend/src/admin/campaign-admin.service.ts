@@ -147,6 +147,13 @@ export class CampaignAdminService {
     return { businesses };
   }
 
+  async getBusinessCategories() {
+    const categories = await this.businessCategoryRepository.find({
+      order: { name: 'ASC' },
+    });
+    return { categories };
+  }
+
   async createBusinessCategory(dto: CreateBusinessCategoryDto) {
     const slug = dto.name
       .toLowerCase()

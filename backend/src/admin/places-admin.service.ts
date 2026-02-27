@@ -303,6 +303,23 @@ export class PlacesAdminService {
     await this.placeImageRepository.delete(imageId);
   }
 
+  async setPlaceCoverImage(imageId: string) {
+    const image = await this.placeImageRepository.findOne({
+      where: { id: imageId },
+      relations: ['place'],
+    });
+    if (!image) throw new NotFoundException('Fotoğraf bulunamadı');
+
+    await this.placeRepository.update(image.place_id, { cover_image_id: image.file_id });
+
+    const updated = await this.placeRepository.findOne({
+      where: { id: image.place_id },
+      relations: ['category', 'cover_image', 'images', 'images.file'],
+    });
+
+    return { place: this.mapPlace(updated!) };
+  }
+
   async reorderPlaceImages(id: string, dto: ReorderPlaceImagesDto) {
     const place = await this.placeRepository.findOne({ where: { id } });
     if (!place) throw new NotFoundException('Mekan bulunamadı');

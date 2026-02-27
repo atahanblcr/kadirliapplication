@@ -331,6 +331,28 @@ export class AdminService {
     return { neighborhoods, meta: getPaginationMeta(total, page, limit) };
   }
 
+  async createNeighborhood(dto: any) {
+    const neighborhood = this.neighborhoodRepository.create(dto);
+    const saved = await this.neighborhoodRepository.save(neighborhood);
+    return { neighborhood: saved };
+  }
+
+  async updateNeighborhood(id: string, dto: any) {
+    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
+
+    Object.assign(neighborhood, dto);
+    const saved = await this.neighborhoodRepository.save(neighborhood);
+    return { neighborhood: saved };
+  }
+
+  async deleteNeighborhood(id: string) {
+    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
+    await this.neighborhoodRepository.delete(id);
+    return { message: 'Mahalle silindi' };
+  }
+
 
   // ══════════════════════════════════════════════════════════════════════════
   // ETKİNLİK YÖNETİMİ (Events Admin)
