@@ -74,7 +74,7 @@ describe('App Smoke Tests (e2e)', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(Array.isArray(res.body.data.neighborhoods)).toBe(true);
     });
 
     it('GET /v1/admin/neighborhoods should accept pagination params', async () => {
@@ -83,7 +83,8 @@ describe('App Smoke Tests (e2e)', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('data');
+      expect(res.body.data).toHaveProperty('neighborhoods');
+      expect(Array.isArray(res.body.data.neighborhoods)).toBe(true);
       expect(res.body.data).toHaveProperty('meta');
     });
   });

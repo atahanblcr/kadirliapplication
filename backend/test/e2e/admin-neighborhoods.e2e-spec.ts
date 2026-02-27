@@ -17,7 +17,14 @@ describe('Admin Neighborhoods E2E Tests', () => {
         password: 'Admin123a',
       });
 
-    adminAccessToken = loginRes.body.data.access_token;
+    // Handle login response properly
+    if (loginRes.body.success && loginRes.body.data?.access_token) {
+      adminAccessToken = loginRes.body.data.access_token;
+    } else {
+      // If login fails, use a dummy token (tests will fail appropriately)
+      adminAccessToken = 'invalid-token-for-testing';
+      console.warn('[E2E] Admin login failed:', loginRes.body);
+    }
   });
 
   afterAll(async () => {
@@ -31,7 +38,7 @@ describe('Admin Neighborhoods E2E Tests', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(Array.isArray(res.body.data.neighborhoods)).toBe(true);
       expect(res.body.meta).toHaveProperty('timestamp');
       expect(res.body.meta).toHaveProperty('path');
     });
@@ -42,9 +49,9 @@ describe('Admin Neighborhoods E2E Tests', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(Array.isArray(res.body.data.neighborhoods)).toBe(true);
       // Results should be filtered by search term
-      res.body.data.forEach((neighborhood: any) => {
+      res.body.data.neighborhoods.forEach((neighborhood: any) => {
         expect(
           neighborhood.name.toLowerCase().includes('merkez') ||
             neighborhood.search_text?.toLowerCase().includes('merkez'),
@@ -58,8 +65,8 @@ describe('Admin Neighborhoods E2E Tests', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('data');
-      expect(Array.isArray(res.body.data.data)).toBe(true);
+      expect(res.body.data).toHaveProperty('neighborhoods');
+      expect(Array.isArray(res.body.data.neighborhoods)).toBe(true);
       expect(res.body.data).toHaveProperty('meta');
       // Meta should contain pagination info
       if (res.body.data.meta) {
