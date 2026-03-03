@@ -7,6 +7,10 @@ import 'package:kadirliapp/features/home/presentation/widgets/greeting_header.da
 import 'package:kadirliapp/features/home/presentation/widgets/module_card.dart';
 import 'package:kadirliapp/features/home/presentation/widgets/user_menu.dart';
 import 'package:kadirliapp/features/announcements/presentation/pages/announcements_list_page.dart';
+import 'package:kadirliapp/features/ads/presentation/pages/ads_list_page.dart';
+import 'package:kadirliapp/features/deaths/presentation/pages/deaths_list_page.dart';
+import 'package:kadirliapp/features/events/presentation/pages/events_list_page.dart';
+import 'package:kadirliapp/features/pharmacy/presentation/pages/pharmacy_page.dart';
 
 /// Home Page with 12 module grid and bottom navigation
 class HomePage extends ConsumerStatefulWidget {
@@ -18,6 +22,20 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    if (index == 1) {
+      // İlanlar sekmesine tıklandığında sayfayı push et
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AdsListPage()),
+      );
+      return;
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +54,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           // Tab 0: Home - Module Grid
           _HomeTab(modules: modules),
-          // Tab 1: Ads - Placeholder
+          // Tab 1: Ads - Placeholder (Push edildiği için burası boş kalabilir veya yönlendirebilir)
           const _PlaceholderTab(title: 'İlanlar'),
           // Tab 2: Favorites - Placeholder
           const _PlaceholderTab(title: 'Favoriler'),
@@ -46,11 +64,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -115,6 +130,38 @@ class _HomeTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const AnnouncementsListPage(),
+                        ),
+                      );
+                      break;
+                    case 'ads':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdsListPage(),
+                        ),
+                      );
+                      break;
+                    case 'deaths':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DeathsListPage(),
+                        ),
+                      );
+                      break;
+                    case 'events':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EventsListPage(),
+                        ),
+                      );
+                      break;
+                    case 'pharmacy':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PharmacyPage(),
                         ),
                       );
                       break;

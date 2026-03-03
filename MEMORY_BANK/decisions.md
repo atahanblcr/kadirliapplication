@@ -1,6 +1,6 @@
 # decisions.md - Proje Kararları
 
-**Son Güncelleme:** 24 Şubat 2026 16:00
+**Son Güncelleme:** 2 Mart 2026 16:30
 
 ---
 
@@ -43,7 +43,7 @@
 ---
 
 ### 4. Frontend Framework
-**Karar:** Next.js 14 (Admin Panel)
+**Karar:** Next.js 14/16 (Admin Panel)
 **Tarih:** 20 Şubat 2026
 **Neden:** SSR, API routes built-in, TypeScript desteği mükemmel
 
@@ -58,8 +58,8 @@
 
 ### 6. Admin Panel Completion Strategy
 **Karar:** Flutter başlamadan admin panel tamamlanacak
-**Tarih:** 22 Şubat 2026 → 24 Şubat 2026
-**Status:** ✅ Tamamlandı (16/17 modül — Guide dahil)
+**Tarih:** 22 Şubat → 24 Şubat 2026
+**Status:** ✅ Tamamlandı (16/16 modül)
 
 ---
 
@@ -82,13 +82,13 @@
 **Tarih:** 25 Şubat 2026
 **Neden:**
 - Android emulator: special host alias `10.0.2.2` gerekli
-- iOS simulator: `localhost` çalışıyor
+- iOS simulator: `localhost` veya `127.0.0.1`
 - Development flexibility (dev machine IP yerine standart URL'ler)
 
 **Uygulama:**
 ```dart
 final baseUrl = Platform.isIOS
-  ? 'http://localhost:3000/v1'      // iOS
+  ? 'http://127.0.0.1:3000/v1'      // iOS (2 Mart Fix)
   : 'http://10.0.2.2:3000/v1';      // Android
 ```
 
@@ -97,17 +97,18 @@ final baseUrl = Platform.isIOS
 ---
 
 ### 9. Flutter API Response Defensive Parsing
-**Karar:** Tüm number field'lerde String→Int type conversion
-**Tarih:** 25 Şubat 2026
+**Karar:** Tüm verilerde null-safety kontrolü ve default değer kullanımı
+**Tarih:** 25 Şubat - 2 Mart 2026
 **Neden:**
-- Backend'den gelen response inconsistent olabiliyor
-- JSON parsing edge cases: `"300"` vs `300`
-- Type safety: Dart strongly typed
+- Backend'den gelen response eksik veya inconsistent olabiliyor.
+- Type safety ve Runtime TypeError önleme (örn. "subtype of String").
 
 **Uygulama:**
 ```dart
 final value = json['expires_in'];
 return value is String ? int.tryParse(value) ?? 300 : value as int? ?? 300;
+// 2 Mart (Ads Module):
+id: json['id']?.toString() ?? '',
 ```
 
 ---
@@ -120,31 +121,26 @@ return value is String ? int.tryParse(value) ?? 300 : value as int? ?? 300;
 - GET /admin/neighborhoods herkese açık olmalı
 - Clean separation: public vs protected endpoints
 
-**Uygulama:**
-- Decorator: `skip-auth.decorator.ts`
-- JwtAuthGuard: skipAuth metadata check before canActivate()
-- RolesGuard: skipAuth check before role validation
-- Endpoint: `@SkipAuth() @Get('neighborhoods')`
+---
+
+### 11. Admin Panel Tailwind v4 Çözümü
+**Karar:** Kök dizindeki `package.json` silinerek monorepo yanılgısı engellendi.
+**Tarih:** 2 Mart 2026
+**Neden:** Next.js (Turbopack) alt klasördeki projelerde üst dizinde bir config gördüğünde Tailwind eklentisini dışarıda aramaya çalışıyordu. Admin dizinini bağımsız bir "root" yapmak en kalıcı çözüm oldu.
 
 ---
 
-### 8. Deployment Strategy
-**Karar:** Docker + NGINX + PM2
-**Tarih:** 23 Şubat 2026
-**Yapılandırılacaklar:**
-- [ ] SSL sertifikası (Let's Encrypt)
-- [ ] GitHub Actions deploy workflows
-- [ ] Monitoring (optional: Prometheus)
+### 12. Kullanıcı Bulma Stratejisi (Phone vs Email)
+**Karar:** Kimlik doğrulama ve veritabanı aramalarında öncelikli anahtar telefon numarasıdır (`phone`).
+**Tarih:** 2 Mart 2026
+**Neden:** Orijinal veritabanı şemasında `email` alanı yoktu. Sonradan eklenmesi, Admin ve Auth servislerini, `seed.ts` betiklerini kilitlediği için her şey `phone` kullanacak şekilde senkronize edildi.
 
 ---
 
-### 9. OTP & Authentication
-**Karar:**
-- OTP: Redis (TTL: 5 dakika)
-- Limit: 10 OTP/saat per phone
-- JWT: Access + Refresh token
-
-**Tarih:** 16 Şubat 2026
+### 13. Ads Modülü Navigasyon Yapısı
+**Karar:** Alt navigasyondaki sekmeler bağımsız bir rota (`Navigator.push`) haline getirildi.
+**Tarih:** 2 Mart 2026
+**Neden:** İlanlar modülünün `HomePage` içinde bir sekme olarak kalması, kullanıcı deneyimini bozuyor ve ana sayfaya "Geri" dönüşünü engelliyordu.
 
 ---
 
@@ -171,9 +167,9 @@ return value is String ? int.tryParse(value) ?? 300 : value as int? ?? 300;
 | Backend | NestJS + TypeORM | Type safety, structure |
 | Database | PostgreSQL | ACID, complex queries |
 | Cache | Redis | TTL, pub/sub |
-| Admin Frontend | Next.js 14 | SSR, DX |
+| Admin Frontend | Next.js 16 | SSR, DX |
 | Mobile | Flutter 3.x | Cross-platform native |
-| Testing | Jest | Built-in, fast |
+| Testing | Jest & Mocktail | Built-in, fast, no-codegen mocks |
 | State (Admin) | Tanstack Query | Server state management |
 
 ---
@@ -181,6 +177,5 @@ return value is String ? int.tryParse(value) ?? 300 : value as int? ?? 300;
 ## 🔄 Bekleyen Kararlar
 
 - [ ] Monitoring: Prometheus vs DataDog vs Sentry
-- [ ] Mobile state: Provider vs Riverpod vs BLoC
 - [ ] Push: FCM vs OneSignal
 - [ ] Analytics: Plausible vs Mixpanel
