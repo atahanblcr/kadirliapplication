@@ -263,7 +263,7 @@ export function PlaceFormDialog({ open, onClose, editing }: Props) {
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              Google Maps'te yeri bul → sağ tıkla → koordinatları kopyala
+              Google Maps&apos;te yeri bul → sağ tıkla → koordinatları kopyala
             </p>
           </div>
 

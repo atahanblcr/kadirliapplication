@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,8 +36,11 @@ export function TaxiFormDialog({ open, onClose, editing }: Props) {
     is_verified: true,
   });
 
+  const [lastOpen, setLastOpen] = useState(false);
+
   // Form'u düzenleme verisine göre doldur
-  useEffect(() => {
+  if (open && !lastOpen) {
+    setLastOpen(true);
     if (editing) {
       setForm({
         name: editing.name,
@@ -57,7 +60,11 @@ export function TaxiFormDialog({ open, onClose, editing }: Props) {
         is_verified: true,
       });
     }
-  }, [editing, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 

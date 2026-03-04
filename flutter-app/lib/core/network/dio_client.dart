@@ -56,6 +56,9 @@ class DioClient {
 
   Dio get dio => _dio;
 
+  @visibleForTesting
+  set dio(Dio dio) => _dio = dio;
+
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,

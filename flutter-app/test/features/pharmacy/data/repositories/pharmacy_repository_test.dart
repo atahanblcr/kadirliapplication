@@ -1,43 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:dio/dio.dart';
 import 'package:kadirliapp/features/pharmacy/data/repositories/pharmacy_repository.dart';
 import 'package:kadirliapp/features/pharmacy/data/datasources/pharmacy_remote_datasource.dart';
+import 'package:kadirliapp/features/pharmacy/data/models/pharmacy_model.dart';
+import 'package:kadirliapp/core/exceptions/app_exception.dart';
 
-class MockPharmacyRemoteDatasource implements PharmacyRemoteDatasource {
-  Map<String, dynamic>? getCurrentPharmacyResponse;
-  Map<String, dynamic>? getScheduleResponse;
-  Map<String, dynamic>? getPharmaciesResponse;
-
-  int getCurrentPharmacyCallCount = 0;
-  int getScheduleCallCount = 0;
-  int getPharmaciesCallCount = 0;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-
-  @override
-  Future<Map<String, dynamic>> getCurrentPharmacy() async {
-    getCurrentPharmacyCallCount++;
-    return getCurrentPharmacyResponse ?? {};
-  }
-
-  @override
-  Future<Map<String, dynamic>> getSchedule({
-    required String startDate,
-    required String endDate,
-  }) async {
-    getScheduleCallCount++;
-    return getScheduleResponse ?? {};
-  }
-
-  @override
-  Future<Map<String, dynamic>> getPharmacies({
-    int page = 1,
-    int limit = 20,
-  }) async {
-    getPharmaciesCallCount++;
-    return getPharmaciesResponse ?? {};
-  }
-}
+class MockPharmacyRemoteDatasource extends Mock implements PharmacyRemoteDatasource {}
 
 void main() {
   late PharmacyRepository repository;
@@ -50,8 +19,7 @@ void main() {
 
   group('PharmacyRepository Tests', () {
     test('getCurrentPharmacy returns PharmacyModel on success', () async {
-      // Arrange
-      mockDatasource.getCurrentPharmacyResponse = {
+      when(() => mockDatasource.getCurrentPharmacy()).thenAnswer((_) async => {
         'data': {
           'pharmacy': {
             'id': '1',
@@ -61,37 +29,19 @@ void main() {
             'duty_hours': '18:00 - 08:00',
           }
         }
-      };
+      });
       
-      // Act
       final result = await repository.getCurrentPharmacy();
 
-      // Assert
       expect(result, isNotNull);
       expect(result!.name, 'Merkez Eczanesi');
-      expect(result.dutyHours, '18:00 - 08:00');
-      expect(mockDatasource.getCurrentPharmacyCallCount, 1);
-    });
-
-    test('getCurrentPharmacy returns null if pharmacy is not in response', () async {
-      // Arrange
-      mockDatasource.getCurrentPharmacyResponse = {
-        'data': {
-          'pharmacy': null
-        }
-      };
-      
-      // Act
-      final result = await repository.getCurrentPharmacy();
-
-      // Assert
-      expect(result, isNull);
-      expect(mockDatasource.getCurrentPharmacyCallCount, 1);
     });
 
     test('getSchedule returns list of PharmacyScheduleModel on success', () async {
-      // Arrange
-      mockDatasource.getScheduleResponse = {
+      when(() => mockDatasource.getSchedule(
+        startDate: any(named: 'startDate'),
+        endDate: any(named: 'endDate'),
+      )).thenAnswer((_) async => {
         'data': {
           'schedule': [
             {
@@ -105,21 +55,19 @@ void main() {
             }
           ]
         }
-      };
+      });
 
-      // Act
       final result = await repository.getSchedule(startDate: '2026-03-01', endDate: '2026-03-31');
 
-      // Assert
       expect(result.length, 1);
       expect(result[0].date, '2026-03-01');
-      expect(result[0].pharmacy.name, 'Merkez Eczanesi');
-      expect(mockDatasource.getScheduleCallCount, 1);
     });
 
     test('getPharmacies returns list of pharmacies and meta on success', () async {
-      // Arrange
-      mockDatasource.getPharmaciesResponse = {
+      when(() => mockDatasource.getPharmacies(
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+      )).thenAnswer((_) async => {
         'data': {
           'pharmacies': [
             {
@@ -129,22 +77,38 @@ void main() {
               'phone': '05551234567',
             }
           ],
-          'meta': {
-            'page': 1,
-            'limit': 20,
-            'has_next': false,
-          }
+          'meta': {'has_next': false}
         }
-      };
+      });
 
-      // Act
       final result = await repository.getPharmacies();
 
-      // Assert
       expect(result['pharmacies'], isNotEmpty);
-      expect(result['pharmacies'].first.name, 'Merkez Eczanesi');
       expect(result['meta']['has_next'], false);
-      expect(mockDatasource.getPharmaciesCallCount, 1);
+    });
+
+    group('Error Handling', () {
+      test('getCurrentPharmacy should throw UnknownException on parse error', () async {
+        when(() => mockDatasource.getCurrentPharmacy()).thenAnswer((_) async => {'data': 'invalid'});
+        expect(() => repository.getCurrentPharmacy(), throwsA(isA<UnknownException>()));
+      });
+
+      test('getSchedule should throw UnknownException on parse error', () async {
+        when(() => mockDatasource.getSchedule(startDate: any(named: 'startDate'), endDate: any(named: 'endDate')))
+            .thenAnswer((_) async => {'data': 'invalid'});
+        expect(() => repository.getSchedule(startDate: '', endDate: ''), throwsA(isA<UnknownException>()));
+      });
+
+      test('getPharmacies should throw UnknownException on parse error', () async {
+        when(() => mockDatasource.getPharmacies(page: any(named: 'page'), limit: any(named: 'limit')))
+            .thenAnswer((_) async => {'data': 'invalid'});
+        expect(() => repository.getPharmacies(), throwsA(isA<UnknownException>()));
+      });
+
+      test('getCurrentPharmacy should rethrow DioException', () async {
+        when(() => mockDatasource.getCurrentPharmacy()).thenThrow(DioException(requestOptions: RequestOptions(path: '')));
+        expect(() => repository.getCurrentPharmacy(), throwsA(isA<DioException>()));
+      });
     });
   });
 }

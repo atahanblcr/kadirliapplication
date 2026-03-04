@@ -45,8 +45,8 @@ export function useUpdateAdminProfile() {
       }
       toast({ title: 'Profil güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Profil güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Profil güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -70,8 +70,8 @@ export function useChangePassword() {
         window.location.href = '/login';
       }, 1500);
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Şifre değiştirilemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Şifre değiştirilemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });

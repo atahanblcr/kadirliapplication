@@ -55,7 +55,7 @@ export function IntercityPage() {
     setFilters((prev) => ({ ...prev, company_name: searchInput || undefined, page: 1 }));
   }
 
-  function handleFilterChange(key: keyof IntercityFilters, value: any) {
+  function handleFilterChange(key: keyof IntercityFilters, value: string | boolean | number | undefined) {
     setFilters((prev) => ({ ...prev, [key]: value === 'all' ? undefined : value, page: 1 }));
   }
 

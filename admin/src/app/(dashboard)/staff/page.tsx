@@ -187,7 +187,7 @@ export default function StaffPage() {
   const handleRoleFilter = (value: string) => {
     setFilters((prev) => ({
       ...prev,
-      role: (value === 'all' ? undefined : value) as any,
+      role: (value === 'all' ? undefined : value) as 'moderator' | 'admin' | 'super_admin' | undefined,
       page: 1,
     }));
   };
@@ -228,10 +228,11 @@ export default function StaffPage() {
           description: 'Personel başarıyla devre dışı bırakıldı',
         });
         refetch();
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
         toast({
           title: 'Hata',
-          description: error.response?.data?.message || 'Hata oluştu',
+          description: err.response?.data?.message || 'Hata oluştu',
           variant: 'destructive',
         });
       }

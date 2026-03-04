@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,28 +56,30 @@ export function GuideCategoryForm({
   const createMutation = useCreateGuideCategory();
   const updateMutation = useUpdateGuideCategory();
 
-  const isPending =
-    createMutation.isPending || updateMutation.isPending;
+  const [lastOpen, setLastOpen] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      if (editing) {
-        setForm({
-          name: editing.name,
-          parent_id: editing.parent_id ?? '',
-          icon: editing.icon ?? '',
-          color: editing.color ?? '',
-          display_order: String(editing.display_order),
-          is_active: editing.is_active,
-        });
-      } else {
-        setForm({
-          ...EMPTY_FORM,
-          parent_id: defaultParentId ?? '',
-        });
-      }
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    if (editing) {
+      setForm({
+        name: editing.name,
+        parent_id: editing.parent_id ?? '',
+        icon: editing.icon ?? '',
+        color: editing.color ?? '',
+        display_order: String(editing.display_order),
+        is_active: editing.is_active,
+      });
+    } else {
+      setForm({
+        ...EMPTY_FORM,
+        parent_id: defaultParentId ?? '',
+      });
     }
-  }, [open, editing, defaultParentId]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   // Sadece kök kategorileri üst kategori seçeneği olarak sun
   const rootCategories = categories.filter((c) => !c.parent_id);

@@ -11,6 +11,7 @@ import type {
   UpdatePlaceCategoryDto,
   CreatePlaceDto,
   UpdatePlaceDto,
+  ApiMeta,
 } from '@/types';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
@@ -46,8 +47,9 @@ export function useCreatePlaceCategory() {
       queryClient.invalidateQueries({ queryKey: placeKeys.categories() });
       toast({ title: 'Kategori oluşturuldu.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Kategori oluşturulamadı.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -64,8 +66,8 @@ export function useUpdatePlaceCategory() {
       queryClient.invalidateQueries({ queryKey: placeKeys.categories() });
       toast({ title: 'Kategori güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Kategori güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -81,8 +83,8 @@ export function useDeletePlaceCategory() {
       queryClient.invalidateQueries({ queryKey: placeKeys.categories() });
       toast({ title: 'Kategori silindi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Kategori silinemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori silinemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -105,7 +107,7 @@ export function usePlaces(filters: PlaceFilters = {}) {
       if (filters.limit) params.set('limit', String(filters.limit));
 
       const res = await api.get(`/admin/places?${params.toString()}`);
-      return res.data.data as { places: Place[]; meta: any };
+      return res.data.data as { places: Place[]; meta: ApiMeta };
     },
   });
 }
@@ -121,8 +123,8 @@ export function useCreatePlace() {
       queryClient.invalidateQueries({ queryKey: placeKeys.places() });
       toast({ title: 'Mekan oluşturuldu.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Mekan oluşturulamadı.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Mekan oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -140,8 +142,8 @@ export function useUpdatePlace() {
       queryClient.invalidateQueries({ queryKey: placeKeys.all });
       toast({ title: 'Mekan güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Mekan güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Mekan güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -157,8 +159,8 @@ export function useDeletePlace() {
       queryClient.invalidateQueries({ queryKey: placeKeys.places() });
       toast({ title: 'Mekan silindi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Mekan silinemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Mekan silinemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -178,8 +180,8 @@ export function useAddPlaceImages() {
       queryClient.invalidateQueries({ queryKey: placeKeys.places() });
       toast({ title: 'Fotoğraflar eklendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Fotoğraf eklenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Fotoğraf eklenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -196,8 +198,8 @@ export function useDeletePlaceImage() {
       queryClient.invalidateQueries({ queryKey: placeKeys.places() });
       toast({ title: 'Fotoğraf silindi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Fotoğraf silinemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Fotoğraf silinemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -215,8 +217,8 @@ export function useSetPlaceCoverImage() {
       queryClient.invalidateQueries({ queryKey: placeKeys.places() });
       toast({ title: 'Kapak fotoğrafı güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Kapak fotoğrafı güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kapak fotoğrafı güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -232,8 +234,8 @@ export function useReorderPlaceImages() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: placeKeys.detail(id) });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Sıralama güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Sıralama güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });

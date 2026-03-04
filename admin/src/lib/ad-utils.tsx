@@ -17,7 +17,11 @@ export const REJECTION_REASONS = [
 ] as const;
 
 export function AdStatusBadge({ status }: { status: AdStatus }) {
-  const cfg = AD_STATUS_CONFIG[status];
+  const cfg = AD_STATUS_CONFIG[status] ?? { 
+    label: status ?? 'Bilinmiyor', 
+    className: 'bg-gray-100 text-gray-600 border-gray-200' 
+  };
+  
   return (
     <Badge variant="outline" className={cfg.className}>
       {cfg.label}
@@ -30,6 +34,7 @@ export function formatPrice(price?: number): string {
   return price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
 }
 
-export function formatCategoryPath(category: { name: string; parent?: { name: string } }): string {
+export function formatCategoryPath(category?: { name: string; parent?: { name: string } } | null): string {
+  if (!category) return 'Kategorisiz';
   return category.parent ? `${category.parent.name} › ${category.name}` : category.name;
 }

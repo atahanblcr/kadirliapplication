@@ -763,7 +763,7 @@ export interface CreateGuideCategoryDto {
   is_active?: boolean;
 }
 
-export interface UpdateGuideCategoryDto extends Partial<CreateGuideCategoryDto> {}
+export type UpdateGuideCategoryDto = Partial<CreateGuideCategoryDto>;
 
 export interface CreateGuideItemDto {
   category_id: string;
@@ -780,7 +780,7 @@ export interface CreateGuideItemDto {
   is_active?: boolean;
 }
 
-export interface UpdateGuideItemDto extends Partial<CreateGuideItemDto> {}
+export type UpdateGuideItemDto = Partial<CreateGuideItemDto>;
 
 // ─── Places ───────────────────────────────────────────────────────────────────
 
@@ -840,7 +840,7 @@ export interface CreatePlaceCategoryDto {
   is_active?: boolean;
 }
 
-export interface UpdatePlaceCategoryDto extends Partial<CreatePlaceCategoryDto> {}
+export type UpdatePlaceCategoryDto = Partial<CreatePlaceCategoryDto>;
 
 export interface CreatePlaceDto {
   category_id?: string;
@@ -859,7 +859,7 @@ export interface CreatePlaceDto {
   is_active?: boolean;
 }
 
-export interface UpdatePlaceDto extends Partial<CreatePlaceDto> {}
+export type UpdatePlaceDto = Partial<CreatePlaceDto>;
 
 // ─── Complaints ───────────────────────────────────────────────────────────────
 

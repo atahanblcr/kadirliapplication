@@ -6,7 +6,7 @@ class ApiConstants {
   // Android emulator: 10.0.2.2 (special alias for host machine)
   // iOS simulator/device: localhost or your machine IP
   static const String devBaseUrl = 'http://10.0.2.2:3000/v1';
-  static const String devBaseUrlIos = 'http://localhost:3000/v1';
+  static const String devBaseUrlIos = 'http://127.0.0.1:3000/v1';
   static const String prodBaseUrl = 'https://api.kadirliapp.com/v1';
 
   // Timeouts
@@ -38,6 +38,7 @@ class ApiConstants {
   static const String adsUpdate = '/ads/:id';
   static const String adsDelete = '/ads/:id';
   static const String adsFavorite = '/ads/:id/favorite';
+  static const String adsCategories = '/ads/categories';
 
   // Endpoints - Deaths
   static const String deathsList = '/deaths';

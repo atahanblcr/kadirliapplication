@@ -226,7 +226,8 @@ function AppearanceTab() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const themes = [
@@ -300,11 +301,12 @@ function ProfileTab() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  useEffect(() => {
-    if (profile?.username) {
-      setUsername(profile.username);
-    }
-  }, [profile]);
+  const [prevUsername, setPrevUsername] = useState<string | undefined>(undefined);
+
+  if (profile?.username !== prevUsername) {
+    setPrevUsername(profile?.username);
+    setUsername(profile?.username ?? '');
+  }
 
   const handleProfileSave = () => {
     if (!username.trim()) return;

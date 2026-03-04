@@ -15,16 +15,21 @@ export function useAuth() {
     const token = Cookies.get('accessToken');
     const storedUser = Cookies.get('user');
 
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
-        Cookies.remove('user');
+    const timeout = setTimeout(() => {
+      if (token && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+        } catch {
+          Cookies.remove('accessToken');
+          Cookies.remove('refreshToken');
+          Cookies.remove('user');
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    }, 0);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   const login = useCallback(async (credentials: LoginRequest) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Search, Plus, Pencil, Trash2, Loader2, RefreshCw,
 } from 'lucide-react';
@@ -65,24 +65,29 @@ function NeighborhoodForm({
   const createMutation = useCreateNeighborhood();
   const updateMutation = useUpdateNeighborhood();
 
-  useEffect(() => {
-    if (open) {
-      setErrors({});
-      setForm(
-        editing
-          ? {
-              name: editing.name,
-              type: editing.type,
-              population: editing.population != null ? String(editing.population) : '',
-              latitude: editing.latitude != null ? String(editing.latitude) : '',
-              longitude: editing.longitude != null ? String(editing.longitude) : '',
-              display_order: String(editing.display_order ?? 0),
-              is_active: editing.is_active,
-            }
-          : EMPTY,
-      );
-    }
-  }, [open, editing]);
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
+    setForm(
+      editing
+        ? {
+            name: editing.name,
+            type: editing.type,
+            population: editing.population != null ? String(editing.population) : '',
+            latitude: editing.latitude != null ? String(editing.latitude) : '',
+            longitude: editing.longitude != null ? String(editing.longitude) : '',
+            display_order: String(editing.display_order ?? 0),
+            is_active: editing.is_active,
+          }
+        : EMPTY,
+    );
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));

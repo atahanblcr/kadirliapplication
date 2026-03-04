@@ -49,14 +49,11 @@ function formatTime(time: string) {
 export function EventDetailModal({ event, open, onClose, onEdit }: Props) {
   if (!event) return null;
 
-  const isPast = event.event_date < new Date().toISOString().slice(0, 10);
-  const mapsUrl =
-    event.latitude && event.longitude
-      ? `https://www.google.com/maps?q=${event.latitude},${event.longitude}`
-      : null;
+  const eventDate = new Date(event.event_date);
+  const isPast = eventDate < new Date(new Date().setHours(0, 0, 0, 0));
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
@@ -79,73 +76,52 @@ export function EventDetailModal({ event, open, onClose, onEdit }: Props) {
           </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Kategori */}
-          {event.category && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{event.category.name}</span>
-              {event.category.icon && <span>{event.category.icon}</span>}
-            </div>
-          )}
-
-          {/* Tarih & Saat */}
-          <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
-            <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-            <div>
+        <div className="grid gap-6 py-4">
+          {/* Tarih ve Saat */}
+          <div className="flex items-start gap-3">
+            <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+            <div className="space-y-1">
               <p className="text-sm font-medium">{formatDate(event.event_date)}</p>
-              <p className="text-sm text-muted-foreground">
-                {formatTime(event.event_time)}
-                {event.duration_minutes && ` · ${event.duration_minutes} dk`}
-              </p>
-            </div>
-          </div>
-
-          {/* Mekan */}
-          {(event.venue_name || event.venue_address) && (
-            <div className="flex items-start gap-3">
-              <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-              <div>
-                {event.venue_name && (
-                  <p className="text-sm font-medium">{event.venue_name}</p>
-                )}
-                {event.venue_address && (
-                  <p className="text-sm text-muted-foreground">{event.venue_address}</p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>{formatTime(event.event_time)}</span>
+                {event.duration_minutes && (
+                  <span>({event.duration_minutes} dk)</span>
                 )}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Koordinat / Harita */}
-          {mapsUrl && (
-            <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Google Haritalar'da Gör
-              </a>
+          {/* Konum */}
+          <div className="flex items-start gap-3">
+            <MapPin className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{event.venue_name || 'Mekan belirtilmemiş'}</p>
+              {event.venue_address && (
+                <p className="text-xs text-muted-foreground">{event.venue_address}</p>
+              )}
+              {event.latitude && event.longitude && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Google Haritalar&apos;da Gör
+                </a>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Organizatör */}
-          {event.organizer && (
-            <div className="flex items-center gap-3">
-              <Users className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <p className="text-sm">{event.organizer}</p>
-            </div>
-          )}
-
-          {/* Kapasite */}
-          {event.capacity && (
-            <div className="flex items-center gap-3">
-              <Users className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <p className="text-sm">{event.capacity} kişi kapasiteli</p>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <p className="text-sm">
+              <span className="text-muted-foreground mr-1">Organizatör:</span>
+              {event.organizer || 'Belirtilmemiş'}
+            </p>
+          </div>
 
           {/* Bilet */}
           <div className="flex items-center gap-3">
@@ -161,37 +137,26 @@ export function EventDetailModal({ event, open, onClose, onEdit }: Props) {
 
           {/* Açıklama */}
           {event.description && (
-            <>
+            <div className="space-y-2">
               <Separator />
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {event.description}
               </p>
-            </>
+            </div>
           )}
 
-          {/* Linkler */}
-          {(event.website_url || event.ticket_url) && (
-            <>
-              <Separator />
-              <div className="flex flex-wrap gap-2">
-                {event.website_url && (
-                  <a href={event.website_url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm">
-                      <Globe className="mr-1.5 h-3.5 w-3.5" />
-                      Web Sitesi
-                    </Button>
-                  </a>
-                )}
-                {event.ticket_url && (
-                  <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm">
-                      <Ticket className="mr-1.5 h-3.5 w-3.5" />
-                      Bilet Al
-                    </Button>
-                  </a>
-                )}
-              </div>
-            </>
+          {event.website_url && (
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <a
+                href={event.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:underline truncate"
+              >
+                Etkinlik Web Sitesi
+              </a>
+            </div>
           )}
 
           <Separator />
@@ -211,9 +176,7 @@ export function EventDetailModal({ event, open, onClose, onEdit }: Props) {
             <Button variant="outline" onClick={onClose}>
               Kapat
             </Button>
-            <Button onClick={() => { onClose(); onEdit(event); }}>
-              Düzenle
-            </Button>
+            <Button onClick={() => onEdit(event)}>Düzenle</Button>
           </div>
         </div>
       </DialogContent>

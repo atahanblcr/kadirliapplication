@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,22 +55,27 @@ function CemeteryForm({
   const createMutation = useCreateCemetery();
   const updateMutation = useUpdateCemetery();
 
-  useEffect(() => {
-    if (open) {
-      setErrors({});
-      setForm(
-        editing
-          ? {
-              name: editing.name,
-              address: editing.address ?? '',
-              latitude: editing.latitude != null ? String(editing.latitude) : '',
-              longitude: editing.longitude != null ? String(editing.longitude) : '',
-              is_active: editing.is_active ?? true,
-            }
-          : EMPTY,
-      );
-    }
-  }, [open, editing]);
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
+    setForm(
+      editing
+        ? {
+            name: editing.name,
+            address: editing.address ?? '',
+            latitude: editing.latitude != null ? String(editing.latitude) : '',
+            longitude: editing.longitude != null ? String(editing.longitude) : '',
+            is_active: editing.is_active ?? true,
+          }
+        : EMPTY,
+    );
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { IntracityRoute } from '@/types';
+import type { IntracityRoute, CreateIntracityRouteDto } from '@/types';
 import { useCreateIntracityRoute, useUpdateIntracityRoute } from '@/hooks/use-intracity';
 
 interface FormState {
@@ -49,7 +49,11 @@ export function IntracityForm({ open, onClose, editRoute }: IntracityFormProps) 
   const createRoute = useCreateIntracityRoute();
   const updateRoute = useUpdateIntracityRoute();
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
     if (editRoute) {
       setForm({
         line_number: editRoute.line_number ?? '',
@@ -73,8 +77,11 @@ export function IntracityForm({ open, onClose, editRoute }: IntracityFormProps) 
         is_active: true,
       });
     }
-    setErrors({});
-  }, [editRoute, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   function validate(): boolean {
     const errs: Partial<Record<keyof FormState, string>> = {};
@@ -122,7 +129,7 @@ export function IntracityForm({ open, onClose, editRoute }: IntracityFormProps) 
         await updateRoute.mutateAsync({ id: editRoute.id, ...payload });
         toast.success('Hat güncellendi');
       } else {
-        await createRoute.mutateAsync(payload as any);
+        await createRoute.mutateAsync(payload as CreateIntracityRouteDto);
         toast.success('Hat oluşturuldu');
       }
       onClose();

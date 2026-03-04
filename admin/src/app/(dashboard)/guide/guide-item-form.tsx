@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2, MapPin, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,26 +53,31 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
   const updateMutation = useUpdateGuideItem();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  useEffect(() => {
-    if (open) {
-      if (editing) {
-        setForm({
-          category_id: editing.category_id,
-          name: editing.name,
-          phone: editing.phone,
-          latitude: editing.latitude != null ? String(editing.latitude) : '',
-          longitude: editing.longitude != null ? String(editing.longitude) : '',
-          email: editing.email ?? '',
-          website_url: editing.website_url ?? '',
-          working_hours: editing.working_hours ?? '',
-          description: editing.description ?? '',
-          is_active: editing.is_active,
-        });
-      } else {
-        setForm({ ...EMPTY_FORM, category_id: defaultCategoryId ?? '' });
-      }
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    if (editing) {
+      setForm({
+        category_id: editing.category_id,
+        name: editing.name,
+        phone: editing.phone,
+        latitude: editing.latitude != null ? String(editing.latitude) : '',
+        longitude: editing.longitude != null ? String(editing.longitude) : '',
+        email: editing.email ?? '',
+        website_url: editing.website_url ?? '',
+        working_hours: editing.working_hours ?? '',
+        description: editing.description ?? '',
+        is_active: editing.is_active,
+      });
+    } else {
+      setForm({ ...EMPTY_FORM, category_id: defaultCategoryId ?? '' });
     }
-  }, [open, editing, defaultCategoryId]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const validate = () => {
     if (!form.category_id) return 'Kategori seçiniz';
@@ -248,7 +253,7 @@ export function GuideItemForm({ open, onClose, editing, defaultCategoryId }: Pro
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Google Maps'te yeri bul → sağ tıkla → koordinatları kopyala
+              Google Maps&apos;te yeri bul → sağ tıkla → koordinatları kopyala
             </p>
           </div>
 

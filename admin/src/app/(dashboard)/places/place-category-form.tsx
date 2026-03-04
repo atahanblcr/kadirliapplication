@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,20 +39,25 @@ export function PlaceCategoryForm({ open, onClose, editing }: Props) {
   const updateMutation = useUpdatePlaceCategory();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  useEffect(() => {
-    if (open) {
-      if (editing) {
-        setForm({
-          name: editing.name,
-          icon: editing.icon ?? '',
-          display_order: editing.display_order,
-          is_active: editing.is_active,
-        });
-      } else {
-        setForm(EMPTY_FORM);
-      }
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    if (editing) {
+      setForm({
+        name: editing.name,
+        icon: editing.icon ?? '',
+        display_order: editing.display_order,
+        is_active: editing.is_active,
+      });
+    } else {
+      setForm(EMPTY_FORM);
     }
-  }, [open, editing]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

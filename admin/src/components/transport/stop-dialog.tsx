@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -44,7 +44,11 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
   const updateStop = useUpdateStop();
   const { data: neighborhoods } = useDeathNeighborhoods();
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
     if (editStop) {
       setName(editStop.name ?? '');
       setNeighborhoodId(editStop.neighborhood_id ?? '');
@@ -58,8 +62,11 @@ export function StopDialog({ open, onClose, routeId, editStop }: StopDialogProps
       setLongitude('');
       setTimeFromStart('0');
     }
-    setErrors({});
-  }, [editStop, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   function validate(): boolean {
     const errs: typeof errors = {};

@@ -390,9 +390,9 @@ flutter pub outdated
 | Auth | ✅ | 100% | ✅ | ✅ |
 | Home | ✅ | 100% | ✅ | ✅ |
 | Announcements | ✅ | 100% | ✅ | ✅ |
-| Ads | 🟡 | 0% | ⏳ | ⏳ |
+| Ads | ✅ | 100% | ✅ | ✅ |
+| Deaths | ✅ | 100% | ✅ | ✅ |
 | Profile | 🟡 | 0% | ⏳ | ⏳ |
-| Deaths | 🟡 | 0% | ⏳ | ⏳ |
 | Campaigns | 🟡 | 0% | ⏳ | ⏳ |
 | Events | 🟡 | 0% | ⏳ | ⏳ |
 | Guide | 🟡 | 0% | ⏳ | ⏳ |

@@ -11,6 +11,7 @@ import type {
   UpdateGuideCategoryDto,
   CreateGuideItemDto,
   UpdateGuideItemDto,
+  ApiMeta,
 } from '@/types';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ export function useCreateGuideCategory() {
       queryClient.invalidateQueries({ queryKey: guideKeys.categories() });
       toast({ title: 'Kategori oluşturuldu.' });
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
       const message =
         err?.response?.data?.message ?? 'Kategori oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
@@ -68,7 +69,7 @@ export function useUpdateGuideCategory() {
       queryClient.invalidateQueries({ queryKey: guideKeys.categories() });
       toast({ title: 'Kategori güncellendi.' });
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
       const message =
         err?.response?.data?.message ?? 'Kategori güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
@@ -86,8 +87,8 @@ export function useDeleteGuideCategory() {
       queryClient.invalidateQueries({ queryKey: guideKeys.categories() });
       toast({ title: 'Kategori silindi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'Kategori silinemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori silinemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -108,7 +109,7 @@ export function useGuideItems(filters: GuideItemFilters = {}) {
       if (filters.limit) params.set('limit', String(filters.limit));
 
       const res = await api.get(`/admin/guide/items?${params.toString()}`);
-      return res.data.data as { items: GuideItem[]; meta: any };
+      return res.data.data as { items: GuideItem[]; meta: ApiMeta };
     },
   });
 }
@@ -124,8 +125,8 @@ export function useCreateGuideItem() {
       queryClient.invalidateQueries({ queryKey: guideKeys.items() });
       toast({ title: 'İçerik oluşturuldu.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İçerik oluşturulamadı.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İçerik oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -145,8 +146,8 @@ export function useUpdateGuideItem() {
       queryClient.invalidateQueries({ queryKey: guideKeys.items() });
       toast({ title: 'İçerik güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İçerik güncellenemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İçerik güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -162,8 +163,8 @@ export function useDeleteGuideItem() {
       queryClient.invalidateQueries({ queryKey: guideKeys.items() });
       toast({ title: 'İçerik silindi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İçerik silinemedi.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İçerik silinemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });

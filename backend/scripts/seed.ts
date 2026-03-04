@@ -5,30 +5,27 @@ import { BusinessCategory } from '../src/database/entities/business-category.ent
 import { User } from '../src/database/entities/user.entity';
 import { UserRole } from '../src/common/enums/user-role.enum';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 
 async function seed() {
   try {
-    // Initialize database connection
+    console.log('🌱 Starting database seeding...');
+
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
 
-    console.log('🌱 Starting database seeding...');
-
     // ===== NEIGHBORHOODS =====
     console.log('\n📍 Seeding neighborhoods...');
+    const neighborhoodRepo = AppDataSource.getRepository(Neighborhood);
     const neighborhoods = [
-      { name: 'Merkez', slug: 'merkez', type: 'neighborhood' as const, population: 15000, is_active: true },
-      { name: 'Akdam', slug: 'akdam', type: 'neighborhood' as const, population: 8000, is_active: true },
-      { name: 'Kayadibi', slug: 'kayadibi', type: 'neighborhood' as const, population: 5000, is_active: true },
-      { name: 'Yavalı', slug: 'yavalı', type: 'village' as const, population: 3000, is_active: true },
-      { name: 'Cumhuriyet', slug: 'cumhuriyet', type: 'village' as const, population: 1500, is_active: true },
+      { name: 'Merkez', slug: 'merkez', type: 'neighborhood' as const },
+      { name: 'Şehit Halis Şişman', slug: 'sehit-halis-sisman', type: 'neighborhood' as const },
+      { name: 'Pazar', slug: 'pazar', type: 'neighborhood' as const },
+      { name: 'Savrun', slug: 'savrun', type: 'neighborhood' as const },
+      { name: 'Dervişpaşa', slug: 'dervis-pasa', type: 'neighborhood' as const },
     ];
 
-    const neighborhoodRepo = AppDataSource.getRepository(Neighborhood);
     const existingNeighborhoods = await neighborhoodRepo.find();
-
     if (existingNeighborhoods.length === 0) {
       for (const neighborhood of neighborhoods) {
         const n = neighborhoodRepo.create(neighborhood);
@@ -41,22 +38,21 @@ async function seed() {
 
     // ===== AD CATEGORIES =====
     console.log('\n🛍️  Seeding ad categories...');
+    const adCategoryRepo = AppDataSource.getRepository(AdCategory);
     const adCategories = [
-      { name: 'Elektronik', slug: 'elektronik', display_order: 1, parent_id: undefined },
-      { name: 'Ev & Bahçe', slug: 'ev-bahce', display_order: 2, parent_id: undefined },
-      { name: 'Araçlar', slug: 'araclar', display_order: 3, parent_id: undefined },
-      { name: 'Giyim', slug: 'giyim', display_order: 4, parent_id: undefined },
-      { name: 'Spor', slug: 'spor', display_order: 5, parent_id: undefined },
-      { name: 'Kitap', slug: 'kitap', display_order: 6, parent_id: undefined },
-      { name: 'Eğitim', slug: 'egitim', display_order: 7, parent_id: undefined },
-      { name: 'İş', slug: 'is', display_order: 8, parent_id: undefined },
-      { name: 'Gıda', slug: 'gida', display_order: 9, parent_id: undefined },
-      { name: 'Oyuncaklar', slug: 'oyuncaklar', display_order: 10, parent_id: undefined },
+      { name: 'Elektronik', slug: 'elektronik', display_order: 1 },
+      { name: 'Ev & Bahçe', slug: 'ev-bahce', display_order: 2 },
+      { name: 'Araçlar', slug: 'araclar', display_order: 3 },
+      { name: 'Giyim', slug: 'giyim', display_order: 4 },
+      { name: 'Spor', slug: 'spor', display_order: 5 },
+      { name: 'Kitap', slug: 'kitap', display_order: 6 },
+      { name: 'Eğitim', slug: 'egitim', display_order: 7 },
+      { name: 'İş', slug: 'is', display_order: 8 },
+      { name: 'Gıda', slug: 'gida', display_order: 9 },
+      { name: 'Oyuncaklar', slug: 'oyuncaklar', display_order: 10 },
     ];
 
-    const adCategoryRepo = AppDataSource.getRepository(AdCategory);
     const existingAdCategories = await adCategoryRepo.find();
-
     if (existingAdCategories.length === 0) {
       for (const category of adCategories) {
         const cat = adCategoryRepo.create(category);
@@ -69,25 +65,24 @@ async function seed() {
 
     // ===== BUSINESS CATEGORIES =====
     console.log('\n🏢 Seeding business categories...');
+    const businessCategoryRepo = AppDataSource.getRepository(BusinessCategory);
     const businessCategories = [
-      { name: 'Gıda', slug: 'gida', display_order: 1 },
-      { name: 'Restoran', slug: 'restoran', display_order: 2 },
-      { name: 'Eczane', slug: 'eczane', display_order: 3 },
-      { name: 'Sağlık', slug: 'saglik', display_order: 4 },
-      { name: 'Tekstil', slug: 'tekstil', display_order: 5 },
-      { name: 'Elektrik', slug: 'elektrik', display_order: 6 },
-      { name: 'Yapı', slug: 'yapi', display_order: 7 },
-      { name: 'Oto', slug: 'oto', display_order: 8 },
-      { name: 'Güzellik', slug: 'guzellik', display_order: 9 },
-      { name: 'Hukuk', slug: 'hukuk', display_order: 10 },
-      { name: 'Tarım', slug: 'tarim', display_order: 11 },
-      { name: 'Mobilya', slug: 'mobilya', display_order: 12 },
-      { name: 'Diğer', slug: 'diger', display_order: 13 },
+      { name: 'Restoran', slug: 'restoran' },
+      { name: 'Kafe', slug: 'kafe' },
+      { name: 'Market', slug: 'market' },
+      { name: 'Eczane', slug: 'eczane' },
+      { name: 'Kuaför', slug: 'kuaför' },
+      { name: 'Tamirhane', slug: 'tamirhane' },
+      { name: 'Giyim', slug: 'giyim-isletme' },
+      { name: 'Kırtasiye', slug: 'kirtasiye' },
+      { name: 'İnşaat', slug: 'insaat' },
+      { name: 'Hırdavat', slug: 'hirdavat' },
+      { name: 'Kasap', slug: 'kasap' },
+      { name: 'Manav', slug: 'manav' },
+      { name: 'Pastane', slug: 'pastane' },
     ];
 
-    const businessCategoryRepo = AppDataSource.getRepository(BusinessCategory);
     const existingBusinessCategories = await businessCategoryRepo.find();
-
     if (existingBusinessCategories.length === 0) {
       for (const category of businessCategories) {
         const cat = businessCategoryRepo.create(category);
@@ -101,60 +96,48 @@ async function seed() {
     // ===== ADMIN USER =====
     console.log('\n👤 Seeding admin user...');
     const userRepo = AppDataSource.getRepository(User);
-    const existingAdmin = await userRepo.findOne({ where: { email: 'admin@kadirliapp.com' } });
+    const existingAdmin = await userRepo.findOne({ where: { phone: '+905500000001' } });
 
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('Admin123!', 10);
       const adminUser = userRepo.create({
         phone: '+905500000001',
-        email: 'admin@kadirliapp.com',
         password: hashedPassword,
         username: 'admin',
         role: UserRole.SUPER_ADMIN,
         is_active: true,
       });
       await userRepo.save(adminUser);
-      console.log('✅ Created admin user (admin@kadirliapp.com / Admin123!)');
+      console.log('✅ Created admin user (+905500000001 / Admin123!)');
     } else {
       console.log('⏭️  Admin user already exists');
     }
 
     // ===== TEST USER =====
     console.log('\n👤 Seeding test user...');
-    const existingTestUser = await userRepo.findOne({ where: { email: 'user@kadirliapp.com' } });
+    const existingTestUser = await userRepo.findOne({ where: { phone: '05551234567' } });
 
     if (!existingTestUser) {
-      // Get first neighborhood for test user
       const firstNeighborhood = await neighborhoodRepo.findOne({ where: { slug: 'merkez' } });
-
       const hashedPassword = await bcrypt.hash('User123!', 10);
       const testUser = userRepo.create({
-        phone: '+905551234567',
-        email: 'user@kadirliapp.com',
+        phone: '05551234567',
         password: hashedPassword,
         username: 'testuser',
         role: UserRole.USER,
         is_active: true,
         primary_neighborhood_id: firstNeighborhood?.id,
-        age: 30,
-        location_type: 'neighborhood' as const,
       });
       await userRepo.save(testUser);
-      console.log('✅ Created test user (user@kadirliapp.com / User123!)');
+      console.log('✅ Created test user (05551234567 / User123!)');
     } else {
       console.log('⏭️  Test user already exists');
     }
 
     console.log('\n✅ Database seeding completed successfully!');
-    console.log('\n📋 Seed Data Summary:');
-    console.log('   - 5 neighborhoods');
-    console.log('   - 10 ad categories');
-    console.log('   - 13 business categories');
-    console.log('   - 1 admin user (admin@kadirliapp.com / Admin123!)');
-    console.log('   - 1 test user (user@kadirliapp.com / User123!)');
 
   } catch (error) {
-    console.error('❌ Seeding error:', error);
+    console.error('\n❌ Seeding error:', error);
     process.exit(1);
   } finally {
     if (AppDataSource.isInitialized) {
@@ -163,5 +146,4 @@ async function seed() {
   }
 }
 
-// Run seeder
 seed();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2, Plus, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +29,7 @@ import {
   useEventCategories,
   useCreateEventCategory,
 } from '@/hooks/use-events';
-import type { AdminEvent } from '@/types';
+import type { AdminEvent, CreateEventDto, UpdateEventDto } from '@/types';
 
 interface Props {
   open: boolean;
@@ -69,7 +69,10 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
   const [newCatName, setNewCatName] = useState('');
   const [showCatInput, setShowCatInput] = useState(false);
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
     if (editing) {
       setForm({
         title: editing.title,
@@ -97,7 +100,11 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
     }
     setShowCatInput(false);
     setNewCatName('');
-  }, [editing, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -150,10 +157,10 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
 
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, ...payload } as any);
+        await updateMutation.mutateAsync({ id: editing.id, ...payload } as UpdateEventDto & { id: string });
         toast({ title: `"${form.title}" güncellendi.` });
       } else {
-        await createMutation.mutateAsync(payload as any);
+        await createMutation.mutateAsync(payload as CreateEventDto);
         toast({ title: `"${form.title}" etkinliği eklendi.` });
       }
       onClose();

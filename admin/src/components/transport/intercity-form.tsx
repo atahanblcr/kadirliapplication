@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
-import type { IntercityRoute } from '@/types';
+import type { IntercityRoute, CreateIntercityRouteDto } from '@/types';
 import { useCreateIntercityRoute, useUpdateIntercityRoute } from '@/hooks/use-intercity';
 
 const TURKISH_CITIES = [
@@ -63,7 +63,11 @@ export function IntercityForm({ open, onClose, editRoute }: IntercityFormProps) 
   const createRoute = useCreateIntercityRoute();
   const updateRoute = useUpdateIntercityRoute();
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
     if (editRoute) {
       setForm({
         company_name: editRoute.company_name ?? '',
@@ -89,8 +93,11 @@ export function IntercityForm({ open, onClose, editRoute }: IntercityFormProps) 
         is_active: true,
       });
     }
-    setErrors({});
-  }, [editRoute, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   function validate(): boolean {
     const errs: Partial<Record<keyof FormState, string>> = {};
@@ -138,7 +145,7 @@ export function IntercityForm({ open, onClose, editRoute }: IntercityFormProps) 
         await updateRoute.mutateAsync({ id: editRoute.id, ...payload });
         toast.success('Hat güncellendi');
       } else {
-        await createRoute.mutateAsync(payload as any);
+        await createRoute.mutateAsync(payload as CreateIntercityRouteDto);
         toast.success('Hat oluşturuldu');
       }
       onClose();

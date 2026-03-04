@@ -55,10 +55,11 @@ export function ResetPasswordDialog({
       onOpenChange(false);
       setNewPassword('');
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
       toast({
         title: 'Hata',
-        description: error.response?.data?.message || 'Şifre sıfırlama başarısız',
+        description: err.response?.data?.message || 'Şifre sıfırlama başarısız',
         variant: 'destructive',
       });
     }

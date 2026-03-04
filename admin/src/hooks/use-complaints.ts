@@ -23,7 +23,7 @@ export function useComplaints(filters: ComplaintFilters) {
         Object.entries(filters).filter(([, v]) => v !== undefined && v !== ''),
       );
       const res = await api.get('/admin/complaints', { params });
-      return res.data.data as { complaints: Complaint[]; meta: any };
+      return res.data.data as { complaints: Complaint[]; meta: ApiMeta };
     },
   });
 }
@@ -55,8 +55,8 @@ export function useReviewComplaint() {
       queryClient.invalidateQueries({ queryKey: complaintKeys.detail(id) });
       toast({ title: 'Şikayet incelemeye alındı.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İşlem başarısız.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İşlem başarısız.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -79,8 +79,8 @@ export function useResolveComplaint() {
       queryClient.invalidateQueries({ queryKey: complaintKeys.detail(id) });
       toast({ title: 'Şikayet çözüldü.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İşlem başarısız.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İşlem başarısız.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -103,8 +103,8 @@ export function useRejectComplaint() {
       queryClient.invalidateQueries({ queryKey: complaintKeys.detail(id) });
       toast({ title: 'Şikayet reddedildi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İşlem başarısız.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İşlem başarısız.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -124,8 +124,8 @@ export function useUpdateComplaintPriority() {
       queryClient.invalidateQueries({ queryKey: complaintKeys.detail(id) });
       toast({ title: 'Öncelik güncellendi.' });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message ?? 'İşlem başarısız.';
+    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'İşlem başarısız.';
       toast({ title: message, variant: 'destructive' });
     },
   });

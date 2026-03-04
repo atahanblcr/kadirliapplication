@@ -543,7 +543,7 @@ function CategoryRow({
                   className="h-7 w-7"
                   title="Düzenle"
                   onClick={() =>
-                    onEdit({ ...child, parent_id: category.id, parent: { id: category.id, name: category.name }, children: [] } as any)
+                    onEdit({ ...child, parent_id: category.id, parent: { id: category.id, name: category.name }, children: [] } as GuideCategory)
                   }
                 >
                   <Pencil className="h-3.5 w-3.5" />
@@ -554,7 +554,7 @@ function CategoryRow({
                   className="h-7 w-7 text-destructive hover:text-destructive"
                   title="Sil"
                   onClick={() =>
-                    onDelete({ ...child, parent_id: category.id, parent: { id: category.id, name: category.name }, children: [] } as any)
+                    onDelete({ ...child, parent_id: category.id, parent: { id: category.id, name: category.name }, children: [] } as GuideCategory)
                   }
                 >
                   <Trash2 className="h-3.5 w-3.5" />

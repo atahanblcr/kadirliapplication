@@ -20,7 +20,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       router.push('/login');
       return;
     }
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, [router]);
 
   if (!mounted) {

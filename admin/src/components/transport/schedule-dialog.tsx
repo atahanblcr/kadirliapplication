@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,11 @@ export function ScheduleDialog({ open, onClose, routeId, editSchedule }: Schedul
   const addSchedule = useAddSchedule();
   const updateSchedule = useUpdateSchedule();
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
     if (editSchedule) {
       setDepartureTime(editSchedule.departure_time.slice(0, 5));
       setDaysOfWeek(editSchedule.days_of_week ?? []);
@@ -57,8 +61,11 @@ export function ScheduleDialog({ open, onClose, routeId, editSchedule }: Schedul
       setDaysOfWeek([]);
       setIsActive(true);
     }
-    setErrors({});
-  }, [editSchedule, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   function toggleDay(day: number) {
     setDaysOfWeek((prev) =>

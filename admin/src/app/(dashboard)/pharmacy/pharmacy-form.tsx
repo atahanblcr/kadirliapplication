@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import {
   Sheet,
@@ -46,25 +46,30 @@ export function PharmacyForm({ open, onClose, editing }: PharmacyFormProps) {
   const createMutation = useCreatePharmacy();
   const updateMutation = useUpdatePharmacy();
 
-  useEffect(() => {
-    if (open) {
-      setErrors({});
-      setForm(
-        editing
-          ? {
-              name:            editing.name,
-              phone:           editing.phone ?? '',
-              address:         editing.address,
-              working_hours:   editing.working_hours ?? '',
-              pharmacist_name: editing.pharmacist_name ?? '',
-              latitude:        editing.latitude != null ? String(editing.latitude) : '',
-              longitude:       editing.longitude != null ? String(editing.longitude) : '',
-              is_active:       editing.is_active,
-            }
-          : EMPTY,
-      );
-    }
-  }, [open, editing]);
+  const [lastOpen, setLastOpen] = useState(false);
+
+  if (open && !lastOpen) {
+    setLastOpen(true);
+    setErrors({});
+    setForm(
+      editing
+        ? {
+            name:            editing.name,
+            phone:           editing.phone ?? '',
+            address:         editing.address,
+            working_hours:   editing.working_hours ?? '',
+            pharmacist_name: editing.pharmacist_name ?? '',
+            latitude:        editing.latitude != null ? String(editing.latitude) : '',
+            longitude:       editing.longitude != null ? String(editing.longitude) : '',
+            is_active:       editing.is_active,
+          }
+        : EMPTY,
+    );
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const set = (key: keyof FormState) => (
     e: React.ChangeEvent<HTMLInputElement>,

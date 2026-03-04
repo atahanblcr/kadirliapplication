@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
@@ -60,8 +60,11 @@ export function StaffFormDialog({
   const updateMutation = useUpdateStaff(editing?.id ?? '');
   const updatePermissionsMutation = useUpdateStaffPermissions(editing?.id ?? '');
 
+  const [lastOpen, setLastOpen] = useState(false);
+
   // Initialize form with editing data
-  useEffect(() => {
+  if (open && !lastOpen) {
+    setLastOpen(true);
     if (editing) {
       setFormData({
         email: editing.email,
@@ -94,7 +97,11 @@ export function StaffFormDialog({
         })),
       );
     }
-  }, [editing, open]);
+  }
+
+  if (!open && lastOpen) {
+    setLastOpen(false);
+  }
 
   const handlePermissionChange = (
     module: string,
@@ -133,7 +140,7 @@ export function StaffFormDialog({
         // Update mode
         await updateMutation.mutateAsync({
           username: formData.username,
-          role: formData.role as any,
+          role: formData.role as 'admin' | 'moderator',
         });
 
         // Update permissions if moderator
@@ -149,7 +156,7 @@ export function StaffFormDialog({
           password: formData.password as string,
           username: formData.username as string,
           phone: formData.phone as string,
-          role: formData.role as any,
+          role: formData.role as 'admin' | 'moderator',
           permissions:
             formData.role === 'moderator'
               ? permissions.filter((p) => p)
@@ -166,11 +173,12 @@ export function StaffFormDialog({
 
       onOpenChange(false);
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
       toast({
         title: 'Hata',
         description:
-          error.response?.data?.message ||
+          err.response?.data?.message ||
           (editing ? 'Güncelleme başarısız' : 'Oluşturma başarısız'),
         variant: 'destructive',
       });
@@ -242,7 +250,7 @@ export function StaffFormDialog({
                 <Select
                   value={formData.role}
                   onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, role: value as any }))
+                    setFormData((prev) => ({ ...prev, role: value as 'admin' | 'moderator' }))
                   }
                   disabled={!!editing}
                 >

@@ -165,12 +165,12 @@ function AdRow({
 
       {/* Views */}
       <TableCell className="w-[60px] text-center text-sm text-muted-foreground">
-        {ad.view_count.toLocaleString('tr-TR')}
+        {(ad.view_count ?? 0).toLocaleString('tr-TR')}
       </TableCell>
 
       {/* Expiry */}
       <TableCell className="w-[110px] text-sm text-muted-foreground">
-        {format(new Date(ad.expires_at), 'dd MMM yy', { locale: tr })}
+        {ad.expires_at ? format(new Date(ad.expires_at), 'dd MMM yy', { locale: tr }) : '—'}
       </TableCell>
 
       {/* Actions */}

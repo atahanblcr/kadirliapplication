@@ -55,7 +55,7 @@ export function IntracityPage() {
     setFilters((prev) => ({ ...prev, line_number: searchInput || undefined, page: 1 }));
   }
 
-  function handleFilterChange(key: keyof IntracityFilters, value: any) {
+  function handleFilterChange(key: keyof IntracityFilters, value: string | boolean | number | undefined) {
     setFilters((prev) => ({ ...prev, [key]: value === 'all' ? undefined : value, page: 1 }));
   }
 

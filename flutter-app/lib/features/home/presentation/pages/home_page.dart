@@ -11,6 +11,11 @@ import 'package:kadirliapp/features/ads/presentation/pages/ads_list_page.dart';
 import 'package:kadirliapp/features/deaths/presentation/pages/deaths_list_page.dart';
 import 'package:kadirliapp/features/events/presentation/pages/events_list_page.dart';
 import 'package:kadirliapp/features/pharmacy/presentation/pages/pharmacy_page.dart';
+import 'package:kadirliapp/features/campaigns/presentation/pages/campaigns_list_page.dart';
+import 'package:kadirliapp/features/guide/presentation/pages/guide_page.dart';
+import 'package:kadirliapp/features/places/presentation/pages/places_list_page.dart';
+import 'package:kadirliapp/features/taxi/presentation/pages/taxi_page.dart';
+import 'package:kadirliapp/features/profile/presentation/pages/profile_page.dart';
 
 /// Home Page with 12 module grid and bottom navigation
 class HomePage extends ConsumerStatefulWidget {
@@ -58,8 +63,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           const _PlaceholderTab(title: 'İlanlar'),
           // Tab 2: Favorites - Placeholder
           const _PlaceholderTab(title: 'Favoriler'),
-          // Tab 3: Profile - Placeholder
-          const _PlaceholderTab(title: 'Profil'),
+          // Tab 3: Profile
+          const ProfilePage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -165,8 +170,39 @@ class _HomeTab extends StatelessWidget {
                         ),
                       );
                       break;
-                    default:
-                      ScaffoldMessenger.of(context).showSnackBar(
+                    case 'campaigns':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CampaignsListPage(),
+                        ),
+                      );
+                      break;
+                    case 'guide':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const GuidePage(),
+                        ),
+                      );
+                      break;
+                    case 'places':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PlacesListPage(),
+                        ),
+                      );
+                      break;
+                    case 'taxi':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TaxiPage(),
+                        ),
+                      );
+                      break;
+                    default:                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('${module.title} sayfası yakında açılacak.'),
                         ),
