@@ -25,8 +25,8 @@ class PlacesRepository {
         userLng: userLng,
       );
       
-      // `findAll` returns `{ places: [...] }`
-      final placesData = response['places'] as List?;
+      final data = response['data'] as Map<String, dynamic>? ?? {};
+      final placesData = data['places'] as List?;
       if (placesData == null) return [];
       
       return List<PlaceModel>.from(
@@ -44,7 +44,8 @@ class PlacesRepository {
   Future<PlaceDetailModel> getPlaceDetail(String placeId) async {
     try {
       final response = await _datasource.getPlaceDetail(placeId);
-      final placeJson = response['place'] as Map<String, dynamic>;
+      final data = response['data'] as Map<String, dynamic>? ?? {};
+      final placeJson = data['place'] as Map<String, dynamic>;
       return PlaceDetailModel.fromJson(placeJson);
     } on DioException catch (_) {
       rethrow;

@@ -7,15 +7,22 @@ import 'package:kadirliapp/core/storage/storage_service.dart';
 class MockStorageService extends Mock implements StorageService {}
 class MockRequestInterceptorHandler extends Mock implements RequestInterceptorHandler {}
 class MockErrorInterceptorHandler extends Mock implements ErrorInterceptorHandler {}
+class MockDio extends Mock implements Dio {}
 
 void main() {
   late AuthInterceptor interceptor;
   late MockStorageService mockStorage;
   late MockRequestInterceptorHandler mockHandler;
+  late MockDio mockRefreshDio;
+
+  setUpAll(() {
+    registerFallbackValue(RequestOptions(path: ''));
+  });
 
   setUp(() {
     mockStorage = MockStorageService();
-    interceptor = AuthInterceptor(mockStorage);
+    mockRefreshDio = MockDio();
+    interceptor = AuthInterceptor(mockStorage, refreshDio: mockRefreshDio);
     mockHandler = MockRequestInterceptorHandler();
   });
 
@@ -95,6 +102,53 @@ void main() {
 
       interceptor.onError(err, mockErrorHandler);
 
+      verify(() => mockErrorHandler.next(err)).called(1);
+    });
+
+    test('successfully refreshes token and retries request', () async {
+      final reqOptions = RequestOptions(path: '/some-endpoint');
+      final err = DioException(
+        requestOptions: reqOptions,
+        response: Response(requestOptions: reqOptions, statusCode: 401),
+      );
+      
+      when(() => mockStorage.getRefreshToken()).thenReturn('old_refresh');
+      when(() => mockStorage.setAccessToken('new_access_token')).thenAnswer((_) async {});
+
+      final refreshResponse = Response(
+        requestOptions: RequestOptions(path: '/auth/refresh'),
+        data: {'data': {'access_token': 'new_access_token'}},
+        statusCode: 200,
+      );
+      when(() => mockRefreshDio.post(any(), data: any(named: 'data'))).thenAnswer((_) async => refreshResponse);
+
+      final retryResponse = Response(requestOptions: reqOptions, statusCode: 200, data: 'success');
+      when(() => mockRefreshDio.request(any(), options: any(named: 'options'), data: any(named: 'data'), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer((_) async => retryResponse);
+
+      interceptor.onError(err, mockErrorHandler);
+      await Future.delayed(Duration.zero);
+
+      verify(() => mockStorage.setAccessToken('new_access_token')).called(1);
+      verify(() => mockErrorHandler.resolve(retryResponse)).called(1);
+    });
+
+    test('clears token and calls next when refresh fails', () async {
+      final reqOptions = RequestOptions(path: '/some-endpoint');
+      final err = DioException(
+        requestOptions: reqOptions,
+        response: Response(requestOptions: reqOptions, statusCode: 401),
+      );
+      
+      when(() => mockStorage.getRefreshToken()).thenReturn('old_refresh');
+      when(() => mockStorage.clearTokens()).thenAnswer((_) async {});
+
+      when(() => mockRefreshDio.post(any(), data: any(named: 'data'))).thenThrow(Exception('Refresh failed'));
+
+      interceptor.onError(err, mockErrorHandler);
+      await Future.delayed(Duration.zero);
+
+      verify(() => mockStorage.clearTokens()).called(1);
       verify(() => mockErrorHandler.next(err)).called(1);
     });
   });

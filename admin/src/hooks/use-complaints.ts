@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import type { Complaint, ComplaintFilters } from '@/types';
+import type { Complaint, ComplaintFilters, PaginatedMeta } from '@/types';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ export function useComplaints(filters: ComplaintFilters) {
         Object.entries(filters).filter(([, v]) => v !== undefined && v !== ''),
       );
       const res = await api.get('/admin/complaints', { params });
-      return res.data.data as { complaints: Complaint[]; meta: ApiMeta };
+      return res.data.data as { complaints: Complaint[]; meta: PaginatedMeta };
     },
   });
 }

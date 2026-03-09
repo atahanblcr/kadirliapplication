@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { IntracityRoute, CreateIntracityRouteDto } from '@/types';
+import type { IntracityRoute } from '@/types';
 import { useCreateIntracityRoute, useUpdateIntracityRoute } from '@/hooks/use-intracity';
 
 interface FormState {
@@ -129,7 +129,7 @@ export function IntracityForm({ open, onClose, editRoute }: IntracityFormProps) 
         await updateRoute.mutateAsync({ id: editRoute.id, ...payload });
         toast.success('Hat güncellendi');
       } else {
-        await createRoute.mutateAsync(payload as CreateIntracityRouteDto);
+        await createRoute.mutateAsync(payload as any);
         toast.success('Hat oluşturuldu');
       }
       onClose();

@@ -11,7 +11,7 @@ import type {
   UpdatePlaceCategoryDto,
   CreatePlaceDto,
   UpdatePlaceDto,
-  ApiMeta,
+  PaginatedMeta,
 } from '@/types';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ export function useCreatePlaceCategory() {
       queryClient.invalidateQueries({ queryKey: placeKeys.categories() });
       toast({ title: 'Kategori oluşturuldu.' });
     },
-    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
+    onError: (err: unknown) => {
       const error = err as { response?: { data?: { message?: string } } };
       const message = error.response?.data?.message ?? 'Kategori oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
@@ -107,7 +107,7 @@ export function usePlaces(filters: PlaceFilters = {}) {
       if (filters.limit) params.set('limit', String(filters.limit));
 
       const res = await api.get(`/admin/places?${params.toString()}`);
-      return res.data.data as { places: Place[]; meta: ApiMeta };
+      return res.data.data as { places: Place[]; meta: PaginatedMeta };
     },
   });
 }

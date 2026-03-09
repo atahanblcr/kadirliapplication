@@ -26,9 +26,11 @@ void main() {
         userLat: any(named: 'userLat'),
         userLng: any(named: 'userLng'),
       )).thenAnswer((_) async => {
-        'places': [
-          {'id': '1', 'name': 'Place'}
-        ]
+        'data': {
+          'places': [
+            {'id': '1', 'name': 'Place'}
+          ]
+        }
       });
 
       final result = await repository.getPlaces();
@@ -39,7 +41,9 @@ void main() {
 
     test('getPlaceDetail returns PlaceDetailModel', () async {
       when(() => mockDatasource.getPlaceDetail(any())).thenAnswer((_) async => {
-        'place': {'id': '1', 'name': 'Place'}
+        'data': {
+          'place': {'id': '1', 'name': 'Place'}
+        }
       });
 
       final result = await repository.getPlaceDetail('1');
@@ -55,7 +59,7 @@ void main() {
           sort: any(named: 'sort'),
           userLat: any(named: 'userLat'),
           userLng: any(named: 'userLng'),
-        )).thenAnswer((_) async => {'places': 'invalid'});
+        )).thenAnswer((_) async => {'data': {'places': ['invalid']}});
         expect(() => repository.getPlaces(), throwsA(isA<UnknownException>()));
       });
 

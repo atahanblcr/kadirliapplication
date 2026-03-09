@@ -20,9 +20,11 @@ void main() {
   group('TaxiRepository Tests', () {
     test('getDrivers returns list of TaxiDriverModel', () async {
       when(() => mockDatasource.getDrivers()).thenAnswer((_) async => {
-        'drivers': [
-          {'id': '1', 'name': 'Ali', 'phone': '123', 'plaka': '80T1'}
-        ]
+        'data': {
+          'drivers': [
+            {'id': '1', 'name': 'Ali', 'phone': '123', 'plaka': '80T1'}
+          ]
+        }
       });
 
       final result = await repository.getDrivers();
@@ -41,7 +43,7 @@ void main() {
 
     group('Error Handling', () {
       test('getDrivers should throw UnknownException on parse error', () async {
-        when(() => mockDatasource.getDrivers()).thenAnswer((_) async => {'drivers': 'invalid'});
+        when(() => mockDatasource.getDrivers()).thenAnswer((_) async => {'data': {'drivers': ['invalid']}});
         expect(() => repository.getDrivers(), throwsA(isA<UnknownException>()));
       });
 

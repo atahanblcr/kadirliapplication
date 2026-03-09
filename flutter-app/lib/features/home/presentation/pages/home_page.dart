@@ -15,6 +15,8 @@ import 'package:kadirliapp/features/campaigns/presentation/pages/campaigns_list_
 import 'package:kadirliapp/features/guide/presentation/pages/guide_page.dart';
 import 'package:kadirliapp/features/places/presentation/pages/places_list_page.dart';
 import 'package:kadirliapp/features/taxi/presentation/pages/taxi_page.dart';
+import 'package:kadirliapp/features/transport/presentation/pages/transport_page.dart';
+import 'package:kadirliapp/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:kadirliapp/features/profile/presentation/pages/profile_page.dart';
 
 /// Home Page with 12 module grid and bottom navigation
@@ -199,6 +201,22 @@ class _HomeTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const TaxiPage(),
+                        ),
+                      );
+                      break;
+                    case 'transport':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TransportPage(),
+                        ),
+                      );
+                      break;
+                    case 'notifications':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsPage(),
                         ),
                       );
                       break;

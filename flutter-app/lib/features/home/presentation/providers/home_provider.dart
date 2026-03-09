@@ -80,12 +80,6 @@ final moduleListProvider = Provider<List<ModuleItem>>((ref) {
       color: const Color(0xFFFBC02D), // Sarı
     ),
     ModuleItem(
-      key: 'jobs',
-      title: 'İş İlanları',
-      icon: Icons.work_outline,
-      color: const Color(0xFF8E24AA), // Mor
-    ),
-    ModuleItem(
       key: 'notifications',
       title: 'Bildirimler',
       icon: Icons.notifications,

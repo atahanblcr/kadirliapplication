@@ -56,6 +56,8 @@ export function GuideCategoryForm({
   const createMutation = useCreateGuideCategory();
   const updateMutation = useUpdateGuideCategory();
 
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
   const [lastOpen, setLastOpen] = useState(false);
 
   if (open && !lastOpen) {

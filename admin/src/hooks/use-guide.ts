@@ -11,7 +11,7 @@ import type {
   UpdateGuideCategoryDto,
   CreateGuideItemDto,
   UpdateGuideItemDto,
-  ApiMeta,
+  PaginatedMeta,
 } from '@/types';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
@@ -47,9 +47,9 @@ export function useCreateGuideCategory() {
       queryClient.invalidateQueries({ queryKey: guideKeys.categories() });
       toast({ title: 'Kategori oluşturuldu.' });
     },
-    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
-      const message =
-        err?.response?.data?.message ?? 'Kategori oluşturulamadı.';
+    onError: (err: unknown) => {
+      const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori oluşturulamadı.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -69,9 +69,9 @@ export function useUpdateGuideCategory() {
       queryClient.invalidateQueries({ queryKey: guideKeys.categories() });
       toast({ title: 'Kategori güncellendi.' });
     },
-    onError: (err: unknown) => { const error = err as { response?: { data?: { message?: string } } };
-      const message =
-        err?.response?.data?.message ?? 'Kategori güncellenemedi.';
+    onError: (err: unknown) => {
+      const error = err as { response?: { data?: { message?: string } } };
+      const message = error.response?.data?.message ?? 'Kategori güncellenemedi.';
       toast({ title: message, variant: 'destructive' });
     },
   });
@@ -109,7 +109,7 @@ export function useGuideItems(filters: GuideItemFilters = {}) {
       if (filters.limit) params.set('limit', String(filters.limit));
 
       const res = await api.get(`/admin/guide/items?${params.toString()}`);
-      return res.data.data as { items: GuideItem[]; meta: ApiMeta };
+      return res.data.data as { items: GuideItem[]; meta: PaginatedMeta };
     },
   });
 }

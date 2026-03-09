@@ -304,7 +304,7 @@ function ProfileTab() {
   const [prevUsername, setPrevUsername] = useState<string | undefined>(undefined);
 
   if (profile?.username !== prevUsername) {
-    setPrevUsername(profile?.username);
+    setPrevUsername(profile?.username ?? undefined);
     setUsername(profile?.username ?? '');
   }
 

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dio/dio.dart';
@@ -167,6 +168,37 @@ void main() {
       when(() => mockDioClient.post('/ads/1/extend', data: any(named: 'data'))).thenAnswer((_) async => mockResponse);
       final result = await repository.extendAd('1', 3);
       expect(result['success'], true);
+    });
+
+    test('toggleFavorite success adding', () async {
+      final mockResponse = Response(requestOptions: RequestOptions(path: ''), statusCode: 200);
+      when(() => mockDioClient.post('/ads/1/favorite')).thenAnswer((_) async => mockResponse);
+      final result = await repository.toggleFavorite('1', true);
+      expect(result, true);
+    });
+
+    test('toggleFavorite success removing', () async {
+      final mockResponse = Response(requestOptions: RequestOptions(path: ''), statusCode: 200);
+      when(() => mockDioClient.delete('/ads/1/favorite')).thenAnswer((_) async => mockResponse);
+      final result = await repository.toggleFavorite('1', false);
+      expect(result, true);
+    });
+
+    test('uploadFile success', () async {
+      final mockResponse = Response(
+        requestOptions: RequestOptions(path: ''),
+        data: {'data': {'file': {'id': 'file123'}}},
+        statusCode: 200,
+      );
+      when(() => mockDioClient.post('/files/upload', data: any(named: 'data'))).thenAnswer((_) async => mockResponse);
+      
+      final tempFile = File('test_temp_file.txt');
+      await tempFile.writeAsString('test');
+      
+      final result = await repository.uploadFile(tempFile.path);
+      expect(result, 'file123');
+      
+      await tempFile.delete();
     });
 
     group('Error Handling', () {

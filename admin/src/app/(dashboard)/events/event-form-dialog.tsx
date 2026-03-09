@@ -29,7 +29,7 @@ import {
   useEventCategories,
   useCreateEventCategory,
 } from '@/hooks/use-events';
-import type { AdminEvent, CreateEventDto, UpdateEventDto } from '@/types';
+import type { AdminEvent } from '@/types';
 
 interface Props {
   open: boolean;
@@ -157,10 +157,10 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
 
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, ...payload } as UpdateEventDto & { id: string });
+        await updateMutation.mutateAsync({ id: editing.id, ...payload } as any);
         toast({ title: `"${form.title}" güncellendi.` });
       } else {
-        await createMutation.mutateAsync(payload as CreateEventDto);
+        await createMutation.mutateAsync(payload as any);
         toast({ title: `"${form.title}" etkinliği eklendi.` });
       }
       onClose();

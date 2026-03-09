@@ -4,8 +4,9 @@ import '../constants/api_constants.dart';
 
 class AuthInterceptor extends Interceptor {
   final StorageService _storage;
+  final Dio? _refreshDio;
 
-  AuthInterceptor(this._storage);
+  AuthInterceptor(this._storage, {Dio? refreshDio}) : _refreshDio = refreshDio;
 
   @override
   void onRequest(
@@ -53,7 +54,7 @@ class AuthInterceptor extends Interceptor {
 
     try {
       // Attempt token refresh
-      final dio = Dio(BaseOptions(
+      final dio = _refreshDio ?? Dio(BaseOptions(
         baseUrl: ApiConstants.devBaseUrl,
         connectTimeout:
             const Duration(milliseconds: ApiConstants.connectTimeoutMs),

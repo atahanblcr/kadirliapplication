@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import '../network/dio_client.dart';
@@ -53,9 +54,10 @@ class FcmTokenManager {
       final dio = DioClient().dio;
 
       final response = await dio.post(
-        '/notifications/token',
+        '/notifications/fcm-token',
         data: {
-          'token': token,
+          'fcm_token': token,
+          'device_type': Platform.isIOS ? 'ios' : 'android',
         },
       );
 

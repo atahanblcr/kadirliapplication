@@ -1,44 +1,43 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 4 Mart 2026
-**Durum:** ✅ Backend: 1045+ Unit, 28 E2E tests PASS — ✅ Admin Panel: 0 Lint Errors — 📱 Flutter: 90% (Business Logic Coverage: %85.5 ✅)
+**Son Güncelleme:** 9 Mart 2026
+**Durum:** ✅ Backend: 1045+ Unit, 28 E2E tests PASS — ✅ Admin Panel: 0 Lint Errors — 📱 Flutter: 100% Completed (Business Logic Coverage: %88.0 ✅)
 
 ---
 
-## 🎯 SON YAPILAN İŞ: Sistem Genel Temizliği ve Doğrulama
+## 🎯 SON YAPILAN İŞ: Transport ve Notifications Modüllerinin Eklenmesi ve Kapsamlı Test Edilmesi
 
-### ✅ COMPLETED: Backend E2E Test Onarımı
-- **Veritabanı Kimlik Doğrulama:** `.env.test` dosyasındaki kullanıcı yetkileri Docker Postgres ile eşleştirildi.
-- **Şema Senkronizasyonu:** `kadirliapp_test` veritabanı manuel olarak dev şemasıyla eşitlendi (Dump/Restore).
-- **Admin Tohumlama (Seeding):** Testlerin ihtiyaç duyduğu Admin kullanıcısı (admin@kadirliapp.com) şifre hash'i ile birlikte test DB'sine eklendi.
-- **Sonuç:** 28/28 E2E testi başarıyla geçti.
+### ✅ COMPLETED: Transport (Ulaşım) Modülü
+- `GET /transport/intercity` ve `GET /transport/intracity` endpointleri için Repository ve Provider katmanları oluşturuldu.
+- `TransportPage` ve sekmeli yapı (Şehir İçi / Şehirlerarası) geliştirildi.
+- Backend Admin panel üzerinden sahte ulaşım verileri eklendi, mobilden public endpoint vasıtasıyla başarılı bir şekilde çekildiği (Uçtan uca - E2E) test edildi.
+- Mobil UI için saat verilerinden (örn: 08:00:00) saniyelerin kırpılarak (substring) kullanıcıya "08:00" formatında gösterilmesi sağlandı.
+- Hata senaryoları dahil (DioException) tüm birim testleri (Unit Tests) yazıldı.
 
-### ✅ COMPLETED: Admin Panel Lint ve Tip Temizliği
-- **Hata Sayısı:** 65 Error -> 0 Error.
-- **Cascading Renders:** `useEffect` içindeki senkron `setState` çağrıları React 18+ standartlarına (adjusting state based on props) uygun hale getirildi.
-- **TypeScript `any`:** Tüm kilit hook'lar ve catch bloklarındaki `any` kullanımları `unknown` ve güvenli casting ile değiştirildi.
-- **Boş Interface'ler:** `@typescript-eslint/no-empty-object-type` kuralına takılan interface'ler tip alias'larına çevrildi.
+### ✅ COMPLETED: Notifications (Bildirimler) Modülü
+- `GET /notifications`, okundu işaretleme ve `fcm-token` güncelleme işlemleri entegre edildi.
+- `NotificationsPage` UI ekranı yapıldı (Pagination ve unread badge desteği eklendi).
+- Firebase Cloud Messaging token gönderim endpointi `POST /notifications/fcm-token` olarak güncellendi ve `device_type` paramı eklendi.
+- Hata fırlatma ve token yenileme dahil tüm repository testleri başarıyla kodlandı.
 
-### ✅ COMPLETED: Flutter Test Kapsamı (%85.5)
-- Repository, Model ve Provider katmanları için 236 birim testi yazıldı.
-- `DioClient` ve `AuthInterceptor` mantığı doğrulandı.
-- Generated dosyalar hariç tutularak yüksek güvenilirlik sağlandı.
+### ✅ COMPLETED: İş İlanları (Jobs) ve Diğer Düzeltmeler
+- `home_provider.dart` içinden hatalı eklenen "İş İlanları" modülü UI'dan temizlendi. Backend'deki "jobs" klasörünün Cron görevleri olduğu doğrulandı.
+- `AuthInterceptor` üzerindeki 401 token yenileme (refresh token) senaryosu test edildi.
+- `Ads`, `Events` ve `Places` modüllerindeki eski/eksik model map'leme testleri güncellendi ve onarıldı.
 
 ---
 
 ## 📊 GÜNCEL TEST DURUMU
 
-| Platform | Test Tipi | Durum | Başarı |
-|----------|-----------|-------|--------|
-| Backend  | Unit      | ✅ PASS | 1045 / 1045 |
-| Backend  | E2E       | ✅ PASS | 28 / 28 |
-| Admin    | Lint      | ✅ CLEAN | 0 Error, 40 Warning |
-| Flutter  | Unit      | ✅ PASS | 236 / 236 (%85.5 Cov) |
+| Platform | Test Tipi | Durum | Başarı | Ekstra Bilgi |
+|----------|-----------|-------|--------|--------------|
+| Backend  | Unit      | ✅ PASS | 1045 / 1045 | Coverage %78.8 |
+| Backend  | E2E       | ✅ PASS | 28 / 28 | |
+| Admin    | Lint      | ✅ CLEAN | 0 Error | |
+| Flutter  | Unit      | ✅ PASS | 272 / 272 | **Coverage: %88.0** (Generated dosyalar hariç iş mantığı) |
 
 ---
 
 ## 🔴 SONRAKİ ADIMLAR
-1. **📱 Flutter: Transport (Ulaşım)** modülünün kodlanması ve testi.
-2. **📱 Flutter: Jobs (İş İlanları)** modülünün kodlanması ve testi.
-3. **📱 Flutter: Notifications (Bildirimler)** modülünün kodlanması ve testi.
-4. **🚀 Üretim Hazırlığı:** NGINX, PM2 ve SSL konfigürasyonu.
+1. **🚀 Üretim Hazırlığı:** NGINX, PM2 ve SSL konfigürasyonu.
+2. **📱 Uygulama Yayını:** App Store & Play Store hazırlıkları (Simge, Splash Screen, vs.)

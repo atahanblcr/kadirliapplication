@@ -5,15 +5,15 @@ import 'package:kadirliapp/features/home/presentation/providers/home_provider.da
 
 void main() {
   group('moduleListProvider', () {
-    test('returns a list of 12 module items', () {
+    test('returns a list of 11 module items', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final modules = container.read(moduleListProvider);
 
-      expect(modules.length, 12);
+      expect(modules.length, 11);
       expect(modules[0].key, 'announcements');
-      expect(modules[11].key, 'notifications');
+      expect(modules[10].key, 'notifications');
     });
 
     test('ModuleItem has correct properties', () {

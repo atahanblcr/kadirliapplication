@@ -12,11 +12,12 @@ class TaxiRepository {
   Future<List<TaxiDriverModel>> getDrivers() async {
     try {
       final response = await _datasource.getDrivers();
-      final data = response['drivers'] as List?;
-      if (data == null) return [];
+      final data = response['data'] as Map<String, dynamic>? ?? {};
+      final driversData = data['drivers'] as List?;
+      if (driversData == null) return [];
       
       return List<TaxiDriverModel>.from(
-        data.map((d) => TaxiDriverModel.fromJson(d as Map<String, dynamic>)),
+        driversData.map((d) => TaxiDriverModel.fromJson(d as Map<String, dynamic>)),
       );
     } on DioException catch (_) {
       rethrow;

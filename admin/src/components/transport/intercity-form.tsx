@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
-import type { IntercityRoute, CreateIntercityRouteDto } from '@/types';
+import type { IntercityRoute } from '@/types';
 import { useCreateIntercityRoute, useUpdateIntercityRoute } from '@/hooks/use-intercity';
 
 const TURKISH_CITIES = [
@@ -145,7 +145,7 @@ export function IntercityForm({ open, onClose, editRoute }: IntercityFormProps) 
         await updateRoute.mutateAsync({ id: editRoute.id, ...payload });
         toast.success('Hat güncellendi');
       } else {
-        await createRoute.mutateAsync(payload as CreateIntercityRouteDto);
+        await createRoute.mutateAsync(payload as any);
         toast.success('Hat oluşturuldu');
       }
       onClose();
