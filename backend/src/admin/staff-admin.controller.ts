@@ -32,7 +32,7 @@ export class StaffAdminController {
   // GET /admin/staff
   @Get()
   async getStaffList(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Query() dto: QueryStaffDto,
   ) {
     return this.staffAdminService.getStaffList(requestingUserId, dto);
@@ -47,7 +47,7 @@ export class StaffAdminController {
   // POST /admin/staff
   @Post()
   async createStaff(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Body() dto: CreateAdminStaffDto,
   ) {
     return this.staffAdminService.createStaff(requestingUserId, dto);
@@ -56,7 +56,7 @@ export class StaffAdminController {
   // PATCH /admin/staff/:id
   @Patch(':id')
   async updateStaff(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateAdminStaffDto,
   ) {
@@ -66,7 +66,7 @@ export class StaffAdminController {
   // PATCH /admin/staff/:id/permissions
   @Patch(':id/permissions')
   async updateStaffPermissions(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateAdminPermissionsDto,
   ) {
@@ -77,7 +77,7 @@ export class StaffAdminController {
   @Delete(':id')
   @HttpCode(204)
   async deleteStaff(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     await this.staffAdminService.deactivateStaff(requestingUserId, id);
@@ -86,7 +86,7 @@ export class StaffAdminController {
   // PATCH /admin/staff/:id/reset-password
   @Patch(':id/reset-password')
   async resetStaffPassword(
-    @CurrentUser('user_id') requestingUserId: string,
+    @CurrentUser('id') requestingUserId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ResetStaffPasswordDto,
   ) {

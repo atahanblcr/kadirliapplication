@@ -1,47 +1,38 @@
 # KadirliApp Flutter Mobile App
 
-Flutter 3.x + Riverpod + Dio ile geliştirilmiş iOS & Android mobile uygulaması.
+Flutter + Riverpod + Dio ile geliştirilmiş iOS & Android mobil uygulaması.
 
-**Status:** 30% Complete (Auth + Home + Announcements modules)
-**Platforms:** iOS 14+ | Android 7+ (API 24+)
+**Durum:** 14 modül tamamlandı (commit `eba423c`: "100% module completion, 88% test coverage")
+**Platformlar:** iOS 14+ | Android (minimum API belirtilmemiş)
 
 ---
 
 ## 📋 Hızlı Başlangıç
 
 ### Gereksinimler
-- Flutter SDK 3.x (FVM recommended)
-- Xcode 15+ (macOS için iOS development)
-- Android Studio + Android SDK (Android development)
-- Backend API running at `http://localhost:3000/v1`
+- Flutter SDK >=3.13.0, Dart >=3.0.0 <4.0.0
+- Xcode 15+ (iOS development, macOS)
+- Android Studio + Android SDK
+- Backend API çalışıyor olmalı
 
 ### Kurulum
 
 ```bash
-# Bağımlılıkları yükle
 flutter pub get
 
-# Build runner (code generation)
+# Code generation (freezed, json_serializable, riverpod_generator, hive_generator)
 flutter pub run build_runner build --delete-conflicting-outputs
 
-# iOS Pod install
 cd ios && pod install && cd ..
 ```
 
 ### Çalıştırma
 
 ```bash
-# Development mode (all platforms)
-flutter run
-
-# iOS simulator
-flutter run -d iPhone
-
-# Android emulator
-flutter run -d emulator
-
-# Web (experimental)
-flutter run -d chrome
+flutter run                  # Bağlı cihaz/emülatör
+flutter run -d iPhone        # iOS simulator
+flutter run -d emulator      # Android emulator
+flutter run -d chrome        # Web (deneysel, resmi destek yok)
 ```
 
 ---
@@ -49,104 +40,35 @@ flutter run -d chrome
 ## 🧪 Testing
 
 ```bash
-# Unit tests
 flutter test
-
-# Widget tests
-flutter test test/widget_test.dart
-
-# Integration tests (requires real device/emulator)
-flutter drive --target=integration_test/app_test.dart
 ```
 
----
-
-## 📱 Tamamlanan Modüller (3/16)
-
-### ✅ Auth Module (100%)
-- **Features:**
-  - Phone number registration (05550000000 format)
-  - OTP verification (dev: 123456)
-  - Auto-registration with profile data
-  - JWT token management (access + refresh)
-  - Auto token refresh on expiry
-  - Logout
-- **Files:**
-  - `lib/features/auth/data/models/` — Auth & user response models
-  - `lib/features/auth/data/repositories/` — Auth API client
-  - `lib/features/auth/presentation/providers/` — Riverpod providers
-  - `lib/features/auth/presentation/pages/` — Login, OTP, Register pages
-  - `lib/features/auth/presentation/widgets/` — Reusable widgets
-- **State Management:** StateNotifierProvider + Riverpod
-- **Validation:** Custom validators (phone, OTP, password)
-- **Storage:** SharedPreferences for tokens + user data
-- **Error Handling:** Custom exceptions + user-friendly messages
-- **Tested:** ✅ iOS Simulator & Android Emulator
-
-### ✅ Home Module (100%)
-- **Features:**
-  - 12-module grid (2 columns, square cards)
-  - Greeting header with username + neighborhood
-  - AppBar with notification bell + user avatar
-  - User popup menu (Profile, Settings, Logout)
-  - BottomNavigationBar (4 tabs: Home, Ads, Favorites, Profile)
-  - Tab navigation with IndexedStack
-  - Module cards with icons and colors
-  - Placeholder tabs for unimplemented sections
-- **Files:**
-  - `lib/features/home/presentation/pages/home_page.dart`
-  - `lib/features/home/presentation/widgets/` — Module card, greeting, user menu
-  - `lib/features/home/presentation/providers/home_provider.dart`
-- **Design:** Material Design 3
-- **Icons:** Material Icons
-- **Tested:** ✅ iOS Simulator & Android Emulator
-
-### ✅ Announcements Module (100%)
-- **Features:**
-  - List announcements with infinite scroll
-  - Pull-to-refresh
-  - Detail view with content
-  - PDF/external link launcher
-  - Priority badges (emergency/high/normal/low)
-  - Date formatting (Turkish locale)
-  - Viewed announcements opacity (0.65)
-  - Shimmer loading skeleton
-  - Error/empty states
-- **Files:**
-  - `lib/features/announcements/data/models/announcement_model.dart`
-  - `lib/features/announcements/data/repositories/announcement_repository.dart`
-  - `lib/features/announcements/presentation/providers/`
-  - `lib/features/announcements/presentation/pages/`
-  - `lib/features/announcements/presentation/widgets/`
-- **API Integration:**
-  - `GET /announcements` — List with pagination
-  - `GET /announcements/:id` — Detail view
-  - Pagination: `data.data.meta` (page, total, has_next)
-- **Packages:**
-  - `riverpod` — State management
-  - `dio` — HTTP client
-  - `intl` — Date/time formatting
-  - `url_launcher` — Open links/PDFs
-  - `shimmer` — Loading skeleton
-- **Tested:** ✅ iOS Simulator & Android Emulator
+**Mevcut durum:** 57 test dosyası (`test/` altında, modül bazlı: data model, repository, datasource, provider testleri). Coverage **%88 olarak commit mesajında belirtilmiş** ancak bu rakam CI tarafından üretilmiyor — proje için bir Flutter CI workflow'u yok (`.github/workflows/` içinde sadece backend ve admin pipeline'ları var). Coverage raporu (`coverage/lcov.info`) reponun bir parçası değil.
 
 ---
 
-## 🔄 İlerleyen Modüller (Planlı Sıra)
+## 📱 Modüller (14/14 Tamamlandı)
 
-### 🟡 Ads Module (Sonraki)
-- List ads with filters/search
-- Detail view with contact actions
-- Favorites management
-- Image carousel
+| Modül | Data Layer | Sayfa Sayısı | Açıklama |
+|-------|:---:|:---:|----------|
+| **auth** | ✅ | 3 | Telefon/OTP girişi, kayıt, mahalle seçimi |
+| **home** | — | 1 | 12 modüllük grid, alt navigasyon (bottom nav) |
+| **announcements** | ✅ | 2 | Duyuru listesi + detay |
+| **ads** | ✅ | 4 | İlan listesi, detay, oluşturma, düzenleme |
+| **deaths** | ✅ | 2 | Vefat ilanları listesi + detay |
+| **events** | ✅ | 2 | Etkinlik listesi + detay |
+| **campaigns** | ✅ | 2 | Kampanya listesi + detay |
+| **pharmacy** | ✅ | 1 | Nöbetçi eczane bilgisi |
+| **guide** | ✅ | 1 | Şehir rehberi |
+| **places** | ✅ | 2 | Mekan listesi + detay |
+| **taxi** | ✅ | 1 | Taksi bilgisi |
+| **transport** | ✅ | 1 | Şehirlerarası otobüs seferleri |
+| **notifications** | ✅ | 1 | FCM push bildirim akışı |
+| **profile** | — | 1 | Kullanıcı profili/ayarlar |
 
-### 🟡 Profile Module
-- User profile view + edit
-- Change password
-- Notification preferences
-- Neighborhood change
+`home` ve `profile` modüllerinin ayrı bir `data/` katmanı yok — büyük ölçüde mevcut auth/diğer provider'ları kullanan UI katmanları.
 
-### (Diğer 13 modül devam edecek...)
+> **Bilinen eksik:** Alt navigasyondaki **"Favoriler"** sekmesi şu an placeholder — ayrı bir feature modülü olarak implemente edilmemiş. Backend'de mevcut olan **complaints** (şikayet) ve **jobs** (arka plan işleri) modülleri için Flutter tarafında henüz UI yok.
 
 ---
 
@@ -155,49 +77,52 @@ flutter drive --target=integration_test/app_test.dart
 ```
 lib/
 ├── core/
-│   ├── constants/          - API constants, colors, spacing
-│   ├── network/            - Dio client with interceptors
-│   ├── storage/            - SharedPreferences wrapper
-│   ├── exceptions/         - Custom exception classes
-│   └── validators/         - Input validation methods
+│   ├── constants/          - API constants, renkler, spacing
+│   ├── network/            - DioClient (platform bazlı base URL, interceptor'lar)
+│   ├── storage/            - SharedPreferences / Hive / FlutterSecureStorage wrapper'ları
+│   ├── exceptions/         - Custom exception sınıfları
+│   └── validators/         - Input validasyonları
 ├── features/
-│   ├── auth/
-│   │   ├── data/
-│   │   │   ├── datasources/  - API calls
-│   │   │   ├── models/       - Response models
-│   │   │   └── repositories/ - Repository pattern
-│   │   └── presentation/
-│   │       ├── pages/        - Full-screen pages
-│   │       ├── widgets/      - Reusable widgets
-│   │       └── providers/    - Riverpod providers
-│   ├── home/               - Similar structure
-│   ├── announcements/      - Similar structure
-│   └── [other-modules]/    - Similar structure
-├── app.dart                - Root widget + routing
-└── main.dart               - Entry point
+│   └── [module]/
+│       ├── data/
+│       │   ├── datasources/   - API çağrıları
+│       │   ├── models/        - Response modelleri
+│       │   └── repositories/  - Repository pattern
+│       └── presentation/
+│           ├── pages/         - Tam ekran sayfalar
+│           ├── widgets/       - Yeniden kullanılabilir widget'lar
+│           └── providers/     - Riverpod provider'ları
+├── app.dart                - Root widget + _AuthGate (splash/login/home yönlendirmesi)
+└── main.dart                - Entry point (Storage, DioClient, Firebase, FCM init)
 
 test/
-├── features/               - Feature-specific tests
-└── core/                   - Core utility tests
+├── core/                   - Core utility testleri
+└── features/               - Modül bazlı testler (57 dosya)
 ```
+
+### Routing
+
+**go_router yok** — manuel `Navigator` tabanlı yönlendirme:
+- `app.dart` içindeki `_AuthGate`, auth durumuna göre Splash / `PhoneInputPage` / `HomePage` gösterir.
+- Ana ekranda `IndexedStack` ile 4 sekme: Ana Sayfa, İlanlar, Favoriler (placeholder), Profil.
+- Liste → detay geçişleri `Navigator.push()` ile yapılır, named route veya deep linking yok.
 
 ---
 
 ## 🔌 API Integration
 
-### Platform-Specific URLs
+### Platform Bazlı Base URL (`lib/core/network/dio_client.dart`)
 ```dart
-// Android Emulator
+// Android emulator
 http://10.0.2.2:3000/v1
 
-// iOS Simulator
-http://localhost:3000/v1
+// iOS simulator
+http://127.0.0.1:3000/v1
 
-// Real Device
+// Production
 https://api.kadirliapp.com/v1
 ```
-
-**Auto-detection:** Platform.isIOS / Platform.isAndroid
+Seçim `Platform.isIOS` / `Platform.isAndroid` ile otomatik yapılır, environment dosyasına gerek yoktur. Timeout: 30 saniye (connect/receive/send).
 
 ### Response Format
 ```json
@@ -205,209 +130,132 @@ https://api.kadirliapp.com/v1
   "success": true,
   "data": {
     "announcements": [...],
-    "meta": {
-      "page": 1,
-      "total": 50,
-      "total_pages": 3,
-      "has_next": true,
-      "has_prev": false
-    }
+    "meta": { "page": 1, "total": 50, "total_pages": 3, "has_next": true, "has_prev": false }
   },
-  "meta": {
-    "timestamp": "2026-02-27T10:00:00Z",
-    "path": "/announcements"
-  }
+  "meta": { "timestamp": "2026-02-27T10:00:00Z", "path": "/announcements" }
 }
 ```
-
-### Dio Client
-- **Base URL:** Platform-specific (auto-detected)
-- **Timeout:** 30 seconds
-- **Interceptors:** JWT token injection, error handling
-- **Token Refresh:** Auto-refresh on 401
 
 ---
 
 ## 🔐 Authentication
 
-### Login Flow
-1. User enters phone number
-2. Request OTP via `POST /auth/request-otp`
-3. Verify OTP via `POST /auth/verify-otp` → get `temp_token`
-4. Register via `POST /auth/register` → get `access_token` + `refresh_token`
-5. Token stored in SharedPreferences
-6. All subsequent requests include JWT header
+1. Telefon numarası girilir
+2. `POST /auth/request-otp` ile OTP istenir
+3. `POST /auth/verify-otp` ile doğrulanır → temp token döner
+4. `POST /auth/register` ile kayıt tamamlanır → `access_token` + `refresh_token`
+5. Token'lar SharedPreferences'ta saklanır, JWT süresi dolunca otomatik refresh denenir
 
-### Token Management
-- **Storage:** SharedPreferences
-- **Auto-Refresh:** On token expiry
-- **Logout:** Clear tokens + navigate to login
-
-### Development
-- **OTP:** Always `123456` (hardcoded in backend for dev)
-- **Test Phone:** `05551234567`
+**Development:** `OTP_DEV_MODE=true` iken backend her zaman `123456` kodunu kabul eder.
 
 ---
 
-## 📦 Önemli Packages
+## 📦 Önemli Bağımlılıklar (pubspec.yaml)
 
 ```yaml
 # State Management
-riverpod: ^2.0
+flutter_riverpod: ^2.4.0
+riverpod_annotation: ^2.3.0
 
-# HTTP Client
-dio: ^5.3.1
+# HTTP
+dio: ^5.4.0
 
-# Local Storage
-shared_preferences: ^2.2.0
+# Storage
+shared_preferences: ^2.2.2     # JWT token
+hive: ^2.2.3 / hive_flutter: ^1.1.0   # local cache
+flutter_secure_storage: ^10.0.0       # hassas veri
 
-# Localization
-intl: ^0.19.0
+# Firebase
+firebase_core: ^4.0.0
+firebase_messaging: ^16.1.1
+# flutter_local_notifications: yorum satırında — Android API 33+ gerektiriyor
 
-# Firebase (Push Notifications)
-firebase_core: ^2.x
-firebase_messaging: ^14.x
+# UI / Medya
+cached_network_image: ^3.3.0
+shimmer: ^3.0.0
+pull_to_refresh: ^2.0.0
+image_picker: ^1.0.5 / flutter_image_compress: ^2.1.0 / photo_view: ^0.15.0
 
-# UI Components
-material_design_icons_flutter: ^7.0
+# Harita/Konum
+google_maps_flutter: ^2.5.0
+geolocator: ^14.0.2
 
-# Image Handling
-cached_network_image: ^3.3
+# Diğer
+intl: ^0.20.2
+intl_phone_field: ^3.2.0 / sms_autofill: ^2.3.0
+url_launcher: ^6.2.2 / share_plus: ^12.0.1
+email_validator: ^3.0.0
+table_calendar: ^3.0.9
+flutter_spinkit: ^5.2.0
+freezed_annotation: ^2.4.1 / json_annotation: ^4.8.1
 
-# URL Launcher
-url_launcher: ^6.2
-
-# Loading Skeleton
-shimmer: ^3.0
-
-# JSON Serialization
-freezed: ^2.x (optional)
-json_serializable: ^6.x (optional)
+# Dev
+mocktail: ^1.0.4
+build_runner: ^2.4.7
+riverpod_generator / hive_generator / freezed / json_serializable
 ```
 
----
-
-## 🎨 Design System
-
-### Colors
-- **Primary:** Material Blue (0xFF2196F3)
-- **Secondary:** Material Purple (0xFF8E24AA)
-- **Success:** Material Green (0xFF4CAF50)
-- **Error:** Material Red (0xFFF44336)
-- **Background:** White/Grey
-
-### Spacing
-- **xs:** 4px
-- **sm:** 8px
-- **md:** 16px (default)
-- **lg:** 24px
-- **xl:** 32px
-
-### Typography
-- **Body:** Roboto (default)
-- **Sizes:** 12sp (small) → 24sp (large)
+> Not: `pubspec.yaml`'da `assets:`/`fonts:` blokları henüz yorum satırında — özel font/asset paketlemesi yapılmadı.
 
 ---
 
 ## 🚀 Build & Release
 
-### iOS Build
+### iOS
 ```bash
-# Development build
 flutter build ios --mode=debug
-
-# Production build
-flutter build ios --mode=release --obfuscate --split-debug-info=build/app/outputs/symbols
-
-# Archive for App Store
-flutter build ios --release
-# Open in Xcode: open ios/Runner.xcworkspace/
+flutter build ios --release --obfuscate --split-debug-info=build/app/outputs/symbols
+# App Store için: open ios/Runner.xcworkspace/
 ```
+Minimum iOS hedefi: 14.0 (`ios/Podfile`).
 
-### Android Build
+### Android
 ```bash
-# Development build
 flutter build apk --mode=debug
-
-# Release build (unsigned)
 flutter build apk --mode=release
-
-# Release bundle (Google Play)
 flutter build appbundle --release
 ```
 
-### Code Quality
+### Kod Kalitesi
 ```bash
-# Analyze code
 flutter analyze
-
-# Format code
 dart format lib/
-
-# Check dependencies
 flutter pub outdated
 ```
 
 ---
 
-## 🔗 Firebase Cloud Messaging (FCM)
+## 🔗 Firebase Cloud Messaging
 
-### Setup Complete ✅
-- Android: `google-services.json` configured
-- iOS: `GoogleService-Info.plist` configured
-- Backend: Firebase credentials loaded
-- Flutter: `firebase_messaging` integrated
+- Android: `google-services.json` yapılandırıldı
+- iOS: `GoogleService-Info.plist` Xcode'a eklendi, `FirebaseAppDelegateProxyEnabled = false`
+- Foreground/background mesaj handler'ları (`FirebaseMessagingService`) implemente edildi
+- Token kaydı `notifications` modülünde otomatik backend'e senkronize edilir
 
-### Token Registration
-```dart
-// Auto-handled by auth module
-// Token synced with backend on registration
-```
+Detaylar: `IOS_FIREBASE_SETUP.md`, `SETUP_INSTRUCTIONS.md`
 
 ---
 
-## 🐛 Known Limitations
+## 🐛 Bilinen Kısıtlar
 
-- **Android Emulator:** Browser limited (native restriction)
-- **Web Platform:** Experimental support only
-- **Real Device:** Requires backend certificate pinning setup
+- **Favoriler sekmesi** henüz gerçek bir feature değil (placeholder UI).
+- **complaints** ve **jobs** modülleri backend'de var, Flutter tarafında UI yok.
+- **CI/CD yok** — testler ve coverage manuel çalıştırılıyor, GitHub Actions'a bağlı değil.
+- **Web platformu** deneysel, resmi destek hedefi değil.
+- `flutter_local_notifications` Android API 33+ gerektirdiği için pubspec'te devre dışı.
 
 ---
 
 ## 🔗 Referanslar
 
-- **FLUTTER_SETUP_PLAN.md** — 4-week development roadmap
-- **SKILLS/flutter-auth.md** — Auth architecture
-- **SKILLS/flutter-list-detail.md** — List/detail patterns
-- **API Endpoints:** `/docs/04_API_ENDPOINTS_MASTER.md`
+- `SETUP_INSTRUCTIONS.md` — kurulum adımları
+- `IOS_FIREBASE_SETUP.md` — iOS Firebase yapılandırması
+- `SKILLS/flutter-auth.md`, `SKILLS/flutter-list-detail.md`, `SKILLS/flutter-ui.md`, `SKILLS/flutter-ads.md`
+- API: `/docs/04_API_ENDPOINTS_MASTER.md`
 
 ---
 
-## 📊 Module Progress
-
-| Module | Status | Completion | iOS | Android |
-|--------|--------|-----------|-----|---------|
-| Auth | ✅ | 100% | ✅ | ✅ |
-| Home | ✅ | 100% | ✅ | ✅ |
-| Announcements | ✅ | 100% | ✅ | ✅ |
-| Ads | ✅ | 100% | ✅ | ✅ |
-| Deaths | ✅ | 100% | ✅ | ✅ |
-| Profile | 🟡 | 0% | ⏳ | ⏳ |
-| Campaigns | 🟡 | 0% | ⏳ | ⏳ |
-| Events | 🟡 | 0% | ⏳ | ⏳ |
-| Guide | 🟡 | 0% | ⏳ | ⏳ |
-| Places | 🟡 | 0% | ⏳ | ⏳ |
-| Pharmacy | 🟡 | 0% | ⏳ | ⏳ |
-| Transport | 🟡 | 0% | ⏳ | ⏳ |
-| Taxi | 🟡 | 0% | ⏳ | ⏳ |
-| Jobs | 🟡 | 0% | ⏳ | ⏳ |
-| Notifications | 🟡 | 0% | ⏳ | ⏳ |
-| Complaints | 🟡 | 0% | ⏳ | ⏳ |
-
----
-
-**Framework:** Flutter 3.x
-**Language:** Dart
-**State Management:** Riverpod + StateNotifier
-**API Client:** Dio with JWT auth
-**Backend:** NestJS 10 + PostgreSQL
+**Framework:** Flutter (Dart >=3.0.0)
+**State Management:** Riverpod
+**API Client:** Dio
+**Backend:** NestJS 11 + PostgreSQL

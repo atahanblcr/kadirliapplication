@@ -90,6 +90,9 @@ describe('TransportAdminService', () => {
       set: jest.fn().mockReturnThis(),
       execute: jest.fn(),
     };
+    intracityStopRepository.manager = {
+      transaction: jest.fn((cb: any) => cb(intracityStopRepository)),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

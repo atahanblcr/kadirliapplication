@@ -434,32 +434,34 @@ export class TransportAdminService {
       return { stop: this.mapIntracityStop(stop) };
     }
 
-    if (new_order > old_order) {
-      await this.intracityStopRepository
-        .createQueryBuilder()
-        .update(IntracityStop)
-        .set({ stop_order: () => 'stop_order - 1' })
-        .where('route_id = :routeId AND stop_order > :old AND stop_order <= :new', {
-          routeId,
-          old: old_order,
-          new: new_order,
-        })
-        .execute();
-    } else {
-      await this.intracityStopRepository
-        .createQueryBuilder()
-        .update(IntracityStop)
-        .set({ stop_order: () => 'stop_order + 1' })
-        .where('route_id = :routeId AND stop_order >= :new AND stop_order < :old', {
-          routeId,
-          new: new_order,
-          old: old_order,
-        })
-        .execute();
-    }
+    await this.intracityStopRepository.manager.transaction(async (manager) => {
+      if (new_order > old_order) {
+        await manager
+          .createQueryBuilder()
+          .update(IntracityStop)
+          .set({ stop_order: () => 'stop_order - 1' })
+          .where('route_id = :routeId AND stop_order > :old AND stop_order <= :new', {
+            routeId,
+            old: old_order,
+            new: new_order,
+          })
+          .execute();
+      } else {
+        await manager
+          .createQueryBuilder()
+          .update(IntracityStop)
+          .set({ stop_order: () => 'stop_order + 1' })
+          .where('route_id = :routeId AND stop_order >= :new AND stop_order < :old', {
+            routeId,
+            new: new_order,
+            old: old_order,
+          })
+          .execute();
+      }
 
-    stop.stop_order = new_order;
-    await this.intracityStopRepository.save(stop);
+      stop.stop_order = new_order;
+      await manager.save(stop);
+    });
 
     const stops = await this.getStopsWithNeighborhood(routeId);
     const mappedStop = stops.find((s) => s.id === stopId);

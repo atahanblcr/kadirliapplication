@@ -55,7 +55,7 @@ export class FilesController {
           );
         }
       },
-      limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
     }),
   )
   async uploadFile(

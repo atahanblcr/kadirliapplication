@@ -83,7 +83,7 @@ export class StaffAdminService {
 
     return {
       data: staffWithPermissions,
-      meta: getPaginationMeta(page, limit, total),
+      meta: getPaginationMeta(total, page, limit),
     };
   }
 

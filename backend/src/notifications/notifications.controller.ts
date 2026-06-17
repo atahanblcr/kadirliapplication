@@ -24,7 +24,7 @@ export class NotificationsController {
   // Bildirimleri listele
   @Get()
   async findAll(
-    @CurrentUser('user_id') userId: string,
+    @CurrentUser('id') userId: string,
     @Query() dto: QueryNotificationDto,
   ) {
     return this.notificationsService.findAll(userId, dto);
@@ -33,7 +33,7 @@ export class NotificationsController {
   // POST /notifications/read-all  (önce tanımlanmalı - :id'den önce!)
   // Tüm bildirimleri okundu işaretle
   @Post('read-all')
-  async markAllRead(@CurrentUser('user_id') userId: string) {
+  async markAllRead(@CurrentUser('id') userId: string) {
     return this.notificationsService.markAllRead(userId);
   }
 
@@ -41,7 +41,7 @@ export class NotificationsController {
   // FCM token kaydet
   @Post('fcm-token')
   async registerFcmToken(
-    @CurrentUser('user_id') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() dto: RegisterFcmTokenDto,
   ) {
     return this.notificationsService.registerFcmToken(userId, dto);
@@ -51,7 +51,7 @@ export class NotificationsController {
   // Tek bildirimi okundu işaretle
   @Patch(':id/read')
   async markRead(
-    @CurrentUser('user_id') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.notificationsService.markRead(userId, id);

@@ -12,6 +12,11 @@
 | `progress.md` | Proje ilerlemesi | Her modül bitiminde |
 | `decisions.md` | Önemli kararlar | Her karar sonrası |
 | `issues.md` | Sorunlar ve çözümler | Her sorun/çözüm |
+| `modules.md` | Backend + Admin + Flutter modüllerinin detaylı dokümantasyonu | Her modül bitiminde |
+| `deployment.md` | Deployment & DevOps checklist (Docker, CI/CD, production) | Deployment süreci değiştiğinde |
+| `API_RESPONSE_KEYS_REFERENCE.md` | Gerçek API testleriyle doğrulanmış response key/format referansı | Endpoint response formatı değiştiğinde |
+
+> Bu dosyalardaki tarih/durum bilgileri zaman içinde eskir — güncel proje durumu için önce `git log` ve kodun kendisine bakın, Memory Bank dosyalarını "o tarihte doğruydu" kaydı olarak değerlendirin.
 
 ---
 

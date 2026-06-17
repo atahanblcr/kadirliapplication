@@ -73,7 +73,7 @@ export class AdminController {
   // POST /admin/ads/:id/approve
   @Post('ads/:id/approve')
   async approveAd(
-    @CurrentUser('user_id') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminService.approveAd(adminId, id);
@@ -82,7 +82,7 @@ export class AdminController {
   // POST /admin/ads/:id/reject
   @Post('ads/:id/reject')
   async rejectAd(
-    @CurrentUser('user_id') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: RejectAdDto,
   ) {

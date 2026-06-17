@@ -1,44 +1,43 @@
 # KadirliApp - Sosyal Ağ & Toplum Hizmetleri Platformu
 
-![Version](https://img.shields.io/badge/version-1.0-blue) ![Status](https://img.shields.io/badge/status-production--ready-green) ![Coverage](https://img.shields.io/badge/coverage-78.8%25-green) ![Flutter](https://img.shields.io/badge/flutter-90%25-blue)
-
-KadirliApp, mahalle sakinleri arasında haber, ilan, etkinlik ve toplum hizmetlerini paylaşan modern bir sosyal ağ platformudur.
+KadirliApp, mahalle sakinleri arasında haber, ilan, etkinlik ve toplum hizmetlerini paylaşan bir sosyal ağ platformudur. Üç bileşenden oluşur: NestJS backend API, Next.js admin paneli ve Flutter mobil uygulama.
 
 ---
 
 ## 🎯 Proje Özeti
 
-| Bileşen | Durum | İlerleme |
-|---------|-------|----------|
-| **Backend (NestJS)** | ✅ Enterprise Ready | 100% (16 modül, 1045 unit + 28 E2E = 1073 test) |
-| **Admin Panel (Next.js)** | ✅ Tamamlandı | 100% (16 modül, 0 Lint Error, Full CRUD) |
-| **Flutter Mobile** | 🔄 Devam Ediyor | 90% (12 modül: Auth, Home, Announcements, Ads, Deaths, Events, Pharmacy, Campaigns, Guide, Places, Taxi, Profile) |
-| **Testing** | ✅ Tamamlandı | Backend: 78.8%, Flutter: 85.5% coverage | CI/CD pipeline aktif |
-| **DevOps & CI/CD** | ✅ Tamamlandı | Docker + GitHub Actions (backend-tests.yml, admin-build.yml) |
+| Bileşen | Durum | Detay |
+|---------|-------|-------|
+| **Backend (NestJS 11)** | ✅ Çalışır durumda | 15 iş modülü + admin (11 alt-servis), 1045 unit test (58 suite) + 3 E2E spec dosyası, hepsi geçiyor |
+| **Admin Panel (Next.js 16)** | ⚠️ Fonksiyonel, küçük temizlik gerekiyor | 16 modül implemente, ancak 4 ESLint hatası var ve otomatik test altyapısı yok |
+| **Flutter Mobile** | ✅ 14/14 modül tamamlandı | Auth, Home, Announcements, Ads, Deaths, Events, Campaigns, Pharmacy, Guide, Places, Taxi, Transport, Notifications, Profile — Favoriler sekmesi placeholder |
+
+> Aşağıdaki rakamlar `git log`, doğrudan kod incelemesi ve test çalıştırmalarıyla doğrulanmıştır (Haziran 2026). Alt proje README'lerindeki detaylarla senkronizedir.
 
 ---
 
 ## 📦 Teknoloji Stack'i
 
 ### Backend
-- **Framework:** NestJS 10 + TypeScript
-- **Database:** PostgreSQL 15 + TypeORM
-- **Cache:** Redis 7
-- **Job Queue:** Bull MQ
-- **Authentication:** JWT + OTP (SMS)
-- **Testing:** Jest (1045 unit test, 28 E2E test, 78.8% coverage)
+- **Framework:** NestJS 11 + TypeScript 5.7
+- **Database:** PostgreSQL 15 + TypeORM 0.3
+- **Cache/Queue:** Redis (ioredis 5) + Bull
+- **Authentication:** JWT (Passport) + OTP (SMS, dev modunda sabit kod)
+- **Testing:** Jest 30 + Supertest (1045 unit + 3 E2E test dosyası)
+- **API Prefix:** `/v1`, Swagger/OpenAPI kurulu değil
 
 ### Admin Panel
-- **Framework:** Next.js 14 (App Router)
-- **UI Library:** shadcn/ui (19 component)
-- **Styling:** Tailwind CSS 3
-- **State Management:** TanStack React Query
-- **Forms:** React Hook Form + Zod
+- **Framework:** Next.js 16 (App Router) + React 19
+- **UI:** shadcn/ui (Radix) + Tailwind CSS 4
+- **State:** TanStack React Query 5
+- **Forms:** React Hook Form 7 + Zod 4
+- **HTTP:** Axios, token'lar cookie'de saklanır
 
-### Mobile (Sonraki Aşama)
-- **Framework:** Flutter 3.x
-- **State Management:** Provider / Riverpod
-- **API Client:** Dio
+### Mobile
+- **Framework:** Flutter (Dart >=3.0.0)
+- **State Management:** Riverpod
+- **API Client:** Dio (platforma göre otomatik base URL seçimi)
+- **Push:** Firebase Cloud Messaging
 
 ---
 
@@ -47,176 +46,137 @@ KadirliApp, mahalle sakinleri arasında haber, ilan, etkinlik ve toplum hizmetle
 ### Sistem Gereksinimleri
 - Docker & Docker Compose
 - Node.js 20+
+- Flutter SDK >=3.13.0 (mobil geliştirme için)
 - Git
 
-### 1️⃣ Repository'yi Clone Et
+### 1️⃣ Backend Kurulumu
 ```bash
-git clone https://github.com/your-org/kadirliapp.git
-cd kadirliapp
-```
-
-### 2️⃣ Backend Kurulumu
-```bash
+docker-compose up -d          # PostgreSQL + Redis — repo kökünden çalıştırılır
 cd backend
-
-# Bağımlılıkları yükle
-npm install
-
-# Environment dosyasını oluştur
+npm ci
 cp .env.example .env
-
-# Docker'ı başlat (PostgreSQL + Redis)
-docker-compose up -d
-```
-
-### 3️⃣ Database Setup
-```bash
-# Migrations çalıştır
-npm run typeorm migration:run
-
-# (Opsiyonal) Seed data yükle
-npm run seed
-```
-
-### 4️⃣ Backend'i Başlat
-```bash
+npm run migration:run
+npm run seed                  # opsiyonel — seed kullanıcıları için aşağıya bakın
 npm run start:dev
 ```
+Backend: `http://localhost:3000/v1`
 
-Backend şu adreste çalışır: `http://localhost:3000`
-
-### 5️⃣ Admin Panel Kurulumu
+### 2️⃣ Admin Panel Kurulumu
 ```bash
-cd ../admin
-
-# Bağımlılıkları yükle
-npm install
-
-# Environment dosyasını oluştur
-cp .env.example .env
-
-# Development sunucusunu başlat
+cd admin
+npm ci
+# .env.local oluştur (örnek dosya repoda yok):
+#   NEXT_PUBLIC_API_URL=http://localhost:3000/v1
+#   NEXT_PUBLIC_APP_VERSION=1.0.0
 npm run dev
 ```
+Admin Panel: `http://localhost:3001`
 
-Admin Panel şu adreste çalışır: `http://localhost:3001`
+### 3️⃣ Flutter Mobile Kurulumu
+```bash
+cd flutter-app
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+cd ios && pod install && cd ..
+flutter run
+```
 
 ---
 
-## 🔐 Varsayılan Admin Kullanıcısı
+## 🔐 Seed Kullanıcıları ve Bilinen Giriş Kısıtı
 
-```
-Email: admin@kadirliapp.com
-Şifre: Admin123a
-```
+`backend/scripts/seed.ts` (`npm run seed`) şu kullanıcıları oluşturur:
 
-> ⚠️ **Uyarı:** Production'da bu kimlik bilgilerini değiştirin!
+| Rol | Telefon | Şifre |
+|-----|---------|-------|
+| SUPER_ADMIN | `+905500000001` | `Admin123!` |
+| USER (test) | `05551234567` | `User123!` |
+
+> ⚠️ Admin paneli girişi (`POST /auth/admin/login`) kullanıcıyı **email** alanına göre arar, ancak seed script'i admin kullanıcısına email atamıyor. Bu yüzden seed'den gelen admin şu an **panele giremez** — backend'de bu kullanıcıya manuel bir email atamadan admin paneli login testi yapamazsınız. Detay: `backend/README.md`.
 
 ---
 
 ## 📚 Dokümantasyon
 
-- **[Backend API Endpoints](./docs/04_API_ENDPOINTS_MASTER.md)** - 100+ endpoint (request/response örnekleri)
-- **[Database Schema](./docs/01_DATABASE_SCHEMA_FULL.sql)** - 50+ tablo, ERD diagram
-- **[Admin Panel Wireframes](./docs/05_ADMIN_PANEL_WIREFRAME_MASTER.md)** - UI tasarımları
-- **[Deployment Guide](./docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md)** - Production setup
-- **[Project Structure](./docs/09_PROJECT_STRUCTURE.md)** - Dosya organizasyonu
-- **[CLAUDE.md](./CLAUDE.md)** - Development kuralları & iş logikleri
+- **[Backend API Endpoints](./docs/04_API_ENDPOINTS_MASTER.md)**
+- **[Database Schema (ERD)](./docs/02_ERD_DIAGRAM.md)** / **[Database Documentation](./docs/03_DATABASE_DOCUMENTATION.md)**
+- **[Admin Panel Wireframes](./docs/05_ADMIN_PANEL_WIREFRAME_MASTER.md)**
+- **[Test Senaryoları](./docs/06_TEST_SCENARIOS_COMPLETE.md)**
+- **[Deployment Guide](./docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md)**
+- **[Proje Yapısı](./docs/09_PROJECT_STRUCTURE.md)**
+- **[Düzeltme/Güncelleme Notları](./docs/10_CORRECTIONS_AND_UPDATES.md)**
+- **[MEMORY_BANK/](./MEMORY_BANK/)** — Claude için süreklilik dosyaları (modüller, kararlar, deployment, sorunlar)
+- **[SKILLS/](./SKILLS/)** — Backend/Admin/Flutter için best-practice referansları
 
 ---
 
 ## 🧪 Testing
 
-### Backend Unit Tests
+### Backend
 ```bash
 cd backend
-
-# Unit testleri çalıştır (1045 test)
-npm test
-
-# E2E testleri çalıştır (28 test, real PostgreSQL)
-npm run test:e2e
-
-# Coverage raporu
-npm run test:cov
+npm test          # 58 suite, 1045 unit test
+npm run test:e2e   # 3 E2E spec dosyası, gerçek PostgreSQL kullanır
+npm run test:cov   # Coverage raporu (hedef: %75)
 ```
 
-**Sonuç:** 1045 unit test + 28 E2E test = 1073 test ✅ | 78.8% coverage
-
-### Admin Panel Tests
+### Admin Panel
 ```bash
 cd admin
-
-# Component tests (soon)
-npm run test
+npm run lint        # Şu an 4 hata + 38 uyarı veriyor
+npx tsc --noEmit     # Tip kontrolü (hatasız)
 ```
+Otomatik component/E2E testi yok (Jest/Vitest/Playwright kurulu değil).
+
+### Flutter
+```bash
+cd flutter-app
+flutter test         # 57 test dosyası
+```
+CI'a bağlı değil, coverage manuel hesaplanıyor (commit mesajında %88 olarak belirtilmiş).
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-GitHub Actions ile otomatik test ve deployment:
-
-```yaml
-.github/workflows/
-├── backend-tests.yml       # Unit + E2E tests, coverage enforcement (75% requirement)
-├── admin-build.yml         # Next.js build, type check, security audit
-└── (Production deployment: Manual trigger with artifacts)
 ```
-
-**Backend Test Suite:** 7 phases (Lint → Unit Tests → E2E Tests → Coverage → Build)
-**Admin Build Suite:** 9 phases (Lint → Type Check → Build → Security Audit)
+.github/workflows/
+├── backend-tests.yml   - Lint → Unit → E2E → Coverage (%75 zorunlu) → Build
+└── admin-build.yml     - Lint → Type Check → Build → Security Audit
+```
+**Not:** Flutter için bir CI workflow'u yok — mobil testler şu an yalnızca lokal olarak çalıştırılıyor.
 
 ---
 
 ## 📊 Proje Modülleri
 
-### Backend (16 Modül)
+### Backend (15 iş modülü + admin)
 ```
-✅ Auth              - JWT + OTP authentication
-✅ Users            - Profil, mahalle, bildirim tercihleri
-✅ Ads              - İlan oluştur, ara, favoriler, uzatma
-✅ Announcements    - Duyuru yayınla, targeting, soft delete
-✅ Deaths           - Vefat ilanları + Mezarlık/Cami CRUD
-✅ Campaigns        - Kampanya oluştur, QR kod, redemption
-✅ Pharmacy         - Nöbetçi eczane, takvim
-✅ Events           - Etkinlik reklamı (iç/dış)
-✅ Neighborhoods    - Mahalle/köy yönetimi, tür, nüfus
-✅ Taxi             - Taksi sürücü yönetimi (RANDOM sıralama)
-✅ Transport        - Otobüs/minibüs rota yönetimi
-✅ Guide            - Rehber kategorileri + hiyerarşi
-✅ Places           - İşletme yönetimi (Haversine search)
-✅ Notifications    - FCM token kayıt, bildirim yönetimi
-✅ Files            - Dosya upload/delete (multipart)
-✅ Jobs             - Arka plan işleri (schedule, queue)
-✅ Admin            - 11 domain-specific admin services (complaints, taxi, pharmacy, deaths, transport, users, events, guide, places, campaigns)
+auth · users · files · announcements · ads · deaths · campaigns
+pharmacy · events · taxi · transport · guide · places · notifications
+admin (11 domain-specific servis: campaign, complaints, deaths, event,
+       guide, pharmacy, places, staff, taxi, transport, users)
+```
+"Neighborhoods" ayrı bir modül değildir — CRUD `admin.service.ts` içindedir.
+
+### Admin Panel (16 modül)
+```
+Dashboard · Announcements · Ads · Deaths · Campaigns · Users · Pharmacy
+Transport · Neighborhoods · Taxi · Events · Guide · Places · Complaints
+Settings · Staff
 ```
 
-### Admin Panel (16 Modül - 100% Tamamlandı)
+### Flutter (14/14 modül tamamlandı)
 ```
-✅ Dashboard        - KPI, growth charts, pending approvals
-✅ Announcements    - CRUD + targeting filters
-✅ Ads              - CRUD + approval workflow
-✅ Deaths           - İlan + Cemetery + Mosque CRUD
-✅ Campaigns        - Admin CRUD + quick-add business
-✅ Users            - Ban/unban, role management
-✅ Pharmacy         - CRUD + monthly schedule calendar
-✅ Transport        - Intercity + Intracity CRUD + stops
-✅ Neighborhoods    - CRUD + type/population
-✅ Taxi             - CRUD + random ordering
-✅ Events           - CRUD + city scope filtering
-✅ Guide            - Kategori + Item CRUD, hiyerarşi yönetimi
-✅ Places           - Kategori + İşletme CRUD, fotoğraf galerisi
-✅ Complaints       - Complaint workflow + review/resolve/reject actions
-✅ Settings         - Admin settings, theme, profile management
-✅ Scrapers         - Log viewer, history (legacy module)
+Auth · Home · Announcements · Ads · Deaths · Events · Campaigns
+Pharmacy · Guide · Places · Taxi · Transport · Notifications · Profile
 ```
+Bilinen eksik: Favoriler sekmesi placeholder; complaints ve jobs modülleri için Flutter UI'ı henüz yok.
 
 ---
 
 ## 🐛 Sorun Bildirme
 
-Bir sorun bulduğunuzda:
 1. [Issues](https://github.com/your-org/kadirliapp/issues) sayfasını kontrol edin
 2. Yeni bir issue oluşturun (bug template'ı kullanın)
 3. Detaylı açıklama + adımlar + beklenen/gerçek sonuç ekleyin
@@ -225,17 +185,10 @@ Bir sorun bulduğunuzda:
 
 ## 🤝 Katkıda Bulunma
 
-Kod kontribüsyonlarına hoş geldiniz!
-
 ### Git Workflow
 ```bash
-# Yeni feature branch'i oluştur
 git checkout -b feature/feature-name
-
-# Değişiklikleri commit et
 git commit -m "feat: clear description"
-
-# PR oluştur
 git push origin feature/feature-name
 ```
 
@@ -249,104 +202,43 @@ refactor: Kod yeniden düzenleme
 ```
 
 ### Code Standards
-- TypeScript strict mode
+- TypeScript strict mode (backend + admin)
 - ESLint + Prettier
-- 80%+ test coverage
-- CLAUDE.md kurallarına uyun
+- Backend: %75+ test coverage hedefi
+- GEMINI.md kurallarına uyun (proje geliştirme kuralları/sistem promptu — bkz. not aşağıda)
 
 ---
 
 ## 📝 Environment Variables
 
-### Backend (.env)
-```env
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/kadirliapp
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-
-# Redis
-REDIS_URL=redis://localhost:6379
-REDIS_PASSWORD=
-
-# JWT
-JWT_SECRET=your-secret-key-here
-JWT_EXPIRATION=3600
-
-# OTP
-OTP_EXPIRATION_SECONDS=300
-OTP_MAX_ATTEMPTS=3
-
-# SMS (dev mode: OTP=123456)
-SMS_PROVIDER=netgsm  # netgsm | ileti365
-SMS_API_KEY=your-key
-SMS_SENDER_ID=KadirliApp
-
-# FCM
-FIREBASE_PROJECT_ID=your-project
-FIREBASE_PRIVATE_KEY=your-key
-
-# File Upload
-MAX_FILE_SIZE=20971520  # 20MB
-
-# CORS
-CORS_ORIGIN=http://localhost:3001,https://admin.kadirliapp.com
-```
-
-### Admin Panel (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-NEXT_PUBLIC_APP_VERSION=1.0.0
-```
+Her alt projenin kendi `.env.example`/`.env.local` dosyası var — gerçek değişken listeleri için:
+- Backend: `backend/README.md` → Environment Variables bölümü (`backend/.env.example`)
+- Admin: `admin/README.md` → `.env.local` bölümü (örnek dosya repoda yok)
 
 ---
 
 ## 🚢 Production Deployment
 
-### Docker ile Deploy
 ```bash
-# Backend image'ini oluştur
-cd backend
-docker build -t kadirliapp-backend:1.0 .
-
-# Admin image'ini oluştur
-cd ../admin
-docker build -t kadirliapp-admin:1.0 .
-
-# docker-compose.prod.yml ile çalıştır
+cd backend && docker build -t kadirliapp-backend:1.0 .
+cd ../admin && docker build -t kadirliapp-admin:1.0 .
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-Detaylı deployment talimatları: [DEPLOYMENT_GUIDE.md](./docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md)
-
----
-
-## 📞 İletişim & Destek
-
-- **Documentation:** [docs/](./docs/)
-- **Issues:** [GitHub Issues](https://github.com/your-org/kadirliapp/issues)
-- **Email:** support@kadirliapp.com
+Detaylı talimatlar: [docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md](./docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md)
 
 ---
 
 ## 📄 Lisans
 
-MIT License - Detaylar: [LICENSE](./LICENSE)
+Lisans dosyası repoda bulunmuyor — dağıtım/kullanım koşulları için proje sahibine danışın.
 
 ---
 
 ## 🎓 Geliştirici Rehberi
 
-Yazılım geliştiricileri için detaylı rehber:
-- Development workflow
-- Code style conventions
-- Testing strategy
-- Architecture patterns
-
-**Başla:** [CLAUDE.md](./CLAUDE.md)
+Development workflow, code style, testing strategy ve mimari kararlar için: **[GEMINI.md](./GEMINI.md)** (dosya adı GEMINI.md olsa da içeriği projenin Claude/AI geliştirme sistem promptudur — repoda ayrı bir CLAUDE.md yok).
 
 ---
 
-**Tercihen:** Backend NestJS ve Admin Next.js %100 tamamlandı. Flutter mobile app %90 tamamlandı (12 modül: Auth, Home, Announcements, Ads, Deaths, Events, Pharmacy, Campaigns, Guide, Places, Taxi, Profile). Pending: Transport, Jobs, Notifications, Favorites, Search.
-
-**Son Güncelleme:** 4 Mart 2026 | **Backend:** 1073 test ✅ | **Admin:** 0 Lint Error ✅ | **Flutter:** 85.5% coverage ✅
+**Son Güncelleme:** 18 Haziran 2026 — Backend: 1045 unit + 3 E2E test ✅ | Admin: TypeScript temiz, 4 lint hatası açık ⚠️ | Flutter: 14/14 modül tamamlandı, 57 test dosyası ✅

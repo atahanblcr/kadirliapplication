@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
+import { unlink } from 'fs/promises';
 import { FileEntity } from '../database/entities/file.entity';
 import { UploadFileDto } from './dto/upload-file.dto';
 
@@ -79,6 +80,13 @@ export class FilesService {
     }
 
     await this.fileRepository.softDelete(id);
+
+    try {
+      await unlink(file.storage_path);
+    } catch {
+      // Dosya zaten diskten silinmiş olabilir, soft delete kaydı önceliklidir
+    }
+
     return { message: 'Dosya silindi' };
   }
 }

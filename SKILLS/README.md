@@ -11,6 +11,11 @@
 | `backend-nestjs.md` | NestJS kod yazarken |
 | `testing-strategy.md` | Test yazarken |
 | `api-security.md` | API endpoint yazarken |
+| `admin-nextjs.md` | Next.js admin panel sayfası/modülü yazarken |
+| `flutter-auth.md` | Flutter OTP + JWT authentication akışı yazarken |
+| `flutter-ads.md` | Flutter ilan (ads) modülünü yazarken — bu dosyanın TEK YAZMA YETKİSİ vardır |
+| `flutter-list-detail.md` | Flutter'da read-only liste/detay sayfası (announcements, deaths, events, vb.) yazarken |
+| `flutter-ui.md` | Flutter genel tasarım/UI-UX kurallarına uyarken |
 
 ---
 

@@ -40,7 +40,7 @@ export class UsersAdminController {
   // POST /admin/users/:id/ban
   @Post(':id/ban')
   async banUser(
-    @CurrentUser('user_id') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: BanUserDto,
   ) {
@@ -50,7 +50,7 @@ export class UsersAdminController {
   // POST /admin/users/:id/unban
   @Post(':id/unban')
   async unbanUser(
-    @CurrentUser('user_id') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.usersAdminService.unbanUser(adminId, id);
@@ -59,7 +59,7 @@ export class UsersAdminController {
   // PATCH /admin/users/:id/role
   @Patch(':id/role')
   async changeUserRole(
-    @CurrentUser('user_id') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ChangeRoleDto,
   ) {

@@ -1,6 +1,6 @@
 # KadirliApp Admin Panel
 
-Next.js 14 + Tailwind CSS + shadcn/ui ile geliştirilmiş production-ready admin dashboard.
+Next.js 16 + Tailwind CSS + shadcn/ui ile geliştirilmiş admin dashboard.
 
 ---
 
@@ -8,272 +8,155 @@ Next.js 14 + Tailwind CSS + shadcn/ui ile geliştirilmiş production-ready admin
 
 ### Gereksinimler
 - Node.js 20+
-- Backend API running at `http://localhost:3000/v1`
+- Backend API çalışıyor olmalı (`http://localhost:3000/v1`)
 
 ### Kurulum
 
 ```bash
 # Bağımlılıkları yükle
 npm ci
-
-# Environment dosyası oluştur
-cp .env.example .env.local
 ```
 
-### `.env.local` Konfigürasyonu
+> Not: `.env.example` dosyası yok, sadece `.env.local` mevcut. Yeni bir ortamda çalıştırırken aşağıdaki içerikle kendi `.env.local` dosyanızı oluşturun.
+
+### `.env.local`
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000/v1
 NEXT_PUBLIC_APP_VERSION=1.0.0
 ```
 
 ### Çalıştırma
 
 ```bash
-# Development server (hot reload)
-npm run dev
-
-# Production build
-npm run build
-
-# Production mode'de çalıştır
-npm start
+npm run dev      # Development server (port 3001, hot reload)
+npm run build    # Production build
+npm start        # Production modunda çalıştır
 ```
 
 **Admin Panel:** `http://localhost:3001`
-**Login:** `admin@kadirliapp.com` / `Admin123a`
+
+### Giriş Bilgileri
+
+Panel girişi backend'deki `POST /auth/admin/login` endpoint'ine email + şifre gönderir; sabit kodlanmış bir kullanıcı yoktur. Backend'i seed ettiyseniz, seed admin kullanıcısının `email` alanı boş olduğu için **şu an panele giremez** — bkz. `backend/README.md` içindeki "Seed Kullanıcıları" notu. Giriş testi için backend tarafında bu kullanıcıya bir email atayın.
 
 ---
 
 ## 🧪 Testing
 
 ```bash
-# Component tests (coming soon)
-npm run test
-
-# Build test
-npm run build
-
-# ESLint check
-npm run lint
-
-# TypeScript type check
-npx tsc --noEmit
+npm run lint           # ESLint
+npx tsc --noEmit        # TypeScript tip kontrolü
+npm run build           # Build testi
 ```
 
----
-
-## 📦 16 Modül (100% Tamamlandı)
-
-### Core Modules
-- **Dashboard** — KPI charts, pending approvals, user stats
-- **Settings** — Theme (Light/Dark), admin profile, password change
-
-### Content Management
-- **Announcements** — Create, list, edit, delete with targeting
-- **Ads** — Approval workflow, list, detail, status management
-- **Deaths** — Death notices, cemeteries, mosques, auto-archive management
-- **Campaigns** — Create campaigns, quick-add businesses, QR codes
-- **Events** — Create, filter by city, local/external distinction
-- **Guide** — Hierarchical categories + guide items (max 2 levels)
-- **Places** — Businesses with categories, image gallery, coordinates
-
-### User & System Management
-- **Users** — Ban/unban users, role management, list with filters
-- **Neighborhoods** — Create, edit, delete neighborhoods and villages
-- **Pharmacy** — On-duty pharmacies, monthly schedule calendar
-- **Transport** — Intercity routes, intracity routes with stops
-- **Taxi** — Taxi drivers with random ordering
-- **Complaints** — Review, resolve, reject complaints with priority
-- **Scrapers** — Log viewer for scraper activities (legacy)
+**Mevcut durum (doğrulandı):**
+- TypeScript: 0 hata ✅
+- ESLint: **4 hata + 38 uyarı** — `0 lint error` iddiası şu an doğru değil.
+  - Hatalar: `src/components/transport/intercity-form.tsx` ve `intracity-form.tsx` içinde açık `any` tipi kullanımı.
+  - Uyarılar: kullanılmayan import'lar, `next/image` önerisi yerine `<img>` kullanımı (places, pharmacy, settings).
+- **Otomatik test altyapısı yok** — Jest/Vitest/Playwright kurulu değil, hiçbir `*.test.tsx`/`*.spec.tsx` dosyası yok.
 
 ---
 
-## 🎨 UI Components
+## 📦 16 Modül
 
-- **shadcn/ui:** 19+ pre-built components
-- **Tailwind CSS:** Responsive design
-- **React Hook Form:** Form management with validation
-- **TanStack React Query:** Data fetching and caching
-- **Zod:** Schema validation
+| Modül | Açıklama |
+|-------|----------|
+| **Dashboard** | KPI kartları, kullanıcı büyüme grafiği, modül kullanım grafiği, bekleyen onaylar, son aktiviteler |
+| **Ads** | İlan onay/red akışı, onaylanmış ilanlar listesi (görüntülenme, kategori, fiyat filtreleri) |
+| **Announcements** | Duyuru CRUD, tip/öncelik filtresi, hedef kitle seçimi (herkes / mahalle / kullanıcı), görüntülenme sayacı |
+| **Campaigns** | Kampanya CRUD, işletme ilişkisi, indirim oranı, geçerlilik tarihi, kupon kodu üretimi |
+| **Complaints** | Şikayet durumu (pending/reviewing/resolved/rejected), öncelik (urgent/high/medium/low), hedef tipi filtreleme |
+| **Deaths** | Vefat ilanı, mezarlık/cami yönetimi, otomatik arşivleme |
+| **Events** | Etkinlik oluşturma, şehir filtresi, yerel/dış ayrımı, kategori hiyerarşisi |
+| **Guide** | 2 seviyeli hiyerarşik kategori + rehber içeriği yönetimi |
+| **Neighborhoods** | Mahalle/köy CRUD, nüfus, koordinat, sıralama, aktif/pasif |
+| **Pharmacy** | Nöbetçi eczane, aylık takvim görünümü |
+| **Places** | İşletme dizini, kategori hiyerarşisi, fotoğraf galerisi (sürükle-bırak sıralama) |
+| **Settings** | Admin profil, şifre değiştirme, tema (açık/koyu) |
+| **Staff** | Admin/personel hesabı oluşturma, rol atama, şifre sıfırlama, hesap aktif/pasif |
+| **Taxi** | Taksi sürücü yönetimi, rastgele sıralama |
+| **Transport** | Şehirlerarası + şehir içi rota/durak yönetimi (sürükle-bırak sıralama) |
+| **Users** | Kullanıcı listesi, ban/unban, rol yönetimi |
 
-### Key Components
-- Modals/Dialogs (create, edit, confirm)
-- Data tables with pagination
-- Form builders (CRUD operations)
-- Image galleries (drag-drop reordering)
-- Calendar widgets (pharmacy schedules)
+> Eski README "Scrapers" modülünden bahsediyordu — kod tabanında bu modüle ait bir route yok (legacy/kaldırılmış). Bunun yerine **Staff** modülü mevcut ve önceki README'de hiç bahsedilmemişti.
+
+---
+
+## 🎨 UI & Kütüphaneler
+
+- **shadcn/ui** (Radix UI tabanlı) — component primitive'leri (`src/components/ui/`)
+- **TanStack React Query 5** — veri çekme/cache
+- **React Hook Form 7 + Zod 4** — form state ve validasyon
+- **Axios** — HTTP client
+- **@dnd-kit** — sürükle-bırak (transport durakları, görsel galerisi)
+- **Recharts** — dashboard grafikleri
+- **next-themes** — açık/koyu tema
+- **date-fns** — Türkçe tarih formatlama
+- **js-cookie** — token saklama
+- **sonner** — toast bildirimleri
+- **Tailwind CSS 4**
+
+### Component Yapısı
+```
+src/components/
+├── dashboard/    - kpi-cards, user-growth-chart, module-usage-chart,
+│                   quick-actions, pending-approvals, recent-activity
+├── transport/    - intercity/intracity form, detail, schedule, stop dialog'ları
+├── ui/           - shadcn/ui primitive'leri
+├── dashboard-layout.tsx, providers.tsx, sidebar.tsx, topbar.tsx
+```
+Diğer modüllere özel component'ler (ads, announcements, campaigns, vb.) merkezi bir klasörde değil, kendi `app/(dashboard)/[module]/` dizinleri içinde tutuluyor.
+
+### Hooks (18)
+`use-auth`, `use-ads`, `use-announcements`, `use-campaigns`, `use-complaints`, `use-deaths`, `use-events`, `use-guide`, `use-neighborhoods`, `use-pharmacy`, `use-places`, `use-settings`, `use-staff`, `use-taxi`, `use-users`, `use-intercity`, `use-intracity`, `use-toast` — hepsi TanStack Query üzerine kurulu.
 
 ---
 
 ## 🏗️ Proje Yapısı
 
 ```
-app/
-├── (auth)/                - Login page
-├── (dashboard)/           - Dashboard and modules
-│   ├── dashboard/         - Dashboard page
-│   ├── announcements/     - Announcements module
-│   ├── ads/               - Ads module
-│   ├── deaths/            - Deaths module
-│   ├── campaigns/         - Campaigns module
-│   ├── events/            - Events module
-│   ├── guide/             - Guide module
-│   ├── places/            - Places module
-│   ├── users/             - Users module
-│   ├── neighborhoods/     - Neighborhoods module
-│   ├── pharmacy/          - Pharmacy module
-│   ├── transport/         - Transport module
-│   ├── taxi/              - Taxi module
-│   ├── complaints/        - Complaints module
-│   └── settings/          - Settings page
-├── api/                   - API routes (auth, etc)
-└── layout.tsx             - Root layout
+src/app/
+├── (auth)/login/             - Login sayfası
+├── (dashboard)/
+│   ├── dashboard/  ads/  announcements/  campaigns/  complaints/
+│   ├── deaths/  events/  guide/  neighborhoods/  pharmacy/
+│   ├── places/  settings/  staff/  taxi/  transport/  users/
+└── layout.tsx
 
-components/
-├── ui/                    - shadcn/ui components
-├── [module]/              - Module-specific components
-└── common/                - Shared components
-
-hooks/
-├── use-auth.ts            - Auth hook
-├── use-[module].ts        - Module hooks (mutations/queries)
-└── use-settings.ts        - Settings hook
-
-types/
-├── index.ts               - Type definitions
-├── api.ts                 - API response types
-
-lib/
-├── api-client.ts          - API client with headers
-├── validators.ts          - Zod schemas
-└── utils.ts               - Helper functions
+src/hooks/        - Modül başına veri hook'u (yukarıdaki liste)
+src/components/   - dashboard/, transport/, ui/, layout component'leri
+src/lib/          - api client, validators, utils
 ```
 
 ---
 
 ## 🔒 Authentication
 
-### Login Flow
-1. User enters email + password
-2. Backend returns JWT token
-3. Token stored in localStorage
-4. Automatically added to all API requests
-5. Auto-logout on 401 Unauthorized
-
-### Default Credentials
-```
-Email: admin@kadirliapp.com
-Password: Admin123a
-```
-
----
-
-## 📡 API Integration
-
-### Base URL
-```
-http://localhost:3000/v1
-```
-
-### API Client
-- **Library:** Axios
-- **Auth:** JWT Bearer Token (localStorage)
-- **Error Handling:** Global interceptors
-- **Response Format:** Consistent with backend
-
-### Response Structure
-```json
-{
-  "success": true,
-  "data": {
-    "items": [...],
-    "meta": {
-      "page": 1,
-      "total": 50,
-      "total_pages": 3,
-      "has_next": true,
-      "has_prev": false
-    }
-  },
-  "meta": {
-    "timestamp": "2026-02-27T10:00:00Z",
-    "path": "/announcements"
-  }
-}
-```
-
----
-
-## 🎯 Key Features
-
-### Dashboard
-- KPI cards (total users, announcements, pending approvals)
-- Growth charts (last 30 days)
-- Pending items (ads awaiting approval, etc.)
-
-### CRUD Operations
-- **Create:** Forms with validation (Zod)
-- **Read:** Tables with pagination and filters
-- **Update:** Edit modals with pre-filled data
-- **Delete:** Soft delete with confirmation
-
-### Advanced Features
-- **Image Management:** Upload, crop, drag-drop reordering
-- **Category Hierarchy:** Parent-child relationships with circular-ref protection
-- **Schedule Management:** Calendar view for pharmacy duties
-- **Drag-Drop:** Transport stops reordering
-- **Search & Filter:** Full-text search, multi-select filters
-- **Status Workflows:** Approval states, priority levels
-
----
-
-## 🌓 Theme Management
-
-```bash
-# Light mode (default)
-# Dark mode (next-themes)
-```
-
-Setting is persisted in localStorage and synced across tabs.
+### Login Akışı
+1. Kullanıcı email + şifre girer (Zod ile client-side validasyon)
+2. `POST /auth/admin/login`'e istek atılır
+3. Yanıt: `access_token`, `refresh_token`, `user`
+4. Token'lar **cookie'de** saklanır (`sameSite=strict`) — localStorage değil
+5. Axios interceptor her isteğe token ekler
+6. 401 yanıtında otomatik logout
 
 ---
 
 ## 🚀 Deployment
 
-### Build for Production
 ```bash
 npm run build
-```
-
-### Docker Build
-```bash
 docker build -t kadirliapp-admin:1.0 .
 docker run -p 3001:3000 --env-file .env.local kadirliapp-admin:1.0
 ```
 
-### Environment Variables (Production)
-```env
-NEXT_PUBLIC_API_URL=https://api.kadirliapp.com
-NEXT_PUBLIC_APP_VERSION=1.0.0
-```
-
 ### Production Checklist
-- [ ] `.env.local` with production API URL
-- [ ] Build successful (`npm run build`)
-- [ ] No TypeScript errors (`npx tsc --noEmit`)
-- [ ] ESLint passing (`npm run lint`)
-- [ ] Build size acceptable
-- [ ] All routes prerendered
-
----
-
-## 📊 Performance
-
-- **Next.js 14:** App Router (streaming, partial prerendering)
-- **Code Splitting:** Per-route code splitting
-- **Image Optimization:** next/image for responsive images
-- **Caching:** React Query with stale-while-revalidate
+- [ ] `.env.local` production `NEXT_PUBLIC_API_URL` ile güncellendi
+- [ ] `npm run build` başarılı
+- [ ] `npm run lint` — mevcut 4 hatayı düzeltmeden production'a almayın
+- [ ] `npx tsc --noEmit` hatasız
 
 ---
 
@@ -281,12 +164,11 @@ NEXT_PUBLIC_APP_VERSION=1.0.0
 
 - **API Endpoints:** `/docs/04_API_ENDPOINTS_MASTER.md`
 - **UI Wireframes:** `/docs/05_ADMIN_PANEL_WIREFRAME_MASTER.md`
-- **Development Rules:** `/CLAUDE.md`
 
 ---
 
-**Framework:** Next.js 14 (App Router)
-**UI Library:** shadcn/ui + Tailwind CSS
-**State Management:** TanStack React Query
-**Forms:** React Hook Form + Zod
+**Framework:** Next.js 16 (App Router) + React 19
+**UI:** shadcn/ui (Radix) + Tailwind CSS 4
+**State:** TanStack React Query 5
+**Forms:** React Hook Form 7 + Zod 4
 **HTTP Client:** Axios

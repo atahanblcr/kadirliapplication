@@ -17,6 +17,8 @@ yarn-error.log*
 backend/dist/
 backend/.env
 backend/coverage/
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # Next.js / Admin
 admin/.next/
