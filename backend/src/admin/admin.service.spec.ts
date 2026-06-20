@@ -1,14 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { AdminService } from './admin.service';
 import { User } from '../database/entities/user.entity';
 import { Ad } from '../database/entities/ad.entity';
-import { DeathNotice, Cemetery, Mosque } from '../database/entities/death-notice.entity';
+import {
+  DeathNotice,
+  Cemetery,
+  Mosque,
+} from '../database/entities/death-notice.entity';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import {
   IntercityRoute,
   IntercitySchedule,
@@ -23,8 +31,14 @@ import { TaxiDriver } from '../database/entities/taxi-driver.entity';
 import { Event, EventImage } from '../database/entities/event.entity';
 import { EventCategory } from '../database/entities/event-category.entity';
 import { GuideCategory, GuideItem } from '../database/entities/guide.entity';
-import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import {
+  Place,
+  PlaceCategory,
+  PlaceImage,
+} from '../database/entities/place.entity';
 import { Complaint } from '../database/entities/complaint.entity';
+
+jest.mock('bcrypt');
 
 // ─── QueryBuilder mock'ları ──────────────────────────────────────────────────
 
@@ -76,7 +90,7 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     is_active: true,
     created_at: new Date('2026-01-01'),
     ...overrides,
-  } as User);
+  }) as User;
 
 const makeAd = (overrides: Partial<Ad> = {}): Ad =>
   ({
@@ -87,7 +101,7 @@ const makeAd = (overrides: Partial<Ad> = {}): Ad =>
     created_at: new Date('2026-02-20T08:00:00Z'),
     user: makeUser(),
     ...overrides,
-  } as Ad);
+  }) as Ad;
 
 const makeDeath = (overrides: Partial<DeathNotice> = {}): DeathNotice =>
   ({
@@ -104,7 +118,7 @@ const makeDeath = (overrides: Partial<DeathNotice> = {}): DeathNotice =>
     age: 75,
     condolence_address: 'Ahmet Bey Mahallesi 123',
     ...overrides,
-  } as DeathNotice);
+  }) as DeathNotice;
 
 const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
   ({
@@ -117,7 +131,7 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     business_id: 'business-1',
     images: [],
     ...overrides,
-  } as Campaign);
+  }) as Campaign;
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -135,6 +149,8 @@ describe('AdminService', () => {
   let cemeteryRepo: any;
   let mosqueRepo: any;
   let neighborhoodRepo: any;
+  let eventRepo: any;
+  let taxiDriverRepo: any;
 
   beforeEach(async () => {
     const mockRepo = () => ({
@@ -142,6 +158,7 @@ describe('AdminService', () => {
       findOne: jest.fn(),
       count: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
       save: jest.fn(),
       create: jest.fn(),
       softDelete: jest.fn(),
@@ -162,7 +179,10 @@ describe('AdminService', () => {
         { provide: getRepositoryToken(Pharmacy), useFactory: mockRepo },
         { provide: getRepositoryToken(PharmacySchedule), useFactory: mockRepo },
         { provide: getRepositoryToken(IntercityRoute), useFactory: mockRepo },
-        { provide: getRepositoryToken(IntercitySchedule), useFactory: mockRepo },
+        {
+          provide: getRepositoryToken(IntercitySchedule),
+          useFactory: mockRepo,
+        },
         { provide: getRepositoryToken(IntracityRoute), useFactory: mockRepo },
         { provide: getRepositoryToken(IntracityStop), useFactory: mockRepo },
         { provide: getRepositoryToken(Cemetery), useFactory: mockRepo },
@@ -198,6 +218,8 @@ describe('AdminService', () => {
     cemeteryRepo = module.get(getRepositoryToken(Cemetery));
     mosqueRepo = module.get(getRepositoryToken(Mosque));
     neighborhoodRepo = module.get(getRepositoryToken(Neighborhood));
+    eventRepo = module.get(getRepositoryToken(Event));
+    taxiDriverRepo = module.get(getRepositoryToken(TaxiDriver));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -253,7 +275,10 @@ describe('AdminService', () => {
       const result = await service.getDashboard();
 
       expect(result.charts.user_growth).toHaveLength(2);
-      expect(result.charts.user_growth[0]).toEqual({ date: '2026-02-19', count: 5 });
+      expect(result.charts.user_growth[0]).toEqual({
+        date: '2026-02-19',
+        count: 5,
+      });
     });
 
     it('boş user_growth döndürmeli', async () => {
@@ -386,9 +411,12 @@ describe('AdminService', () => {
 
       await service.getAdminAds({ category_id: 'cat-uuid-1' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('ad.category_id = :category_id', {
-        category_id: 'cat-uuid-1',
-      });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'ad.category_id = :category_id',
+        {
+          category_id: 'cat-uuid-1',
+        },
+      );
     });
 
     it('user_id filtresi uygulanmalı', async () => {
@@ -455,9 +483,9 @@ describe('AdminService', () => {
     it('ilan bulunamazsa NotFoundException fırlatmalı', async () => {
       adRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.approveAd('admin-uuid', 'nonexistent')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.approveAd('admin-uuid', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -506,6 +534,406 @@ describe('AdminService', () => {
       await expect(
         service.rejectAd('admin-uuid', 'nonexistent', {
           rejected_reason: 'Spam',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── getNeighborhoods ──────────────────────────────────────────────────────
+
+  describe('getNeighborhoods', () => {
+    it('mahalle listesini ve pagination meta döndürmeli', async () => {
+      const neighborhoods = [
+        { id: 'n-1', name: 'Cumhuriyet', type: 'mahalle', is_active: true },
+      ];
+      const qb = makeSelectQb(neighborhoods);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.getNeighborhoods();
+
+      expect(qb.orderBy).toHaveBeenCalledWith('n.display_order', 'ASC');
+      expect(qb.addOrderBy).toHaveBeenCalledWith('n.name', 'ASC');
+      expect(result.neighborhoods).toEqual(neighborhoods);
+      expect(result.meta).toEqual(
+        expect.objectContaining({ total: 1, page: 1, limit: 50 }),
+      );
+    });
+
+    it('search filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods('cumhur');
+
+      expect(qb.andWhere).toHaveBeenCalledWith('n.name ILIKE :search', {
+        search: '%cumhur%',
+      });
+    });
+
+    it('type filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods(undefined, 'mahalle');
+
+      expect(qb.andWhere).toHaveBeenCalledWith('n.type = :type', {
+        type: 'mahalle',
+      });
+    });
+
+    it('is_active filtresi uygulanmalı', async () => {
+      const qb = makeSelectQb([]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods(undefined, undefined, false);
+
+      expect(qb.andWhere).toHaveBeenCalledWith('n.is_active = :is_active', {
+        is_active: false,
+      });
+    });
+
+    it('is_active undefined olduğunda filtre uygulanmamalı', async () => {
+      const qb = makeSelectQb([]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods();
+
+      expect(qb.andWhere).not.toHaveBeenCalledWith(
+        expect.stringContaining('is_active'),
+        expect.anything(),
+      );
+    });
+
+    it('page/limit ile skip/take hesaplanmalı', async () => {
+      const qb = makeSelectQb([]);
+      neighborhoodRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.getNeighborhoods(undefined, undefined, undefined, 3, 10);
+
+      expect(qb.skip).toHaveBeenCalledWith(20);
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
+  });
+
+  // ── createNeighborhood ────────────────────────────────────────────────────
+
+  describe('createNeighborhood', () => {
+    it('mahalle oluşturulmalı', async () => {
+      const dto = { name: 'Yeni Mahalle', type: 'mahalle' };
+      const created = { ...dto };
+      const saved = { id: 'n-new', ...dto };
+      neighborhoodRepo.create.mockReturnValue(created);
+      neighborhoodRepo.save.mockResolvedValue(saved);
+
+      const result = await service.createNeighborhood(dto);
+
+      expect(neighborhoodRepo.create).toHaveBeenCalledWith(dto);
+      expect(neighborhoodRepo.save).toHaveBeenCalledWith(created);
+      expect(result).toEqual({ neighborhood: saved });
+    });
+  });
+
+  // ── updateNeighborhood ─────────────────────────────────────────────────────
+
+  describe('updateNeighborhood', () => {
+    it('mahalle güncellenmeli', async () => {
+      const existing = { id: 'n-1', name: 'Eski Ad', type: 'mahalle' };
+      neighborhoodRepo.findOne.mockResolvedValue(existing);
+      neighborhoodRepo.save.mockResolvedValue({ ...existing, name: 'Yeni Ad' });
+
+      const result = await service.updateNeighborhood('n-1', {
+        name: 'Yeni Ad',
+      });
+
+      expect(neighborhoodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Yeni Ad' }),
+      );
+      expect(result.neighborhood.name).toBe('Yeni Ad');
+    });
+
+    it('mahalle bulunamazsa NotFoundException fırlatmalı', async () => {
+      neighborhoodRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateNeighborhood('nonexistent', { name: 'X' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── deleteNeighborhood ─────────────────────────────────────────────────────
+
+  describe('deleteNeighborhood', () => {
+    it('mahalle silinmeli', async () => {
+      neighborhoodRepo.findOne.mockResolvedValue({ id: 'n-1' });
+      neighborhoodRepo.delete.mockResolvedValue({ affected: 1 });
+
+      const result = await service.deleteNeighborhood('n-1');
+
+      expect(neighborhoodRepo.delete).toHaveBeenCalledWith('n-1');
+      expect(result).toEqual({ message: 'Mahalle silindi' });
+    });
+
+    it('mahalle bulunamazsa NotFoundException fırlatmalı', async () => {
+      neighborhoodRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.deleteNeighborhood('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  // ── deleteAdAsAdmin ────────────────────────────────────────────────────────
+
+  describe('deleteAdAsAdmin', () => {
+    it('ilan silinmeli', async () => {
+      adRepo.findOne.mockResolvedValue(makeAd());
+
+      const result = await service.deleteAdAsAdmin('ad-uuid-1');
+
+      expect(adRepo.softDelete).toHaveBeenCalledWith('ad-uuid-1');
+      expect(result).toEqual({ message: 'İlan silindi' });
+    });
+
+    it('ilan bulunamazsa NotFoundException fırlatmalı', async () => {
+      adRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.deleteAdAsAdmin('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  // ── getModuleUsage ─────────────────────────────────────────────────────────
+
+  describe('getModuleUsage', () => {
+    it("modül kullanım sayılarını count'a göre azalan sırada döndürmeli", async () => {
+      adRepo.count.mockResolvedValue(5);
+      announcementRepo.count.mockResolvedValue(2);
+      deathRepo.count.mockResolvedValue(1);
+      campaignRepo.count.mockResolvedValue(20);
+      pharmRepo.count.mockResolvedValue(3);
+      taxiDriverRepo.count.mockResolvedValue(8);
+      eventRepo.count.mockResolvedValue(0);
+
+      const result = await service.getModuleUsage();
+
+      expect(result[0]).toEqual({ name: 'Kampanyalar', count: 20 });
+      expect(result[result.length - 1]).toEqual({
+        name: 'Etkinlikler',
+        count: 0,
+      });
+      expect(result).toHaveLength(7);
+    });
+  });
+
+  // ── getRecentActivities ────────────────────────────────────────────────────
+
+  describe('getRecentActivities', () => {
+    it('son aktiviteleri tüm kaynaklardan birleştirip tarihe göre sıralamalı', async () => {
+      adRepo.find.mockResolvedValue([
+        makeAd({ id: 'ad-1', created_at: new Date('2026-02-20T10:00:00Z') }),
+      ]);
+      announcementRepo.find.mockResolvedValue([
+        {
+          id: 'ann-1',
+          title: 'Duyuru',
+          created_at: new Date('2026-02-21T10:00:00Z'),
+        },
+      ]);
+      deathRepo.find.mockResolvedValue([
+        makeDeath({
+          id: 'death-1',
+          created_at: new Date('2026-02-19T10:00:00Z'),
+        }),
+      ]);
+      userRepo.find.mockResolvedValue([
+        makeUser({
+          id: 'user-2',
+          username: 'yeniuye',
+          created_at: new Date('2026-02-22T10:00:00Z'),
+        }),
+      ]);
+
+      const result = await service.getRecentActivities();
+
+      expect(result).toHaveLength(4);
+      expect(result[0]).toEqual(
+        expect.objectContaining({ id: 'user-2', type: 'user_register' }),
+      );
+      expect(result[result.length - 1]).toEqual(
+        expect.objectContaining({ id: 'death-1', type: 'death_notice' }),
+      );
+    });
+
+    it('en fazla 10 aktivite döndürmeli', async () => {
+      const manyAds = Array.from({ length: 5 }, (_, i) =>
+        makeAd({
+          id: `ad-${i}`,
+          created_at: new Date(`2026-02-${10 + i}T10:00:00Z`),
+        }),
+      );
+      const manyAnnouncements = Array.from({ length: 4 }, (_, i) => ({
+        id: `ann-${i}`,
+        title: 'Duyuru',
+        created_at: new Date(`2026-02-${10 + i}T11:00:00Z`),
+      }));
+      const manyDeaths = Array.from({ length: 3 }, (_, i) =>
+        makeDeath({
+          id: `death-${i}`,
+          created_at: new Date(`2026-02-${10 + i}T12:00:00Z`),
+        }),
+      );
+      const manyUsers = Array.from({ length: 3 }, (_, i) =>
+        makeUser({
+          id: `user-${i}`,
+          created_at: new Date(`2026-02-${10 + i}T13:00:00Z`),
+        }),
+      );
+
+      adRepo.find.mockResolvedValue(manyAds);
+      announcementRepo.find.mockResolvedValue(manyAnnouncements);
+      deathRepo.find.mockResolvedValue(manyDeaths);
+      userRepo.find.mockResolvedValue(manyUsers);
+
+      const result = await service.getRecentActivities();
+
+      expect(result).toHaveLength(10);
+    });
+  });
+
+  // ── getAdminProfile ────────────────────────────────────────────────────────
+
+  describe('getAdminProfile', () => {
+    it('admin profilini döndürmeli', async () => {
+      userRepo.findOne.mockResolvedValue(
+        makeUser({ id: 'admin-1', username: 'admin', role: 'admin' } as any),
+      );
+
+      const result = await service.getAdminProfile('admin-1');
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'admin-1',
+          username: 'admin',
+          role: 'admin',
+        }),
+      );
+    });
+
+    it('admin bulunamazsa NotFoundException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.getAdminProfile('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  // ── updateAdminProfile ─────────────────────────────────────────────────────
+
+  describe('updateAdminProfile', () => {
+    it('username verildiğinde güncellenmeli', async () => {
+      userRepo.findOne
+        .mockResolvedValueOnce(
+          makeUser({ id: 'admin-1', username: 'eski' } as any),
+        )
+        .mockResolvedValueOnce(
+          makeUser({ id: 'admin-1', username: 'yeni' } as any),
+        );
+      userRepo.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.updateAdminProfile('admin-1', {
+        username: 'yeni',
+      });
+
+      expect(userRepo.update).toHaveBeenCalledWith('admin-1', {
+        username: 'yeni',
+      });
+      expect(result.username).toBe('yeni');
+    });
+
+    it('username verilmediğinde update çağrılmamalı', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ id: 'admin-1' } as any));
+      userRepo.update.mockResolvedValue({ affected: 0 });
+
+      await service.updateAdminProfile('admin-1', {});
+
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('admin bulunamazsa NotFoundException fırlatmalı', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateAdminProfile('nonexistent', { username: 'x' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── changeAdminPassword ────────────────────────────────────────────────────
+
+  describe('changeAdminPassword', () => {
+    const makePasswordQb = (user: any) => {
+      const qb: any = {};
+      qb.addSelect = jest.fn().mockReturnValue(qb);
+      qb.where = jest.fn().mockReturnValue(qb);
+      qb.getOne = jest.fn().mockResolvedValue(user);
+      return qb;
+    };
+
+    it('şifre doğruysa güncellenmeli', async () => {
+      const qb = makePasswordQb({ id: 'admin-1', password: 'hashed-old' });
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+      userRepo.update.mockResolvedValue({ affected: 1 });
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-new');
+
+      const result = await service.changeAdminPassword('admin-1', {
+        current_password: 'eski-sifre',
+        new_password: 'yeni-sifre-123',
+      });
+
+      expect(bcrypt.compare).toHaveBeenCalledWith('eski-sifre', 'hashed-old');
+      expect(userRepo.update).toHaveBeenCalledWith('admin-1', {
+        password: 'hashed-new',
+      });
+      expect(result).toEqual({ message: 'Şifre başarıyla değiştirildi' });
+    });
+
+    it('mevcut şifre hatalıysa UnauthorizedException fırlatmalı', async () => {
+      const qb = makePasswordQb({ id: 'admin-1', password: 'hashed-old' });
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        service.changeAdminPassword('admin-1', {
+          current_password: 'yanlis',
+          new_password: 'yeni-sifre-123',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('admin bulunamazsa NotFoundException fırlatmalı', async () => {
+      const qb = makePasswordQb(null);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await expect(
+        service.changeAdminPassword('nonexistent', {
+          current_password: 'x',
+          new_password: 'yeni-sifre-123',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('şifre alanı null ise NotFoundException fırlatmalı', async () => {
+      const qb = makePasswordQb({ id: 'admin-1', password: null });
+      userRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await expect(
+        service.changeAdminPassword('admin-1', {
+          current_password: 'x',
+          new_password: 'yeni-sifre-123',
         }),
       ).rejects.toThrow(NotFoundException);
     });

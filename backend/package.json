@@ -98,7 +98,24 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "\\.entity\\.ts$",
+      "\\.dto\\.ts$",
+      "\\.module\\.ts$",
+      "\\.interface\\.ts$",
+      "/migrations/",
+      "main\\.ts$",
+      "data-source\\.ts$"
+    ],
     "coverageDirectory": "../coverage",
+    "coverageReporters": [
+      "json",
+      "json-summary",
+      "lcov",
+      "text",
+      "clover"
+    ],
     "testEnvironment": "node"
   }
 }
