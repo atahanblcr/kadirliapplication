@@ -217,20 +217,20 @@ export class ComplaintsAdminService {
       reporter: c.user
         ? {
             id: c.user.id,
-            full_name: (c.user as any).full_name,
-            phone: (c.user as any).phone,
+            full_name: c.user.username,
+            phone: c.user.phone,
           }
         : null,
       reviewer: c.reviewer
         ? {
             id: c.reviewer.id,
-            full_name: (c.reviewer as any).full_name,
+            full_name: c.reviewer.username,
           }
         : null,
       resolver: c.resolver
         ? {
             id: c.resolver.id,
-            full_name: (c.resolver as any).full_name,
+            full_name: c.resolver.username,
           }
         : null,
       reviewed_at: c.reviewed_at,

@@ -20,7 +20,7 @@ describe('ComplaintsAdminService', () => {
     evidence_file_ids: ['file-1'],
     status: 'pending',
     admin_notes: null,
-    user: { id: 'user-1', full_name: 'Test User', phone: '5551234567' },
+    user: { id: 'user-1', username: 'testuser', phone: '5551234567' },
     reviewer: null,
     resolver: null,
     reviewed_at: null,

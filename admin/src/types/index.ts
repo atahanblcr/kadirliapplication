@@ -26,9 +26,8 @@ export interface LoginResponse {
 export interface AdminUser {
   id: string;
   email: string;
-  full_name: string;
-  role: 'admin' | 'super_admin';
-  avatar_url?: string;
+  username: string;
+  role: 'admin' | 'super_admin' | 'moderator';
 }
 
 // Dashboard Types

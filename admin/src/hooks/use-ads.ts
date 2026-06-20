@@ -86,10 +86,10 @@ export function useApproveAd() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.post<ApiResponse<{ ad: Ad }>>(
+      const { data } = await api.post<ApiResponse<{ message: string }>>(
         `/admin/ads/${id}/approve`,
       );
-      return data.data.ad;
+      return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adKeys.pending() });
@@ -103,11 +103,11 @@ export function useRejectAd() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-      const { data } = await api.post<ApiResponse<{ ad: Ad }>>(
+      const { data } = await api.post<ApiResponse<{ message: string }>>(
         `/admin/ads/${id}/reject`,
         { rejected_reason: reason },
       );
-      return data.data.ad;
+      return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adKeys.pending() });

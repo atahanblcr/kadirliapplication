@@ -20,8 +20,8 @@ interface TopbarProps {
 export function Topbar({ onMenuClick }: TopbarProps) {
   const { user, logout } = useAuth();
 
-  const initials = user?.full_name
-    ? user.full_name
+  const initials = user?.username
+    ? user.username
         .split(' ')
         .map((n) => n[0])
         .join('')
@@ -62,7 +62,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 </AvatarFallback>
               </Avatar>
               <span className="hidden text-sm font-medium md:inline-block">
-                {user?.full_name || 'Admin'}
+                {user?.username || 'Admin'}
               </span>
             </Button>
           </DropdownMenuTrigger>
