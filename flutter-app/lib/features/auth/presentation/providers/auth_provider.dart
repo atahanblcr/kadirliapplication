@@ -195,6 +195,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(error: null);
   }
 
+  /// Called when the auth interceptor fails to refresh the access token.
+  /// Tokens are already cleared by the interceptor; this just flips the
+  /// auth gate to unauthenticated so the user lands back on the login flow.
+  void handleSessionExpired() {
+    state = const AuthState(status: AuthStatus.unauthenticated);
+  }
+
   Future<void> _saveAuthData(
     String accessToken,
     String refreshToken,

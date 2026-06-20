@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/deaths_remote_datasource.dart';
 import '../models/death_model.dart';
 
@@ -32,7 +33,7 @@ class DeathsRepository {
         'meta': data['meta'] ?? response['meta'] ?? {},
       };
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message:'Failed to parse deaths: $e');
     }
   }
@@ -44,7 +45,7 @@ class DeathsRepository {
       final noticeJson = data['notice'] as Map<String, dynamic>;
       return DeathNoticeDetailModel.fromJson(noticeJson);
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message:'Failed to parse death detail: $e');
     }
   }
@@ -58,7 +59,7 @@ class DeathsRepository {
         cemeteriesJson.map((c) => CemeteryModel.fromJson(c as Map<String, dynamic>)),
       );
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message:'Failed to parse cemeteries: $e');
     }
   }
@@ -72,7 +73,7 @@ class DeathsRepository {
         mosquesJson.map((m) => MosqueModel.fromJson(m as Map<String, dynamic>)),
       );
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message:'Failed to parse mosques: $e');
     }
   }

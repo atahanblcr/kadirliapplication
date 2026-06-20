@@ -14,7 +14,8 @@ class AdDetailPage extends ConsumerWidget {
   const AdDetailPage({required this.adId, super.key});
 
   /// Format price
-  String _formatPrice(int price) {
+  String _formatPrice(int? price) {
+    if (price == null) return 'Fiyat belirtilmemiş';
     final formatter = NumberFormat.currency(
       locale: 'tr_TR',
       symbol: '₺',

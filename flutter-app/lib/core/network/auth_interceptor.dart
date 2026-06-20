@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../storage/storage_service.dart';
 import '../constants/api_constants.dart';
+import 'session_expiry_notifier.dart';
 
 class AuthInterceptor extends Interceptor {
   final StorageService _storage;
@@ -48,6 +49,7 @@ class AuthInterceptor extends Interceptor {
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken == null) {
       await _storage.clearTokens();
+      SessionExpiryNotifier.instance.notifySessionExpired();
       handler.next(err);
       return;
     }
@@ -88,8 +90,9 @@ class AuthInterceptor extends Interceptor {
 
       handler.resolve(retryResponse);
     } catch (_) {
-      // Refresh failed — clear tokens, let the error propagate
+      // Refresh failed — clear tokens, send the user back to login
       await _storage.clearTokens();
+      SessionExpiryNotifier.instance.notifySessionExpired();
       handler.next(err);
     }
   }

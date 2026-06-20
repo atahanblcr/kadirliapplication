@@ -6,7 +6,7 @@ class DeathsListState {
   final List<DeathNoticeModel> notices;
   final bool isLoading;
   final bool hasNext;
-  final String? error;
+  final Object? error;
   final int page;
 
   DeathsListState({
@@ -21,7 +21,7 @@ class DeathsListState {
     List<DeathNoticeModel>? notices,
     bool? isLoading,
     bool? hasNext,
-    String? error,
+    Object? error,
     int? page,
   }) {
     return DeathsListState(
@@ -65,7 +65,7 @@ class DeathsListNotifier extends StateNotifier<DeathsListState> {
         page: state.page + 1,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: e);
     }
   }
 

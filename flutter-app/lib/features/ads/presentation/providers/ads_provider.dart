@@ -10,7 +10,7 @@ class AdsState {
   final bool isLoadingMore;
   final bool isSubmitting;
   final bool isSuccess;
-  final String? error;
+  final Object? error;
   final int currentPage;
   final int totalPages;
   
@@ -45,7 +45,7 @@ class AdsState {
     bool? isLoadingMore,
     bool? isSubmitting,
     bool? isSuccess,
-    String? error,
+    Object? error,
     int? currentPage,
     int? totalPages,
     String? categoryId,
@@ -115,7 +115,7 @@ class AdsNotifier extends StateNotifier<AdsState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: e,
       );
     }
   }
@@ -156,7 +156,7 @@ class AdsNotifier extends StateNotifier<AdsState> {
       refresh();
       return true;
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e);
       return false;
     }
   }
@@ -170,7 +170,7 @@ class AdsNotifier extends StateNotifier<AdsState> {
       refresh();
       return true;
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e);
       return false;
     }
   }
@@ -182,7 +182,7 @@ class AdsNotifier extends StateNotifier<AdsState> {
       refresh();
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e);
       return false;
     }
   }

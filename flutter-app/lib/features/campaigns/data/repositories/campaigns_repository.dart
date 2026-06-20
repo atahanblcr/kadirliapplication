@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/campaigns_remote_datasource.dart';
 import '../models/campaign_model.dart';
 
@@ -34,8 +35,8 @@ class CampaignsRepository {
         'campaigns': campaigns,
         'meta': data['meta'] as Map<String, dynamic>,
       };
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse campaigns: $e');
     }
@@ -46,8 +47,8 @@ class CampaignsRepository {
       final response = await _datasource.getCampaignDetail(campaignId);
       final campaignJson = response['data']['campaign'] as Map<String, dynamic>;
       return CampaignDetailModel.fromJson(campaignJson);
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse campaign detail: $e');
     }
@@ -57,8 +58,8 @@ class CampaignsRepository {
     try {
       final response = await _datasource.viewCode(campaignId);
       return response['data'] as Map<String, dynamic>;
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse view code response: $e');
     }

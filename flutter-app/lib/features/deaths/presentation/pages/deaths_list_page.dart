@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/deaths_list_provider.dart';
 import '../widgets/death_card.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 class DeathsListPage extends ConsumerStatefulWidget {
   const DeathsListPage({super.key});
@@ -40,9 +42,15 @@ class _DeathsListPageState extends ConsumerState<DeathsListPage> {
         child: state.notices.isEmpty && state.isLoading
             ? const Center(child: CircularProgressIndicator())
             : state.notices.isEmpty && state.error != null
-                ? Center(child: Text('Hata: ${state.error}'))
+                ? AppErrorState(
+                    error: state.error!,
+                    onRetry: () => ref.read(deathsListNotifierProvider.notifier).refresh(),
+                  )
                 : state.notices.isEmpty
-                    ? const Center(child: Text('Vefat ilanı bulunamadı.'))
+                    ? const AppEmptyState(
+                        icon: Icons.inbox_outlined,
+                        title: 'Vefat ilanı bulunamadı',
+                      )
                     : ListView.builder(
                         controller: _scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),

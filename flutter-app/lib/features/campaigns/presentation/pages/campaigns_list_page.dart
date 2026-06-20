@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/campaigns_provider.dart';
 import '../widgets/campaign_card.dart';
-import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 class CampaignsListPage extends ConsumerStatefulWidget {
   const CampaignsListPage({Key? key}) : super(key: key);
@@ -98,18 +99,9 @@ class _CampaignsListPageState extends ConsumerState<CampaignsListPage> {
                 children: [
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.7,
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.campaign_outlined, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'Şu an aktif bir kampanya bulunmuyor.',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        ],
-                      ),
+                    child: const AppEmptyState(
+                      icon: Icons.campaign_outlined,
+                      title: 'Şu an aktif bir kampanya bulunmuyor.',
                     ),
                   ),
                 ],
@@ -134,27 +126,7 @@ class _CampaignsListPageState extends ConsumerState<CampaignsListPage> {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) {
-            String message = 'Bir hata oluştu.';
-            if (error is AppException) {
-              message = error.message;
-            }
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text(message, textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _refresh,
-                    child: const Text('Tekrar Dene'),
-                  ),
-                ],
-              ),
-            );
-          },
+          error: (error, stack) => AppErrorState(error: error, onRetry: _refresh),
         ),
       ),
     );

@@ -86,3 +86,11 @@ class CacheException extends AppException {
     String message = 'Yerel depolama hatası',
   }) : super(message, 'CACHE_ERROR');
 }
+
+/// Converts any caught error into a user-facing Turkish message.
+/// Use this instead of `error.toString()` so raw exception types/stack
+/// details never leak into the UI.
+String appErrorMessage(Object error) {
+  if (error is AppException) return error.message;
+  return 'Bilinmeyen bir hata oluştu';
+}

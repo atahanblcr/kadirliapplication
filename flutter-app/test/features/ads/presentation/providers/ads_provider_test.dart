@@ -110,7 +110,7 @@ void main() {
 
       await notifier.loadAds();
 
-      expect(notifier.state.error, contains('error'));
+      expect(notifier.state.error.toString(), contains('error'));
       expect(notifier.state.isLoading, false);
       });
 
@@ -153,21 +153,21 @@ void main() {
         when(() => mockRepository.createAd(any())).thenThrow(Exception('create error'));
         final result = await notifier.createAd({});
         expect(result, false);
-        expect(notifier.state.error, contains('create error'));
+        expect(notifier.state.error.toString(), contains('create error'));
         });
 
         test('updateAd failure sets error', () async {
         when(() => mockRepository.updateAd(any(), any())).thenThrow(Exception('update error'));
         final result = await notifier.updateAd('1', {});
         expect(result, false);
-        expect(notifier.state.error, contains('update error'));
+        expect(notifier.state.error.toString(), contains('update error'));
         });
 
         test('deleteAd failure sets error', () async {
         when(() => mockRepository.deleteAd(any())).thenThrow(Exception('delete error'));
         final result = await notifier.deleteAd('1');
         expect(result, false);
-        expect(notifier.state.error, contains('delete error'));
+        expect(notifier.state.error.toString(), contains('delete error'));
         });
 
         group('FavoritesNotifier', () {      test('toggleFavorite adds/removes from state', () async {

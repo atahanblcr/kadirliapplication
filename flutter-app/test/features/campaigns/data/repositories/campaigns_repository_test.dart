@@ -82,14 +82,14 @@ void main() {
         expect(() => repository.viewCode('1'), throwsA(isA<UnknownException>()));
       });
 
-      test('getCampaigns should rethrow DioException', () async {
+      test('getCampaigns maps DioException to AppException', () async {
         when(() => mockDatasource.getCampaigns(
           page: any(named: 'page'),
           limit: any(named: 'limit'),
           categoryId: any(named: 'categoryId'),
           activeOnly: any(named: 'activeOnly'),
         )).thenThrow(DioException(requestOptions: RequestOptions(path: '')));
-        expect(() => repository.getCampaigns(), throwsA(isA<DioException>()));
+        expect(() => repository.getCampaigns(), throwsA(isA<AppException>()));
       });
     });
   });

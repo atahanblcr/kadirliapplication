@@ -30,7 +30,7 @@ class _AdEditPageState extends ConsumerState<AdEditPage> {
     super.initState();
     _titleController = TextEditingController(text: widget.ad.title);
     _descriptionController = TextEditingController(text: widget.ad.description);
-    _priceController = TextEditingController(text: widget.ad.price.toString());
+    _priceController = TextEditingController(text: widget.ad.price?.toString() ?? '');
     _phoneController = TextEditingController(text: widget.ad.contactPhone);
     _sellerNameController = TextEditingController(text: widget.ad.seller?['username'] ?? '');
     

@@ -5,7 +5,7 @@ class AdModel {
   final String id;
   final String title;
   final String description;
-  final int price;
+  final int? price;
   final CategoryModel category;
   final ImageModel? coverImage;
   final int imagesCount;
@@ -27,7 +27,7 @@ class AdModel {
     required this.id,
     required this.title,
     required this.description,
-    required this.price,
+    this.price,
     required this.category,
     this.coverImage,
     required this.imagesCount,
@@ -48,15 +48,15 @@ class AdModel {
     final createdAtStr = json['created_at'] as String?;
     final expiresAtStr = json['expires_at'] as String?;
 
-    // Parse price safely
-    int priceValue = 0;
+    // Parse price safely; null means "fiyat belirtilmemiş", not zero
+    int? priceValue;
     final rawPrice = json['price'];
     if (rawPrice is int) {
       priceValue = rawPrice;
     } else if (rawPrice is double) {
       priceValue = rawPrice.toInt();
     } else if (rawPrice is String) {
-      priceValue = double.tryParse(rawPrice)?.toInt() ?? 0;
+      priceValue = double.tryParse(rawPrice)?.toInt();
     }
 
     return AdModel(

@@ -19,7 +19,8 @@ class AdCard extends StatelessWidget {
   });
 
   /// Format price with ₺ symbol and grouping
-  String _formatPrice(int price) {
+  String _formatPrice(int? price) {
+    if (price == null) return 'Fiyat belirtilmemiş';
     try {
       final formatter = NumberFormat.currency(
         locale: 'tr_TR',

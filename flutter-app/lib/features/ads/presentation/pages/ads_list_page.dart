@@ -4,6 +4,8 @@ import '../providers/ads_provider.dart';
 import '../widgets/ad_card.dart';
 import '../widgets/ad_shimmer.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 import 'ad_detail_page.dart';
 import 'ad_create_page.dart';
 
@@ -210,8 +212,17 @@ class _AdsListPageState extends ConsumerState<AdsListPage> {
               onRefresh: () => ref.read(adsProvider.notifier).refresh(),
               child: state.isLoading
                   ? const AdShimmer()
-                  : state.items.isEmpty
-                      ? _buildEmptyState()
+                  : state.items.isEmpty && state.error != null
+                      ? AppErrorState(
+                          error: state.error!,
+                          onRetry: () => ref.read(adsProvider.notifier).refresh(),
+                        )
+                      : state.items.isEmpty
+                      ? const AppEmptyState(
+                          icon: Icons.search_off,
+                          title: 'İlan bulunamadı',
+                          subtitle: 'Farklı bir arama veya filtre deneyebilirsiniz.',
+                        )
                       : ListView.builder(
                           controller: _scrollController,
                           itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
@@ -252,28 +263,6 @@ class _AdsListPageState extends ConsumerState<AdsListPage> {
           );
         },
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: AppSpacing.md),
-          const Text(
-            'İlan bulunamadı',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          const Text(
-            'Farklı bir arama veya filtre deneyebilirsiniz.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
       ),
     );
   }

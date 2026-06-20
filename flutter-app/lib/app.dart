@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
+import 'core/network/session_expiry_notifier.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/pages/phone_input_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
@@ -40,6 +41,17 @@ class _AuthGateState extends ConsumerState<_AuthGate> {
     Future.microtask(
       () => ref.read(authProvider.notifier).checkAuthStatus(),
     );
+    SessionExpiryNotifier.instance.addListener(_onSessionExpired);
+  }
+
+  @override
+  void dispose() {
+    SessionExpiryNotifier.instance.removeListener(_onSessionExpired);
+    super.dispose();
+  }
+
+  void _onSessionExpired() {
+    ref.read(authProvider.notifier).handleSessionExpired();
   }
 
   @override
