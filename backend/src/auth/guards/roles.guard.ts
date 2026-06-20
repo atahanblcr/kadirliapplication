@@ -10,10 +10,10 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Check if route is marked to skip auth
-    const skipAuth = this.reflector.getAllAndOverride<boolean>(
-      SKIP_AUTH_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const skipAuth = this.reflector.getAllAndOverride<boolean>(SKIP_AUTH_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (skipAuth) {
       return true;

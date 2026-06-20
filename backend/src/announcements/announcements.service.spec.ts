@@ -5,10 +5,7 @@ import { Announcement } from '../database/entities/announcement.entity';
 import { AnnouncementType } from '../database/entities/announcement-type.entity';
 import { User } from '../database/entities/user.entity';
 import { UserRole } from '../common/enums/user-role.enum';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 
 // ── Mock factory ──────────────────────────────────────────────────────────────
@@ -31,13 +28,12 @@ const mockUser: Partial<User> = {
   id: 'user-uuid-1234',
   phone: '05331234567',
   role: UserRole.USER,
-  primary_neighborhood: { id: 'nb-uuid', slug: 'merkez', name: 'Merkez' } as never,
+  primary_neighborhood: {
+    id: 'nb-uuid',
+    slug: 'merkez',
+    name: 'Merkez',
+  } as never,
   primary_neighborhood_id: 'nb-uuid',
-};
-
-const mockAdminUser: Partial<User> = {
-  id: 'admin-uuid',
-  role: UserRole.ADMIN,
 };
 
 const mockType: Partial<AnnouncementType> = {
@@ -120,7 +116,10 @@ describe('AnnouncementsService', () => {
       const qb = makeQb([[mockAnnouncement as Announcement], 1]);
       announcementRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll(mockUser as User, { page: 1, limit: 20 });
+      const result = await service.findAll(mockUser as User, {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.announcements).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -144,10 +143,9 @@ describe('AnnouncementsService', () => {
 
       await service.findAll(mockUser as User, { type_id: 'type-uuid' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'a.type_id = :typeId',
-        { typeId: 'type-uuid' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('a.type_id = :typeId', {
+        typeId: 'type-uuid',
+      });
     });
 
     it('priority filtresi uygulanmalı', async () => {
@@ -156,17 +154,22 @@ describe('AnnouncementsService', () => {
 
       await service.findAll(mockUser as User, { priority: 'high' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'a.priority = :priority',
-        { priority: 'high' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('a.priority = :priority', {
+        priority: 'high',
+      });
     });
 
     it('Sayfalama meta bilgisi doğru hesaplanmalı', async () => {
-      const qb = makeQb([new Array(10).fill(mockAnnouncement) as Announcement[], 35]);
+      const qb = makeQb([
+        new Array(10).fill(mockAnnouncement) as Announcement[],
+        35,
+      ]);
       announcementRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll(mockUser as User, { page: 2, limit: 10 });
+      const result = await service.findAll(mockUser as User, {
+        page: 2,
+        limit: 10,
+      });
 
       expect(result.meta.total).toBe(35);
       expect(result.meta.total_pages).toBe(4);
@@ -180,7 +183,7 @@ describe('AnnouncementsService', () => {
 
       await service.findAll(mockUser as User, {});
 
-      const typeIdCalls = (qb.andWhere as jest.Mock).mock.calls.filter(
+      const typeIdCalls = qb.andWhere.mock.calls.filter(
         (call) => call[0] === 'a.type_id = :typeId',
       );
       expect(typeIdCalls).toHaveLength(0);
@@ -287,10 +290,16 @@ describe('AnnouncementsService', () => {
 
     it('Manuel duyuru → status=published olarak oluşturulmalı', async () => {
       typeRepo.findOne.mockResolvedValue(mockType);
-      announcementRepo.create.mockReturnValue({ ...mockAnnouncement, status: 'published' });
-      announcementRepo.save.mockResolvedValue({ ...mockAnnouncement, status: 'published' });
+      announcementRepo.create.mockReturnValue({
+        ...mockAnnouncement,
+        status: 'published',
+      });
+      announcementRepo.save.mockResolvedValue({
+        ...mockAnnouncement,
+        status: 'published',
+      });
 
-      const result = await service.create('admin-uuid', dto);
+      await service.create('admin-uuid', dto);
 
       const createCall = announcementRepo.create.mock.calls[0][0];
       expect(createCall.status).toBe('published');
@@ -328,7 +337,9 @@ describe('AnnouncementsService', () => {
           target_type: 'users',
           target_user_ids: [],
         }),
-      ).rejects.toThrow('Kullanıcı hedeflemesi için en az bir kullanıcı seçilmeli');
+      ).rejects.toThrow(
+        'Kullanıcı hedeflemesi için en az bir kullanıcı seçilmeli',
+      );
     });
 
     it('has_pdf pdf_file_id varlığına göre ayarlanmalı', async () => {
@@ -411,7 +422,10 @@ describe('AnnouncementsService', () => {
       announcementRepo.create.mockReturnValue(mockAnnouncement);
       announcementRepo.save.mockResolvedValue(mockAnnouncement);
 
-      const result = await service.create('admin-uuid', { ...dto, target_type: 'all' });
+      const result = await service.create('admin-uuid', {
+        ...dto,
+        target_type: 'all',
+      });
 
       expect(result.estimated_recipients).toBe(1000);
     });

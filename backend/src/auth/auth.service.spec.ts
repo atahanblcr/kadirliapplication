@@ -7,7 +7,11 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../database/entities/user.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { UserRole } from '../common/enums/user-role.enum';
-import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 // Redis mock
 const mockRedis = {
@@ -126,7 +130,7 @@ describe('AuthService', () => {
 
     it('DEV MODE: OTP başarıyla gönderilmeli (123456)', async () => {
       mockRedis.get.mockResolvedValue(null); // engel yok
-      mockRedis.incr.mockResolvedValue(1);  // ilk istek
+      mockRedis.incr.mockResolvedValue(1); // ilk istek
 
       const result = await service.requestOtp(phone);
 
@@ -161,7 +165,9 @@ describe('AuthService', () => {
     it('Engellenmiş numara → BadRequestException fırlatmalı', async () => {
       mockRedis.get.mockResolvedValue('1'); // block kaydı var
 
-      await expect(service.requestOtp(phone)).rejects.toThrow(BadRequestException);
+      await expect(service.requestOtp(phone)).rejects.toThrow(
+        BadRequestException,
+      );
       await expect(service.requestOtp(phone)).rejects.toThrow(
         'Çok fazla deneme. Lütfen bekleyin.',
       );
@@ -171,7 +177,9 @@ describe('AuthService', () => {
       mockRedis.get.mockResolvedValue(null); // engel yok
       mockRedis.incr.mockResolvedValue(11); // 11. istek (limit 10)
 
-      await expect(service.requestOtp(phone)).rejects.toThrow(BadRequestException);
+      await expect(service.requestOtp(phone)).rejects.toThrow(
+        BadRequestException,
+      );
       await expect(service.requestOtp(phone)).rejects.toThrow(
         'Saatlik OTP limitine ulaştınız',
       );
@@ -369,7 +377,9 @@ describe('AuthService', () => {
 
     it('Başarılı kayıt: kullanıcı oluşturulmalı ve token döndürülmeli', async () => {
       userRepository.findOne.mockResolvedValue(null);
-      neighborhoodRepository.findOne.mockResolvedValue(mockNeighborhood as Neighborhood);
+      neighborhoodRepository.findOne.mockResolvedValue(
+        mockNeighborhood as Neighborhood,
+      );
       const savedUser = { ...mockUser, username: dto.username } as User;
       userRepository.create.mockReturnValue(savedUser);
       userRepository.save.mockResolvedValue(savedUser);
@@ -384,7 +394,9 @@ describe('AuthService', () => {
 
     it('Kayıtta create ve save çağrılmalı', async () => {
       userRepository.findOne.mockResolvedValue(null);
-      neighborhoodRepository.findOne.mockResolvedValue(mockNeighborhood as Neighborhood);
+      neighborhoodRepository.findOne.mockResolvedValue(
+        mockNeighborhood as Neighborhood,
+      );
       const savedUser = { ...mockUser } as User;
       userRepository.create.mockReturnValue(savedUser);
       userRepository.save.mockResolvedValue(savedUser);
@@ -435,21 +447,21 @@ describe('AuthService', () => {
         throw new Error('invalid token');
       });
 
-      await expect(
-        service.refreshToken('invalid-token'),
-      ).rejects.toThrow(UnauthorizedException);
-      await expect(
-        service.refreshToken('invalid-token'),
-      ).rejects.toThrow('Geçersiz refresh token');
+      await expect(service.refreshToken('invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshToken('invalid-token')).rejects.toThrow(
+        'Geçersiz refresh token',
+      );
     });
 
     it('Kullanıcı bulunamazsa UnauthorizedException fırlatmalı', async () => {
       mockJwtService.verify.mockReturnValue({ user_id: 'non-existent' });
       userRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.refreshToken('valid-refresh-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('valid-refresh-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('Refresh token doğru secret ile verify edilmeli', async () => {
@@ -525,10 +537,16 @@ describe('AuthService', () => {
         providers: [
           AuthService,
           { provide: getRepositoryToken(User), useFactory: mockRepository },
-          { provide: getRepositoryToken(Neighborhood), useFactory: mockRepository },
+          {
+            provide: getRepositoryToken(Neighborhood),
+            useFactory: mockRepository,
+          },
           { provide: JwtService, useValue: mockJwtService },
           { provide: ConfigService, useValue: prodConfigService },
-          { provide: 'default_IORedisModuleConnectionToken', useValue: mockRedis },
+          {
+            provide: 'default_IORedisModuleConnectionToken',
+            useValue: mockRedis,
+          },
         ],
       }).compile();
       prodService = prodModule.get<AuthService>(AuthService);

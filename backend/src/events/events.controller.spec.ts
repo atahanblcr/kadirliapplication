@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { Event } from '../database/entities/event.entity';
-import { EventCategory } from '../database/entities/event-category.entity';
 
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
 
@@ -22,7 +21,7 @@ const makeEvent = (overrides: Partial<Event> = {}): Event =>
     event_time: '20:00',
     status: 'published',
     ...overrides,
-  } as Event);
+  }) as Event;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -87,7 +86,7 @@ describe('EventsController', () => {
       expect(service.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
     });
 
-    it('filtreleri service\'e iletmeli', async () => {
+    it("filtreleri service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ events: [], meta: {} as any });
       const dto = {
         category_id: 'cat-uuid-1',

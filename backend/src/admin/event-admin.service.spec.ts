@@ -38,7 +38,10 @@ describe('EventAdminService', () => {
       providers: [
         EventAdminService,
         { provide: getRepositoryToken(Event), useValue: eventRepository },
-        { provide: getRepositoryToken(EventCategory), useValue: categoryRepository },
+        {
+          provide: getRepositoryToken(EventCategory),
+          useValue: categoryRepository,
+        },
       ],
     }).compile();
 
@@ -55,8 +58,22 @@ describe('EventAdminService', () => {
   describe('getEventCategories', () => {
     it('should return event categories sorted', async () => {
       const mockCategories = [
-        { id: 'cat-1', name: 'Concert', slug: 'concert', icon: '🎵', display_order: 1, is_active: true },
-        { id: 'cat-2', name: 'Theater', slug: 'theater', icon: '🎭', display_order: 2, is_active: true },
+        {
+          id: 'cat-1',
+          name: 'Concert',
+          slug: 'concert',
+          icon: '🎵',
+          display_order: 1,
+          is_active: true,
+        },
+        {
+          id: 'cat-2',
+          name: 'Theater',
+          slug: 'theater',
+          icon: '🎭',
+          display_order: 2,
+          is_active: true,
+        },
       ];
 
       categoryRepository.find.mockResolvedValueOnce(mockCategories);
@@ -83,11 +100,20 @@ describe('EventAdminService', () => {
   // ============================================================================
   describe('createEventCategory', () => {
     it('should create event category with unique slug', async () => {
-      const dto = { name: 'Concert Night', icon: '🎵', display_order: 1, is_active: true };
+      const dto = {
+        name: 'Concert Night',
+        icon: '🎵',
+        display_order: 1,
+        is_active: true,
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(null); // No duplicate
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, slug: 'concert-night' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        slug: 'concert-night',
+      });
 
       const result = await service.createEventCategory(dto as any);
 
@@ -96,26 +122,44 @@ describe('EventAdminService', () => {
     });
 
     it('should handle Turkish characters in slug', async () => {
-      const dto = { name: 'Müzik Festivali Şarkısı', icon: '🎶', display_order: 0, is_active: true };
+      const dto = {
+        name: 'Müzik Festivali Şarkısı',
+        icon: '🎶',
+        display_order: 0,
+        is_active: true,
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, slug: 'muzik-festivali-sarkisi' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        slug: 'muzik-festivali-sarkisi',
+      });
 
-      const result = await service.createEventCategory(dto as any);
+      await service.createEventCategory(dto as any);
 
       expect(categoryRepository.save).toHaveBeenCalled();
     });
 
     it('should append counter when slug already exists', async () => {
-      const dto = { name: 'Sports', icon: '⚽', display_order: 1, is_active: true };
+      const dto = {
+        name: 'Sports',
+        icon: '⚽',
+        display_order: 1,
+        is_active: true,
+      };
 
       categoryRepository.findOne
         .mockResolvedValueOnce({ id: 'cat-1', slug: 'sports' }) // sports exists
         .mockResolvedValueOnce(null); // sports-1 is unique
 
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-2', ...dto, slug: 'sports-1' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-2',
+        ...dto,
+        slug: 'sports-1',
+      });
 
       const result = await service.createEventCategory(dto as any);
 
@@ -126,8 +170,16 @@ describe('EventAdminService', () => {
       const dto = { name: 'Test' };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
-      categoryRepository.create.mockReturnValueOnce({ ...dto, display_order: 0 });
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, display_order: 0, slug: 'test' });
+      categoryRepository.create.mockReturnValueOnce({
+        ...dto,
+        display_order: 0,
+      });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        display_order: 0,
+        slug: 'test',
+      });
 
       await service.createEventCategory(dto as any);
 
@@ -138,8 +190,16 @@ describe('EventAdminService', () => {
       const dto = { name: 'Test' };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
-      categoryRepository.create.mockReturnValueOnce({ ...dto, is_active: true });
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, is_active: true, slug: 'test' });
+      categoryRepository.create.mockReturnValueOnce({
+        ...dto,
+        is_active: true,
+      });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        is_active: true,
+        slug: 'test',
+      });
 
       await service.createEventCategory(dto as any);
 
@@ -175,14 +235,24 @@ describe('EventAdminService', () => {
       expect(result.events).toHaveLength(1);
       expect(result.meta.page).toBe(1);
       expect(result.meta.total).toBe(10);
-      expect(eventRepository.orderBy).toHaveBeenCalledWith('e.event_date', 'ASC');
-      expect(eventRepository.addOrderBy).toHaveBeenCalledWith('e.event_time', 'ASC');
+      expect(eventRepository.orderBy).toHaveBeenCalledWith(
+        'e.event_date',
+        'ASC',
+      );
+      expect(eventRepository.addOrderBy).toHaveBeenCalledWith(
+        'e.event_time',
+        'ASC',
+      );
     });
 
     it('should apply search filter', async () => {
       eventRepository.getManyAndCount.mockResolvedValueOnce([[], 0]);
 
-      await service.getAdminEvents({ search: 'Türk Sanat', page: 1, limit: 20 });
+      await service.getAdminEvents({
+        search: 'Türk Sanat',
+        page: 1,
+        limit: 20,
+      });
 
       expect(eventRepository.andWhere).toHaveBeenCalledWith(
         expect.stringContaining('ILIKE'),
@@ -193,9 +263,16 @@ describe('EventAdminService', () => {
     it('should apply category_id filter', async () => {
       eventRepository.getManyAndCount.mockResolvedValueOnce([[], 0]);
 
-      await service.getAdminEvents({ category_id: 'cat-1', page: 1, limit: 20 });
+      await service.getAdminEvents({
+        category_id: 'cat-1',
+        page: 1,
+        limit: 20,
+      });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.category_id = :category_id', { category_id: 'cat-1' });
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.category_id = :category_id',
+        { category_id: 'cat-1' },
+      );
     });
 
     it('should apply start_date filter', async () => {
@@ -204,7 +281,10 @@ describe('EventAdminService', () => {
 
       await service.getAdminEvents({ start_date: date, page: 1, limit: 20 });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.event_date >= :start_date', { start_date: date });
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.event_date >= :start_date',
+        { start_date: date },
+      );
     });
 
     it('should apply end_date filter', async () => {
@@ -213,7 +293,10 @@ describe('EventAdminService', () => {
 
       await service.getAdminEvents({ end_date: date, page: 1, limit: 20 });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.event_date <= :end_date', { end_date: date });
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.event_date <= :end_date',
+        { end_date: date },
+      );
     });
 
     it('should apply status filter', async () => {
@@ -221,7 +304,10 @@ describe('EventAdminService', () => {
 
       await service.getAdminEvents({ status: 'draft', page: 1, limit: 20 });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.status = :status', { status: 'draft' });
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.status = :status',
+        { status: 'draft' },
+      );
     });
 
     it('should apply is_local=true filter', async () => {
@@ -229,7 +315,9 @@ describe('EventAdminService', () => {
 
       await service.getAdminEvents({ is_local: true, page: 1, limit: 20 });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.is_local = TRUE');
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.is_local = TRUE',
+      );
     });
 
     it('should apply is_local=false filter', async () => {
@@ -237,7 +325,9 @@ describe('EventAdminService', () => {
 
       await service.getAdminEvents({ is_local: false, page: 1, limit: 20 });
 
-      expect(eventRepository.andWhere).toHaveBeenCalledWith('e.is_local = FALSE');
+      expect(eventRepository.andWhere).toHaveBeenCalledWith(
+        'e.is_local = FALSE',
+      );
     });
 
     it('should skip is_local filter when undefined', async () => {
@@ -246,7 +336,9 @@ describe('EventAdminService', () => {
       await service.getAdminEvents({ page: 1, limit: 20 });
 
       const calls = eventRepository.andWhere.mock.calls;
-      const hasIsLocalFilter = calls.some((call) => call[0]?.includes('is_local'));
+      const hasIsLocalFilter = calls.some((call) =>
+        call[0]?.includes('is_local'),
+      );
       expect(hasIsLocalFilter).toBe(false);
     });
 
@@ -297,7 +389,14 @@ describe('EventAdminService', () => {
         ticket_url: 'https://tickets.example.com',
         cover_image_id: 'file-1',
         cover_image: { url: 'https://cdn.example.com/cover.jpg' },
-        images: [{ id: 'img-1', file_id: 'file-1', file: { url: 'https://cdn.example.com/img1.jpg' }, display_order: 1 }],
+        images: [
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            file: { url: 'https://cdn.example.com/img1.jpg' },
+            display_order: 1,
+          },
+        ],
         status: 'published',
         created_at: new Date(),
         updated_at: new Date(),
@@ -354,7 +453,10 @@ describe('EventAdminService', () => {
         status: 'draft',
       };
 
-      categoryRepository.findOne.mockResolvedValueOnce({ id: 'cat-1', name: 'Music' });
+      categoryRepository.findOne.mockResolvedValueOnce({
+        id: 'cat-1',
+        name: 'Music',
+      });
       eventRepository.create.mockReturnValueOnce(dto);
       eventRepository.save.mockResolvedValueOnce({ id: 'event-1', ...dto });
       eventRepository.findOne.mockResolvedValueOnce({
@@ -374,7 +476,12 @@ describe('EventAdminService', () => {
     });
 
     it('should throw BadRequestException when category not found', async () => {
-      const dto = { category_id: 'invalid', title: 'Test', event_date: new Date(), event_time: '19:00' };
+      const dto = {
+        category_id: 'invalid',
+        title: 'Test',
+        event_date: new Date(),
+        event_time: '19:00',
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
 
@@ -384,7 +491,11 @@ describe('EventAdminService', () => {
     });
 
     it('should set default is_local=true when not provided', async () => {
-      const dto = { title: 'Local Event', event_date: new Date(), event_time: '19:00' };
+      const dto = {
+        title: 'Local Event',
+        event_date: new Date(),
+        event_time: '19:00',
+      };
 
       eventRepository.create.mockReturnValueOnce({ ...dto, is_local: true });
       eventRepository.save.mockResolvedValueOnce({ id: 'event-1', ...dto });
@@ -422,7 +533,11 @@ describe('EventAdminService', () => {
     });
 
     it('should set default is_free=true when not provided', async () => {
-      const dto = { title: 'Free Event', event_date: new Date(), event_time: '19:00' };
+      const dto = {
+        title: 'Free Event',
+        event_date: new Date(),
+        event_time: '19:00',
+      };
 
       eventRepository.create.mockReturnValueOnce({ ...dto, is_free: true });
       eventRepository.save.mockResolvedValueOnce({ id: 'event-1', ...dto });
@@ -460,9 +575,16 @@ describe('EventAdminService', () => {
     });
 
     it('should set default status=published when not provided', async () => {
-      const dto = { title: 'Published Event', event_date: new Date(), event_time: '19:00' };
+      const dto = {
+        title: 'Published Event',
+        event_date: new Date(),
+        event_time: '19:00',
+      };
 
-      eventRepository.create.mockReturnValueOnce({ ...dto, status: 'published' });
+      eventRepository.create.mockReturnValueOnce({
+        ...dto,
+        status: 'published',
+      });
       eventRepository.save.mockResolvedValueOnce({ id: 'event-1', ...dto });
       eventRepository.findOne.mockResolvedValueOnce({
         id: 'event-1',
@@ -506,35 +628,37 @@ describe('EventAdminService', () => {
       const event = { id: 'event-1', title: 'Old Title', status: 'draft' };
       const dto = { title: 'New Title', status: 'published' };
 
-      eventRepository.findOne.mockResolvedValueOnce(event).mockResolvedValueOnce({
-        id: 'event-1',
-        title: 'New Title',
-        status: 'published',
-        category: null,
-        cover_image: null,
-        images: [],
-        category_id: null,
-        description: null,
-        event_date: new Date(),
-        event_time: '19:00',
-        duration_minutes: null,
-        venue_name: null,
-        venue_address: null,
-        is_local: true,
-        city: null,
-        latitude: null,
-        longitude: null,
-        organizer: null,
-        ticket_price: null,
-        is_free: true,
-        age_restriction: null,
-        capacity: null,
-        website_url: null,
-        ticket_url: null,
-        cover_image_id: null,
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      eventRepository.findOne
+        .mockResolvedValueOnce(event)
+        .mockResolvedValueOnce({
+          id: 'event-1',
+          title: 'New Title',
+          status: 'published',
+          category: null,
+          cover_image: null,
+          images: [],
+          category_id: null,
+          description: null,
+          event_date: new Date(),
+          event_time: '19:00',
+          duration_minutes: null,
+          venue_name: null,
+          venue_address: null,
+          is_local: true,
+          city: null,
+          latitude: null,
+          longitude: null,
+          organizer: null,
+          ticket_price: null,
+          is_free: true,
+          age_restriction: null,
+          capacity: null,
+          website_url: null,
+          ticket_url: null,
+          cover_image_id: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
 
       await service.updateEvent('event-1', dto);
 
@@ -555,43 +679,45 @@ describe('EventAdminService', () => {
       eventRepository.findOne.mockResolvedValueOnce(event);
       categoryRepository.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.updateEvent('event-1', { category_id: 'invalid' })).rejects.toThrow(
-        new BadRequestException('Geçersiz kategori'),
-      );
+      await expect(
+        service.updateEvent('event-1', { category_id: 'invalid' }),
+      ).rejects.toThrow(new BadRequestException('Geçersiz kategori'));
     });
 
     it('should allow unsetting category_id with null', async () => {
       const event = { id: 'event-1', category_id: 'cat-1' };
 
-      eventRepository.findOne.mockResolvedValueOnce(event).mockResolvedValueOnce({
-        id: 'event-1',
-        category_id: null,
-        category: null,
-        title: 'Event',
-        cover_image: null,
-        images: [],
-        description: null,
-        event_date: new Date(),
-        event_time: '19:00',
-        duration_minutes: null,
-        venue_name: null,
-        venue_address: null,
-        is_local: true,
-        city: null,
-        latitude: null,
-        longitude: null,
-        organizer: null,
-        ticket_price: null,
-        is_free: true,
-        age_restriction: null,
-        capacity: null,
-        website_url: null,
-        ticket_url: null,
-        cover_image_id: null,
-        status: 'published',
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      eventRepository.findOne
+        .mockResolvedValueOnce(event)
+        .mockResolvedValueOnce({
+          id: 'event-1',
+          category_id: null,
+          category: null,
+          title: 'Event',
+          cover_image: null,
+          images: [],
+          description: null,
+          event_date: new Date(),
+          event_time: '19:00',
+          duration_minutes: null,
+          venue_name: null,
+          venue_address: null,
+          is_local: true,
+          city: null,
+          latitude: null,
+          longitude: null,
+          organizer: null,
+          ticket_price: null,
+          is_free: true,
+          age_restriction: null,
+          capacity: null,
+          website_url: null,
+          ticket_url: null,
+          cover_image_id: null,
+          status: 'published',
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
 
       await service.updateEvent('event-1', { category_id: null });
 
@@ -651,7 +777,14 @@ describe('EventAdminService', () => {
         ticket_url: 'https://tickets.ankara-music.com',
         cover_image_id: 'file-1',
         cover_image: { url: 'https://cdn.example.com/cover.jpg' },
-        images: [{ id: 'img-1', file_id: 'file-1', file: { url: 'https://cdn.example.com/img1.jpg' }, display_order: 1 }],
+        images: [
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            file: { url: 'https://cdn.example.com/img1.jpg' },
+            display_order: 1,
+          },
+        ],
         status: 'published',
         created_at: new Date(),
         updated_at: new Date(),

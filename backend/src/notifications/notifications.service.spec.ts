@@ -26,7 +26,9 @@ function makeUpdateQb() {
 
 // ─── Fabrika ─────────────────────────────────────────────────────────────────
 
-const makeNotification = (overrides: Partial<Notification> = {}): Notification =>
+const makeNotification = (
+  overrides: Partial<Notification> = {},
+): Notification =>
   ({
     id: 'notif-uuid-1',
     user_id: 'user-uuid-1',
@@ -40,7 +42,7 @@ const makeNotification = (overrides: Partial<Notification> = {}): Notification =
     fcm_sent: false,
     created_at: new Date('2026-02-20T10:00:00Z'),
     ...overrides,
-  } as Notification);
+  }) as Notification;
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -64,7 +66,10 @@ describe('NotificationsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationsService,
-        { provide: getRepositoryToken(Notification), useFactory: mockNotifRepo },
+        {
+          provide: getRepositoryToken(Notification),
+          useFactory: mockNotifRepo,
+        },
         { provide: getRepositoryToken(User), useFactory: mockUserRepo },
       ],
     }).compile();
@@ -97,10 +102,9 @@ describe('NotificationsService', () => {
 
       await service.findAll('user-uuid-1', {});
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'n.user_id = :userId',
-        { userId: 'user-uuid-1' },
-      );
+      expect(qb.where).toHaveBeenCalledWith('n.user_id = :userId', {
+        userId: 'user-uuid-1',
+      });
     });
 
     it('created_at DESC sıralanmalı', async () => {
@@ -131,10 +135,9 @@ describe('NotificationsService', () => {
 
       await service.findAll('user-uuid-1', { unread_only: true });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'n.is_read = :isRead',
-        { isRead: false },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('n.is_read = :isRead', {
+        isRead: false,
+      });
     });
 
     it('unread_only=false olduğunda andWhere çağrılmamalı', async () => {

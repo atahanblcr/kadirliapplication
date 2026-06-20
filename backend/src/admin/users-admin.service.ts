@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../database/entities/user.entity';
@@ -17,7 +21,14 @@ export class UsersAdminService {
   ) {}
 
   async getUsers(dto: QueryUsersDto) {
-    const { search, role, is_banned, neighborhood_id, page = 1, limit = 50 } = dto;
+    const {
+      search,
+      role,
+      is_banned,
+      neighborhood_id,
+      page = 1,
+      limit = 50,
+    } = dto;
     const skip = (page - 1) * limit;
 
     const qb = this.userRepository
@@ -29,10 +40,9 @@ export class UsersAdminService {
       .take(limit);
 
     if (search) {
-      qb.andWhere(
-        '(u.phone ILIKE :search OR u.username ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      qb.andWhere('(u.phone ILIKE :search OR u.username ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
     if (role) {

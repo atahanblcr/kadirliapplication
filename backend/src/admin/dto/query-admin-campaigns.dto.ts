@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsIn, IsUUID, IsInt, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsIn,
+  IsUUID,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class QueryAdminCampaignsDto {

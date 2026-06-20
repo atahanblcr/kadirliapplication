@@ -43,7 +43,9 @@ export class AddAdminPermissions1772300000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_admin_permissions_user_id"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "IDX_admin_permissions_user_id"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "admin_permissions"`);
     await queryRunner.query(`DROP TYPE IF EXISTS admin_module_enum`);
   }

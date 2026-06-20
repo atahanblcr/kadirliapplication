@@ -32,12 +32,15 @@ describe('PlacesAdminController', () => {
     }).compile();
 
     controller = module.get<PlacesAdminController>(PlacesAdminController);
-    placesAdminService = module.get(PlacesAdminService) as jest.Mocked<PlacesAdminService>;
+    placesAdminService = module.get(PlacesAdminService);
   });
 
   describe('getPlaceCategories', () => {
     it('should return place categories', () => {
-      placesAdminService.getPlaceCategories.mockReturnValue({ success: true, data: [] });
+      placesAdminService.getPlaceCategories.mockReturnValue({
+        success: true,
+        data: [],
+      });
       const result = controller.getPlaceCategories();
       expect(result.success).toBe(true);
       expect(placesAdminService.getPlaceCategories).toHaveBeenCalled();
@@ -47,8 +50,11 @@ describe('PlacesAdminController', () => {
   describe('createPlaceCategory', () => {
     it('should create place category', () => {
       const dto = { name: 'Restaurant' };
-      placesAdminService.createPlaceCategory.mockReturnValue({ success: true, data: {} });
-      const result = controller.createPlaceCategory(dto);
+      placesAdminService.createPlaceCategory.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.createPlaceCategory(dto);
       expect(placesAdminService.createPlaceCategory).toHaveBeenCalledWith(dto);
     });
   });
@@ -57,9 +63,15 @@ describe('PlacesAdminController', () => {
     it('should update place category', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      placesAdminService.updatePlaceCategory.mockReturnValue({ success: true, data: {} });
-      const result = controller.updatePlaceCategory(id, dto);
-      expect(placesAdminService.updatePlaceCategory).toHaveBeenCalledWith(id, dto);
+      placesAdminService.updatePlaceCategory.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.updatePlaceCategory(id, dto);
+      expect(placesAdminService.updatePlaceCategory).toHaveBeenCalledWith(
+        id,
+        dto,
+      );
     });
   });
 
@@ -75,8 +87,11 @@ describe('PlacesAdminController', () => {
   describe('getPlaces', () => {
     it('should return places list', () => {
       const dto = { search: 'test' };
-      placesAdminService.getAdminPlaces.mockReturnValue({ success: true, data: [] });
-      const result = controller.getPlaces(dto);
+      placesAdminService.getAdminPlaces.mockReturnValue({
+        success: true,
+        data: [],
+      });
+      controller.getPlaces(dto);
       expect(placesAdminService.getAdminPlaces).toHaveBeenCalledWith(dto);
     });
   });
@@ -84,8 +99,11 @@ describe('PlacesAdminController', () => {
   describe('getPlace', () => {
     it('should return place details', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      placesAdminService.getAdminPlace.mockReturnValue({ success: true, data: {} });
-      const result = controller.getPlace(id);
+      placesAdminService.getAdminPlace.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.getPlace(id);
       expect(placesAdminService.getAdminPlace).toHaveBeenCalledWith(id);
     });
   });
@@ -94,8 +112,11 @@ describe('PlacesAdminController', () => {
     it('should create place', () => {
       const dto = { name: 'New Place', category_id: '123' };
       const userId = 'user-123';
-      placesAdminService.createPlace.mockReturnValue({ success: true, data: {} });
-      const result = controller.createPlace(dto, userId);
+      placesAdminService.createPlace.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.createPlace(dto, userId);
       expect(placesAdminService.createPlace).toHaveBeenCalledWith(dto, userId);
     });
   });
@@ -104,8 +125,11 @@ describe('PlacesAdminController', () => {
     it('should update place', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      placesAdminService.updatePlace.mockReturnValue({ success: true, data: {} });
-      const result = controller.updatePlace(id, dto);
+      placesAdminService.updatePlace.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.updatePlace(id, dto);
       expect(placesAdminService.updatePlace).toHaveBeenCalledWith(id, dto);
     });
   });
@@ -123,8 +147,11 @@ describe('PlacesAdminController', () => {
     it('should add place images', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { file_ids: ['file-1'] };
-      placesAdminService.addPlaceImages.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.addPlaceImages(id, dto);
+      placesAdminService.addPlaceImages.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.addPlaceImages(id, dto);
       expect(placesAdminService.addPlaceImages).toHaveBeenCalledWith(id, dto);
     });
   });
@@ -141,9 +168,14 @@ describe('PlacesAdminController', () => {
   describe('setPlaceCoverImage', () => {
     it('should set place cover image', async () => {
       const imageId = '123e4567-e89b-12d3-a456-426614174000';
-      placesAdminService.setPlaceCoverImage.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.setPlaceCoverImage(imageId);
-      expect(placesAdminService.setPlaceCoverImage).toHaveBeenCalledWith(imageId);
+      placesAdminService.setPlaceCoverImage.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.setPlaceCoverImage(imageId);
+      expect(placesAdminService.setPlaceCoverImage).toHaveBeenCalledWith(
+        imageId,
+      );
     });
   });
 
@@ -151,9 +183,15 @@ describe('PlacesAdminController', () => {
     it('should reorder place images', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { ordered_image_ids: ['img1', 'img2'] };
-      placesAdminService.reorderPlaceImages.mockReturnValue({ success: true, data: {} });
-      const result = controller.reorderPlaceImages(id, dto);
-      expect(placesAdminService.reorderPlaceImages).toHaveBeenCalledWith(id, dto);
+      placesAdminService.reorderPlaceImages.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.reorderPlaceImages(id, dto);
+      expect(placesAdminService.reorderPlaceImages).toHaveBeenCalledWith(
+        id,
+        dto,
+      );
     });
   });
 });

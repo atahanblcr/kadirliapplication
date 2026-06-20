@@ -68,7 +68,11 @@ describe('AuthController', () => {
   describe('requestOtp', () => {
     it('AuthService.requestOtp çağrılmalı ve sonuç dönmeli', async () => {
       const dto: RequestOtpDto = { phone: '05331234567' };
-      const serviceResponse = { message: 'OTP gönderildi', expires_in: 300, retry_after: 60 };
+      const serviceResponse = {
+        message: 'OTP gönderildi',
+        expires_in: 300,
+        retry_after: 60,
+      };
       mockAuthService.requestOtp.mockResolvedValue(serviceResponse);
 
       const result = await controller.requestOtp(dto);
@@ -96,12 +100,20 @@ describe('AuthController', () => {
   describe('verifyOtp', () => {
     it('AuthService.verifyOtp phone ve otp ile çağrılmalı', async () => {
       const dto: VerifyOtpDto = { phone: '05331234567', otp: '123456' };
-      const serviceResponse = { is_new_user: false, access_token: 'token', refresh_token: 'refresh', expires_in: 2592000 };
+      const serviceResponse = {
+        is_new_user: false,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 2592000,
+      };
       mockAuthService.verifyOtp.mockResolvedValue(serviceResponse);
 
       const result = await controller.verifyOtp(dto);
 
-      expect(mockAuthService.verifyOtp).toHaveBeenCalledWith('05331234567', '123456');
+      expect(mockAuthService.verifyOtp).toHaveBeenCalledWith(
+        '05331234567',
+        '123456',
+      );
       expect(result).toEqual(serviceResponse);
     });
 
@@ -130,9 +142,6 @@ describe('AuthController', () => {
       primary_neighborhood_id: 'neighborhood-uuid',
       accept_terms: true,
     };
-
-    const makeTempToken = (payload: object) =>
-      Buffer.from(JSON.stringify(payload)).toString('base64');
 
     it('Authorization header yoksa UnauthorizedException fırlatmalı', async () => {
       const req = { headers: {} };
@@ -232,7 +241,9 @@ describe('AuthController', () => {
     });
 
     it('Boş string → UnauthorizedException fırlatmalı', async () => {
-      await expect(controller.refresh('')).rejects.toThrow(UnauthorizedException);
+      await expect(controller.refresh('')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('Geçerli token → AuthService.refreshToken çağrılmalı', async () => {

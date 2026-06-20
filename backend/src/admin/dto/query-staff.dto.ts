@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsEnum, IsBoolean, IsInt, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsBoolean,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { UserRole } from '../../common/enums/user-role.enum';
 

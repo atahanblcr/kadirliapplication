@@ -23,7 +23,10 @@ export class AdCategory {
   @Column({ type: 'uuid', nullable: true })
   parent_id: string;
 
-  @ManyToOne(() => AdCategory, (cat) => cat.children, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => AdCategory, (cat) => cat.children, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'parent_id' })
   parent: AdCategory;
 

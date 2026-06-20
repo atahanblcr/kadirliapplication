@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -46,8 +42,10 @@ export class CampaignsService {
 
     // Aktif tarih aralığı filtresi
     if (active_only !== false) {
-      qb.andWhere('c.start_date <= :today', { today })
-        .andWhere('c.end_date >= :today', { today });
+      qb.andWhere('c.start_date <= :today', { today }).andWhere(
+        'c.end_date >= :today',
+        { today },
+      );
     }
 
     if (category_id) {
@@ -112,7 +110,9 @@ export class CampaignsService {
       .where('id = :id', { id: campaignId })
       .execute();
 
-    this.logger.log(`Kampanya kodu görüntülendi: kampanya=${campaignId}, kullanıcı=${userId}`);
+    this.logger.log(
+      `Kampanya kodu görüntülendi: kampanya=${campaignId}, kullanıcı=${userId}`,
+    );
 
     return {
       discount_code: campaign.discount_code,

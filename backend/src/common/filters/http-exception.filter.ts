@@ -17,7 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Bir hata oluştu';
     let code = 'INTERNAL_ERROR';
     let details: unknown = undefined;
@@ -36,7 +36,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       code = this.getErrorCode(status);
     } else if (exception instanceof Error) {
-      this.logger.error(`Unhandled error: ${exception.message}`, exception.stack);
+      this.logger.error(
+        `Unhandled error: ${exception.message}`,
+        exception.stack,
+      );
     }
 
     const errorResponse = {

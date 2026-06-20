@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeathsController } from './deaths.controller';
 import { DeathsService } from './deaths.service';
-import { User } from '../database/entities/user.entity';
-import { UserRole } from '../common/enums/user-role.enum';
-
-const mockUser = { id: 'user-uuid-1', role: UserRole.USER } as User;
 
 describe('DeathsController', () => {
   let controller: DeathsController;

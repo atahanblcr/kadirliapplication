@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { StaffAdminService } from './staff-admin.service';
 import { User } from '../database/entities/user.entity';
 import { AdminPermission } from '../database/entities/admin-permission.entity';
@@ -10,13 +14,7 @@ import { UserRole } from '../common/enums/user-role.enum';
 
 function makeQb(data: any[] = [], total = 0) {
   const qb: any = {};
-  const chain = [
-    'where',
-    'andWhere',
-    'orderBy',
-    'skip',
-    'take',
-  ];
+  const chain = ['where', 'andWhere', 'orderBy', 'skip', 'take'];
   chain.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, total]);
   return qb;
@@ -35,9 +33,11 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     is_active: true,
     created_at: new Date('2026-02-20'),
     ...overrides,
-  } as User);
+  }) as User;
 
-const makePermission = (overrides: Partial<AdminPermission> = {}): AdminPermission =>
+const makePermission = (
+  overrides: Partial<AdminPermission> = {},
+): AdminPermission =>
   ({
     id: 'perm-uuid-1',
     user_id: 'user-uuid-1',
@@ -48,7 +48,7 @@ const makePermission = (overrides: Partial<AdminPermission> = {}): AdminPermissi
     can_delete: false,
     can_approve: false,
     ...overrides,
-  } as AdminPermission);
+  }) as AdminPermission;
 
 // ─── Test Suite ─────────────────────────────────────────────────────────────
 
@@ -100,7 +100,10 @@ describe('StaffAdminService', () => {
         .mockResolvedValueOnce([]) // for staff-1
         .mockResolvedValueOnce([]); // for staff-2
 
-      const result = await service.getStaffList('user-uuid-1', { page: 1, limit: 20 });
+      const result = await service.getStaffList('user-uuid-1', {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.data).toHaveLength(2);
       expect(result.data[0].id).toBe('staff-1');
@@ -115,7 +118,10 @@ describe('StaffAdminService', () => {
       userRepo.findOne.mockResolvedValue(requestingUser);
       userRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.getStaffList('user-uuid-1', { page: 1, limit: 20 });
+      const result = await service.getStaffList('user-uuid-1', {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.data).toEqual([]);
       expect(qb.where).toHaveBeenCalled();
@@ -128,7 +134,10 @@ describe('StaffAdminService', () => {
       userRepo.findOne.mockResolvedValue(requestingUser);
       userRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.getStaffList('user-uuid-1', { page: 1, limit: 20 });
+      const result = await service.getStaffList('user-uuid-1', {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.data).toEqual([]);
     });
@@ -140,7 +149,9 @@ describe('StaffAdminService', () => {
 
       await expect(
         service.getStaffList('user-uuid-1', { page: 1, limit: 20 }),
-      ).rejects.toThrow(new ForbiddenException('Only admin staff can list staff members'));
+      ).rejects.toThrow(
+        new ForbiddenException('Only admin staff can list staff members'),
+      );
     });
 
     it('search filtresi uygulanmalı', async () => {
@@ -167,7 +178,9 @@ describe('StaffAdminService', () => {
 
       await service.getStaffList('user-uuid-1', { role: UserRole.MODERATOR });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('u.role = :role', { role: UserRole.MODERATOR });
+      expect(qb.andWhere).toHaveBeenCalledWith('u.role = :role', {
+        role: UserRole.MODERATOR,
+      });
     });
 
     it('is_active filtresi uygulanmalı', async () => {
@@ -179,7 +192,9 @@ describe('StaffAdminService', () => {
 
       await service.getStaffList('user-uuid-1', { is_active: false });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('u.is_active = :is_active', { is_active: false });
+      expect(qb.andWhere).toHaveBeenCalledWith('u.is_active = :is_active', {
+        is_active: false,
+      });
     });
 
     it('requestingUser bulunamazsa NotFoundException fırlatmalı', async () => {
@@ -200,7 +215,10 @@ describe('StaffAdminService', () => {
       userRepo.createQueryBuilder.mockReturnValue(qb);
       permRepo.find.mockResolvedValue(permissions);
 
-      const result = await service.getStaffList('user-uuid-1', { page: 1, limit: 20 });
+      const result = await service.getStaffList('user-uuid-1', {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.data[0].permissions).toEqual(permissions);
       expect(result.data[0].permission_count).toBe(1);
@@ -248,9 +266,9 @@ describe('StaffAdminService', () => {
     it('personel bulunamazsa NotFoundException fırlatmalı', async () => {
       userRepo.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.getStaffDetail('nonexistent'),
-      ).rejects.toThrow(new NotFoundException('Staff member not found'));
+      await expect(service.getStaffDetail('nonexistent')).rejects.toThrow(
+        new NotFoundException('Staff member not found'),
+      );
     });
   });
 
@@ -258,7 +276,10 @@ describe('StaffAdminService', () => {
 
   describe('createStaff', () => {
     it('SUPER_ADMIN tarafından personel oluşturulabilmeli', async () => {
-      const superAdmin = makeUser({ id: 'super-admin-1', role: UserRole.SUPER_ADMIN });
+      const superAdmin = makeUser({
+        id: 'super-admin-1',
+        role: UserRole.SUPER_ADMIN,
+      });
 
       userRepo.findOne
         .mockResolvedValueOnce(superAdmin) // requesting user check
@@ -266,7 +287,10 @@ describe('StaffAdminService', () => {
         .mockResolvedValueOnce(null) // phone check
         .mockResolvedValueOnce(null); // username check
 
-      const newStaff = makeUser({ id: 'new-staff-1', role: UserRole.MODERATOR });
+      const newStaff = makeUser({
+        id: 'new-staff-1',
+        role: UserRole.MODERATOR,
+      });
       userRepo.save.mockResolvedValue(newStaff);
 
       const result = await service.createStaff('super-admin-1', {
@@ -294,7 +318,9 @@ describe('StaffAdminService', () => {
           password: 'password',
           role: UserRole.MODERATOR,
         }),
-      ).rejects.toThrow(new ForbiddenException('Only SUPER_ADMIN can create staff members'));
+      ).rejects.toThrow(
+        new ForbiddenException('Only SUPER_ADMIN can create staff members'),
+      );
     });
 
     it('ADMIN rolü oluşturulamaz', async () => {
@@ -310,7 +336,9 @@ describe('StaffAdminService', () => {
           password: 'password',
           role: UserRole.USER, // Invalid role
         } as any),
-      ).rejects.toThrow(new BadRequestException('Only MODERATOR or ADMIN roles can be created'));
+      ).rejects.toThrow(
+        new BadRequestException('Only MODERATOR or ADMIN roles can be created'),
+      );
     });
 
     it('email duplikasyonunu kontrol etmelidir', async () => {
@@ -424,7 +452,10 @@ describe('StaffAdminService', () => {
 
     it('SUPER_ADMIN rolü indirilemez', async () => {
       const superAdmin = makeUser({ role: UserRole.SUPER_ADMIN });
-      const targetStaff = makeUser({ id: 'super-admin-2', role: UserRole.SUPER_ADMIN });
+      const targetStaff = makeUser({
+        id: 'super-admin-2',
+        role: UserRole.SUPER_ADMIN,
+      });
 
       userRepo.findOne
         .mockResolvedValueOnce(superAdmin)
@@ -434,7 +465,9 @@ describe('StaffAdminService', () => {
         service.updateStaff('super-admin-1', 'super-admin-2', {
           role: UserRole.ADMIN,
         }),
-      ).rejects.toThrow(new ForbiddenException('Cannot downgrade SUPER_ADMIN role'));
+      ).rejects.toThrow(
+        new ForbiddenException('Cannot downgrade SUPER_ADMIN role'),
+      );
     });
 
     it('SUPER_ADMIN rolüne yükseltilemez', async () => {
@@ -449,7 +482,9 @@ describe('StaffAdminService', () => {
         service.updateStaff('super-admin-1', 'staff-1', {
           role: UserRole.SUPER_ADMIN,
         }),
-      ).rejects.toThrow(new ForbiddenException('Cannot promote to SUPER_ADMIN'));
+      ).rejects.toThrow(
+        new ForbiddenException('Cannot promote to SUPER_ADMIN'),
+      );
     });
 
     it('username duplikasyonunu kontrol etmelidir', async () => {
@@ -485,18 +520,22 @@ describe('StaffAdminService', () => {
       permRepo.delete.mockResolvedValue({ affected: 1 });
       permRepo.save.mockResolvedValue(newPermissions);
 
-      const result = await service.updateStaffPermissions('super-admin-1', 'staff-1', {
-        permissions: [
-          {
-            module: 'ads',
-            can_read: true,
-            can_create: true,
-            can_update: false,
-            can_delete: false,
-            can_approve: false,
-          },
-        ],
-      });
+      const result = await service.updateStaffPermissions(
+        'super-admin-1',
+        'staff-1',
+        {
+          permissions: [
+            {
+              module: 'ads',
+              can_read: true,
+              can_create: true,
+              can_update: false,
+              can_delete: false,
+              can_approve: false,
+            },
+          ],
+        },
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].module).toBe('ads');
@@ -514,7 +553,11 @@ describe('StaffAdminService', () => {
         service.updateStaffPermissions('super-admin-1', 'staff-1', {
           permissions: [],
         }),
-      ).rejects.toThrow(new BadRequestException('Permissions can only be set for MODERATOR role'));
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Permissions can only be set for MODERATOR role',
+        ),
+      );
     });
   });
 
@@ -523,7 +566,11 @@ describe('StaffAdminService', () => {
   describe('deactivateStaff', () => {
     it('personeli pasifleştirebilmeli', async () => {
       const superAdmin = makeUser({ role: UserRole.SUPER_ADMIN });
-      const targetStaff = makeUser({ id: 'staff-1', role: UserRole.MODERATOR, is_active: true });
+      const targetStaff = makeUser({
+        id: 'staff-1',
+        role: UserRole.MODERATOR,
+        is_active: true,
+      });
 
       userRepo.findOne
         .mockResolvedValueOnce(superAdmin)
@@ -540,7 +587,10 @@ describe('StaffAdminService', () => {
 
     it('SUPER_ADMIN pasifleştirilemez', async () => {
       const superAdmin = makeUser({ role: UserRole.SUPER_ADMIN });
-      const targetStaff = makeUser({ id: 'super-admin-2', role: UserRole.SUPER_ADMIN });
+      const targetStaff = makeUser({
+        id: 'super-admin-2',
+        role: UserRole.SUPER_ADMIN,
+      });
 
       userRepo.findOne
         .mockResolvedValueOnce(superAdmin)
@@ -548,7 +598,9 @@ describe('StaffAdminService', () => {
 
       await expect(
         service.deactivateStaff('super-admin-1', 'super-admin-2'),
-      ).rejects.toThrow(new ForbiddenException('Cannot deactivate SUPER_ADMIN users'));
+      ).rejects.toThrow(
+        new ForbiddenException('Cannot deactivate SUPER_ADMIN users'),
+      );
     });
 
     it('sadece SUPER_ADMIN pasifleştirebilir', async () => {
@@ -556,9 +608,9 @@ describe('StaffAdminService', () => {
 
       userRepo.findOne.mockResolvedValueOnce(moderator);
 
-      await expect(
-        service.deactivateStaff('mod-1', 'staff-1'),
-      ).rejects.toThrow(new ForbiddenException('Only SUPER_ADMIN can deactivate staff members'));
+      await expect(service.deactivateStaff('mod-1', 'staff-1')).rejects.toThrow(
+        new ForbiddenException('Only SUPER_ADMIN can deactivate staff members'),
+      );
     });
   });
 
@@ -578,9 +630,13 @@ describe('StaffAdminService', () => {
       userRepo.findOne.mockResolvedValueOnce(updatedStaff);
       permRepo.find.mockResolvedValue([]);
 
-      const result = await service.resetStaffPassword('super-admin-1', 'staff-1', {
-        new_password: 'newsecurepassword',
-      });
+      const result = await service.resetStaffPassword(
+        'super-admin-1',
+        'staff-1',
+        {
+          new_password: 'newsecurepassword',
+        },
+      );
 
       expect(result.id).toBe('staff-1');
       expect(userRepo.update).toHaveBeenCalled();
@@ -595,7 +651,9 @@ describe('StaffAdminService', () => {
         service.resetStaffPassword('mod-1', 'staff-1', {
           new_password: 'newpassword',
         }),
-      ).rejects.toThrow(new ForbiddenException('Only SUPER_ADMIN can reset staff passwords'));
+      ).rejects.toThrow(
+        new ForbiddenException('Only SUPER_ADMIN can reset staff passwords'),
+      );
     });
   });
 });

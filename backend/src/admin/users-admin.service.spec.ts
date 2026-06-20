@@ -199,7 +199,9 @@ describe('UsersAdminService', () => {
         where: { id: 'user-1' },
         relations: ['primary_neighborhood'],
       });
-      expect(adRepo.count).toHaveBeenCalledWith({ where: { user_id: 'user-1' } });
+      expect(adRepo.count).toHaveBeenCalledWith({
+        where: { user_id: 'user-1' },
+      });
     });
 
     it('should return user with zero ads', async () => {

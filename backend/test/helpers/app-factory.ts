@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import * as fs from 'fs';
 
 /**
  * Load .env.test BEFORE AppModule is imported (ConfigModule reads process.env at module init)

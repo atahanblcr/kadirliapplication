@@ -97,10 +97,22 @@ describe('TransportAdminService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransportAdminService,
-        { provide: getRepositoryToken(IntercityRoute), useValue: intercityRouteRepository },
-        { provide: getRepositoryToken(IntercitySchedule), useValue: intercityScheduleRepository },
-        { provide: getRepositoryToken(IntracityRoute), useValue: intracityRouteRepository },
-        { provide: getRepositoryToken(IntracityStop), useValue: intracityStopRepository },
+        {
+          provide: getRepositoryToken(IntercityRoute),
+          useValue: intercityRouteRepository,
+        },
+        {
+          provide: getRepositoryToken(IntercitySchedule),
+          useValue: intercityScheduleRepository,
+        },
+        {
+          provide: getRepositoryToken(IntracityRoute),
+          useValue: intracityRouteRepository,
+        },
+        {
+          provide: getRepositoryToken(IntracityStop),
+          useValue: intracityStopRepository,
+        },
       ],
     }).compile();
 
@@ -134,7 +146,10 @@ describe('TransportAdminService', () => {
         },
       ];
 
-      intercityRouteRepository.getManyAndCount.mockResolvedValue([mockRoutes, 1]);
+      intercityRouteRepository.getManyAndCount.mockResolvedValue([
+        mockRoutes,
+        1,
+      ]);
 
       const result = await service.getAdminIntercityRoutes({
         page: 1,
@@ -144,7 +159,9 @@ describe('TransportAdminService', () => {
       expect(result.routes).toHaveLength(1);
       expect(result.routes[0].company_name).toBe('Test Company');
       expect(result.meta).toBeDefined();
-      expect(intercityRouteRepository.createQueryBuilder).toHaveBeenCalledWith('r');
+      expect(intercityRouteRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'r',
+      );
       expect(intercityRouteRepository.skip).toHaveBeenCalledWith(0);
       expect(intercityRouteRepository.take).toHaveBeenCalledWith(20);
     });
@@ -250,7 +267,9 @@ describe('TransportAdminService', () => {
 
       // Verify andWhere not called with is_active
       const calls = (intercityRouteRepository.andWhere as jest.Mock).mock.calls;
-      const hasIsActiveCall = calls.some((call) => call[0]?.includes('is_active'));
+      const hasIsActiveCall = calls.some((call) =>
+        call[0]?.includes('is_active'),
+      );
       expect(hasIsActiveCall).toBe(false);
     });
 
@@ -296,15 +315,18 @@ describe('TransportAdminService', () => {
 
       expect(result.route).toBeDefined();
       expect(result.route.id).toBe('1');
-      expect(intercityRouteRepository.where).toHaveBeenCalledWith('r.id = :id', { id: '1' });
+      expect(intercityRouteRepository.where).toHaveBeenCalledWith(
+        'r.id = :id',
+        { id: '1' },
+      );
     });
 
     it('should throw NotFoundException when route not found', async () => {
       intercityRouteRepository.getOne.mockResolvedValue(null);
 
-      await expect(service.getAdminIntercityRoute('invalid-id')).rejects.toThrow(
-        new NotFoundException('Şehirlerarası hat bulunamadı'),
-      );
+      await expect(
+        service.getAdminIntercityRoute('invalid-id'),
+      ).rejects.toThrow(new NotFoundException('Şehirlerarası hat bulunamadı'));
     });
   });
 
@@ -613,7 +635,9 @@ describe('TransportAdminService', () => {
       intercityScheduleRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.updateIntercitySchedule('invalid-sched', { departure_time: '09:00' }),
+        service.updateIntercitySchedule('invalid-sched', {
+          departure_time: '09:00',
+        }),
       ).rejects.toThrow(new NotFoundException('Sefer bulunamadı'));
     });
   });
@@ -625,15 +649,17 @@ describe('TransportAdminService', () => {
 
       await service.deleteIntercitySchedule('sched-1');
 
-      expect(intercityScheduleRepository.remove).toHaveBeenCalledWith(mockSchedule);
+      expect(intercityScheduleRepository.remove).toHaveBeenCalledWith(
+        mockSchedule,
+      );
     });
 
     it('should throw NotFoundException when schedule not found', async () => {
       intercityScheduleRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.deleteIntercitySchedule('invalid-sched')).rejects.toThrow(
-        new NotFoundException('Sefer bulunamadı'),
-      );
+      await expect(
+        service.deleteIntercitySchedule('invalid-sched'),
+      ).rejects.toThrow(new NotFoundException('Sefer bulunamadı'));
     });
   });
 
@@ -657,7 +683,10 @@ describe('TransportAdminService', () => {
         },
       ];
 
-      intracityRouteRepository.getManyAndCount.mockResolvedValue([mockRoutes, 1]);
+      intracityRouteRepository.getManyAndCount.mockResolvedValue([
+        mockRoutes,
+        1,
+      ]);
 
       const result = await service.getAdminIntracityRoutes({
         page: 1,
@@ -756,9 +785,9 @@ describe('TransportAdminService', () => {
     it('should throw NotFoundException for non-existent intracity route', async () => {
       intracityRouteRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getAdminIntracityRoute('invalid-id')).rejects.toThrow(
-        new NotFoundException('Şehir içi hat bulunamadı'),
-      );
+      await expect(
+        service.getAdminIntracityRoute('invalid-id'),
+      ).rejects.toThrow(new NotFoundException('Şehir içi hat bulunamadı'));
     });
   });
 
@@ -1044,7 +1073,9 @@ describe('TransportAdminService', () => {
 
       intracityStopRepository.findOne.mockResolvedValue(mockStop);
 
-      const result = await service.reorderIntracityStop('stop-1', { new_order: 2 });
+      const result = await service.reorderIntracityStop('stop-1', {
+        new_order: 2,
+      });
 
       expect(result.stop).toBeDefined();
       expect(intracityStopRepository.update).not.toHaveBeenCalled();
@@ -1246,7 +1277,9 @@ describe('TransportAdminService', () => {
       const result = service['mapIntercitySchedule'](schedule);
 
       expect(result.days_of_week).toEqual([1, 2, 3]);
-      expect(result.days_of_week.every((d) => typeof d === 'number')).toBe(true);
+      expect(result.days_of_week.every((d) => typeof d === 'number')).toBe(
+        true,
+      );
     });
   });
 
@@ -1468,7 +1501,10 @@ describe('TransportAdminService', () => {
 
       await service['getStopsWithNeighborhood']('route-1');
 
-      expect(intracityStopRepository.orderBy).toHaveBeenCalledWith('s.stop_order', 'ASC');
+      expect(intracityStopRepository.orderBy).toHaveBeenCalledWith(
+        's.stop_order',
+        'ASC',
+      );
     });
   });
 

@@ -63,7 +63,10 @@ export class UsersService {
       user.username_last_changed_at = new Date();
     }
 
-    if (dto.primary_neighborhood_id && dto.primary_neighborhood_id !== user.primary_neighborhood_id) {
+    if (
+      dto.primary_neighborhood_id &&
+      dto.primary_neighborhood_id !== user.primary_neighborhood_id
+    ) {
       // Aylık mahalle değişiklik kontrolü
       if (user.neighborhood_last_changed_at) {
         const lastChange = new Date(user.neighborhood_last_changed_at);

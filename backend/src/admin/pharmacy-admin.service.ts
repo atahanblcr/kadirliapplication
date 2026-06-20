@@ -1,10 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
 import { AssignScheduleDto } from './dto/assign-schedule.dto';

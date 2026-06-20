@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import { Place } from '../database/entities/place.entity';
 import { QueryPlaceDto } from './dto/query-place.dto';
 
 // Haversine formülü: iki koordinat arasındaki mesafeyi km cinsinden hesaplar
@@ -59,8 +59,7 @@ export class PlacesService {
     const places = await qb.getMany();
 
     // user_lat + user_lng verilmişse Haversine ile kullanıcı mesafesi ekle
-    const hasUserCoords =
-      user_lat !== undefined && user_lng !== undefined;
+    const hasUserCoords = user_lat !== undefined && user_lng !== undefined;
 
     const result = places.map((place) => ({
       id: place.id,
@@ -71,7 +70,12 @@ export class PlacesService {
       entrance_fee: place.entrance_fee,
       distance_from_center: place.distance_from_center,
       user_distance: hasUserCoords
-        ? haversineKm(user_lat!, user_lng!, Number(place.latitude), Number(place.longitude))
+        ? haversineKm(
+            user_lat,
+            user_lng,
+            Number(place.latitude),
+            Number(place.longitude),
+          )
         : null,
       cover_image: place.cover_image,
     }));

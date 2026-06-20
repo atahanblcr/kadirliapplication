@@ -70,7 +70,11 @@ export class StaffAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateAdminPermissionsDto,
   ) {
-    return this.staffAdminService.updateStaffPermissions(requestingUserId, id, dto);
+    return this.staffAdminService.updateStaffPermissions(
+      requestingUserId,
+      id,
+      dto,
+    );
   }
 
   // DELETE /admin/staff/:id

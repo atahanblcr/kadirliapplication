@@ -118,7 +118,9 @@ describe('AdsController', () => {
 
   describe('POST /ads/:id/track-whatsapp', () => {
     it('whatsapp URL döndürmeli', async () => {
-      service.trackWhatsappClick.mockResolvedValue({ whatsapp_url: 'https://wa.me/905551234567' });
+      service.trackWhatsappClick.mockResolvedValue({
+        whatsapp_url: 'https://wa.me/905551234567',
+      });
 
       const result = await controller.trackWhatsapp('ad-1');
 
@@ -155,9 +157,13 @@ describe('AdsController', () => {
       const ad = { id: 'ad-1', title: 'Güncel' };
       service.update.mockResolvedValue(ad as any);
 
-      const result = await controller.update('ad-1', mockUser, { title: 'Güncel' });
+      const result = await controller.update('ad-1', mockUser, {
+        title: 'Güncel',
+      });
 
-      expect(service.update).toHaveBeenCalledWith('ad-1', mockUser.id, { title: 'Güncel' });
+      expect(service.update).toHaveBeenCalledWith('ad-1', mockUser.id, {
+        title: 'Güncel',
+      });
       expect(result).toEqual({ ad });
     });
   });
@@ -181,9 +187,13 @@ describe('AdsController', () => {
       };
       service.extend.mockResolvedValue(extendResult as any);
 
-      const result = await controller.extend('ad-1', mockUser, { ads_watched: 3 });
+      const result = await controller.extend('ad-1', mockUser, {
+        ads_watched: 3,
+      });
 
-      expect(service.extend).toHaveBeenCalledWith('ad-1', mockUser.id, { ads_watched: 3 });
+      expect(service.extend).toHaveBeenCalledWith('ad-1', mockUser.id, {
+        ads_watched: 3,
+      });
       expect(result.message).toContain('uzatıldı');
     });
   });
@@ -201,7 +211,9 @@ describe('AdsController', () => {
 
   describe('DELETE /ads/:id/favorite', () => {
     it('favoriden kaldırmalı', async () => {
-      service.removeFavorite.mockResolvedValue({ message: 'Favorilerden çıkarıldı' });
+      service.removeFavorite.mockResolvedValue({
+        message: 'Favorilerden çıkarıldı',
+      });
 
       const result = await controller.removeFavorite('ad-1', mockUser);
 
@@ -215,9 +227,15 @@ describe('AdsController', () => {
     it('kullanıcının ilanlarını döndürmeli', async () => {
       service.findMyAds.mockResolvedValue({ ads: [], meta: {} as any });
 
-      const result = await controller.findMyAds(mockUser, { page: 1, limit: 20 });
+      const result = await controller.findMyAds(mockUser, {
+        page: 1,
+        limit: 20,
+      });
 
-      expect(service.findMyAds).toHaveBeenCalledWith(mockUser.id, { page: 1, limit: 20 });
+      expect(service.findMyAds).toHaveBeenCalledWith(mockUser.id, {
+        page: 1,
+        limit: 20,
+      });
       expect(result.ads).toEqual([]);
     });
   });

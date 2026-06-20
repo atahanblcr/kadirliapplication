@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { DeathsService } from './deaths.service';
 import {
   DeathNotice,
@@ -13,8 +13,14 @@ import {
 function makeQb(data: any[] = [], total = 0) {
   const qb: any = {};
   const chain = [
-    'leftJoinAndSelect', 'where', 'andWhere', 'orderBy',
-    'addOrderBy', 'skip', 'take', 'softDelete',
+    'leftJoinAndSelect',
+    'where',
+    'andWhere',
+    'orderBy',
+    'addOrderBy',
+    'skip',
+    'take',
+    'softDelete',
   ];
   chain.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, total]);
@@ -40,21 +46,21 @@ const makeNotice = (overrides: Partial<DeathNotice> = {}): DeathNotice =>
     auto_archive_at: new Date('2026-02-22'),
     created_at: new Date('2026-02-14'),
     ...overrides,
-  } as DeathNotice);
+  }) as DeathNotice;
 
 const makeCemetery = (): Cemetery =>
   ({
     id: 'cem-uuid-1',
     name: 'Kadirli Merkez Mezarlığı',
     is_active: true,
-  } as Cemetery);
+  }) as Cemetery;
 
 const makeMosque = (): Mosque =>
   ({
     id: 'mos-uuid-1',
     name: 'Merkez Camii',
     is_active: true,
-  } as Mosque);
+  }) as Mosque;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -104,7 +110,9 @@ describe('DeathsService', () => {
 
       expect(result.notices).toEqual(notices);
       expect(result.meta.total).toBe(1);
-      expect(qb.where).toHaveBeenCalledWith('d.status = :status', { status: 'approved' });
+      expect(qb.where).toHaveBeenCalledWith('d.status = :status', {
+        status: 'approved',
+      });
       expect(qb.orderBy).toHaveBeenCalledWith('d.funeral_date', 'DESC');
     });
 
@@ -114,9 +122,12 @@ describe('DeathsService', () => {
 
       await service.findAll({ funeral_date: '2026-02-15' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('d.funeral_date = :funeralDate', {
-        funeralDate: '2026-02-15',
-      });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'd.funeral_date = :funeralDate',
+        {
+          funeralDate: '2026-02-15',
+        },
+      );
     });
 
     it('tarih filtresi yoksa andWhere çağrılmamalı', async () => {
@@ -151,7 +162,6 @@ describe('DeathsService', () => {
       await expect(service.findOne('x')).rejects.toThrow(NotFoundException);
     });
   });
-
 
   // ── findCemeteries ────────────────────────────────────────────────────────
 
@@ -198,7 +208,10 @@ describe('DeathsService', () => {
       await service.handleAutoArchive();
 
       expect(qb.softDelete).toHaveBeenCalled();
-      expect(qb.where).toHaveBeenCalledWith('auto_archive_at <= :now', expect.any(Object));
+      expect(qb.where).toHaveBeenCalledWith(
+        'auto_archive_at <= :now',
+        expect.any(Object),
+      );
       expect(qb.andWhere).toHaveBeenCalledWith('deleted_at IS NULL');
       expect(qb.execute).toHaveBeenCalled();
     });
@@ -240,7 +253,9 @@ describe('DeathsService', () => {
 
       await service.findAllAdmin({ page: 1, limit: 20, status: 'pending' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', { status: 'pending' });
+      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', {
+        status: 'pending',
+      });
     });
 
     it('arama filtresine göre ilanları döndürmeli (deceased_name ILIKE)', async () => {
@@ -250,21 +265,34 @@ describe('DeathsService', () => {
 
       await service.findAllAdmin({ page: 1, limit: 20, search: 'Ahmet' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('d.deceased_name ILIKE :search', {
-        search: '%Ahmet%',
-      });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'd.deceased_name ILIKE :search',
+        {
+          search: '%Ahmet%',
+        },
+      );
     });
 
     it('hem status hem search filtresi uygulanabilmeli', async () => {
       const qb = makeQb([], 0);
       noticeRepo.createQueryBuilder.mockReturnValue(qb);
 
-      await service.findAllAdmin({ page: 2, limit: 10, status: 'approved', search: 'Test' });
-
-      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', { status: 'approved' });
-      expect(qb.andWhere).toHaveBeenCalledWith('d.deceased_name ILIKE :search', {
-        search: '%Test%',
+      await service.findAllAdmin({
+        page: 2,
+        limit: 10,
+        status: 'approved',
+        search: 'Test',
       });
+
+      expect(qb.andWhere).toHaveBeenCalledWith('d.status = :status', {
+        status: 'approved',
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'd.deceased_name ILIKE :search',
+        {
+          search: '%Test%',
+        },
+      );
       expect(qb.skip).toHaveBeenCalled();
       expect(qb.take).toHaveBeenCalled();
     });
@@ -288,7 +316,10 @@ describe('DeathsService', () => {
       noticeRepo.findOne.mockResolvedValue(notice);
       noticeRepo.update.mockResolvedValue({ affected: 1 });
 
-      const result = await service.approveNotice('notice-uuid-1', 'admin-uuid-1');
+      const result = await service.approveNotice(
+        'notice-uuid-1',
+        'admin-uuid-1',
+      );
 
       expect(result.message).toBe('Vefat ilanı onaylandı');
       expect(noticeRepo.findOne).toHaveBeenCalledWith({
@@ -309,7 +340,7 @@ describe('DeathsService', () => {
       );
     });
 
-    it('approved_at timestamp\'inin güncel olması gerekir', async () => {
+    it("approved_at timestamp'inin güncel olması gerekir", async () => {
       const notice = makeNotice({ status: 'pending' });
       noticeRepo.findOne.mockResolvedValue(notice);
       noticeRepo.update.mockResolvedValue({ affected: 1 });
@@ -334,7 +365,10 @@ describe('DeathsService', () => {
       noticeRepo.findOne.mockResolvedValue(notice);
       noticeRepo.update.mockResolvedValue({ affected: 1 });
 
-      const result = await service.rejectNotice('notice-uuid-1', 'Geçersiz tarih');
+      const result = await service.rejectNotice(
+        'notice-uuid-1',
+        'Geçersiz tarih',
+      );
 
       expect(result.message).toBe('Vefat ilanı reddedildi');
       expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
@@ -348,7 +382,11 @@ describe('DeathsService', () => {
       noticeRepo.findOne.mockResolvedValue(notice);
       noticeRepo.update.mockResolvedValue({ affected: 1 });
 
-      await service.rejectNotice('notice-uuid-1', 'Geçersiz tarih', 'Lütfen düzeltip yeniden deneyin');
+      await service.rejectNotice(
+        'notice-uuid-1',
+        'Geçersiz tarih',
+        'Lütfen düzeltip yeniden deneyin',
+      );
 
       expect(noticeRepo.update).toHaveBeenCalledWith('notice-uuid-1', {
         status: 'rejected',
@@ -389,7 +427,9 @@ describe('DeathsService', () => {
       const result = await service.adminDelete('notice-uuid-1');
 
       expect(result.message).toBe('Vefat ilanı silindi');
-      expect(noticeRepo.findOne).toHaveBeenCalledWith({ where: { id: 'notice-uuid-1' } });
+      expect(noticeRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'notice-uuid-1' },
+      });
       expect(noticeRepo.softDelete).toHaveBeenCalledWith('notice-uuid-1');
     });
 

@@ -77,9 +77,7 @@ describe('TransportController', () => {
             first_departure: '06:00',
             last_departure: '22:00',
             frequency_minutes: 30,
-            stops: [
-              { stop_name: 'Otogar', stop_order: 1, time_from_start: 0 },
-            ],
+            stops: [{ stop_name: 'Otogar', stop_order: 1, time_from_start: 0 }],
           },
         ],
       };

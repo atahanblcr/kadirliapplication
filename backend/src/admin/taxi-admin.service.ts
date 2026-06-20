@@ -57,7 +57,9 @@ export class TaxiAdminService {
 
       // RANDOM() sırasını koru
       const orderMap = new Map(pagedIds.map((id, idx) => [id, idx]));
-      drivers.sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+      drivers.sort(
+        (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+      );
     }
 
     return {
@@ -122,8 +124,10 @@ export class TaxiAdminService {
     if (dto.phone !== undefined) driver.phone = dto.phone;
     if (dto.plaka !== undefined) driver.plaka = dto.plaka;
     if (dto.vehicle_info !== undefined) driver.vehicle_info = dto.vehicle_info;
-    if (dto.registration_file_id !== undefined) driver.registration_file_id = dto.registration_file_id;
-    if (dto.license_file_id !== undefined) driver.license_file_id = dto.license_file_id;
+    if (dto.registration_file_id !== undefined)
+      driver.registration_file_id = dto.registration_file_id;
+    if (dto.license_file_id !== undefined)
+      driver.license_file_id = dto.license_file_id;
     if (dto.is_active !== undefined) driver.is_active = dto.is_active;
     if (dto.is_verified !== undefined) driver.is_verified = dto.is_verified;
 

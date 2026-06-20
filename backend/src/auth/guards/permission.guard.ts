@@ -1,8 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../database/entities/user.entity';
 import { AdminPermission } from '../../database/entities/admin-permission.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { PermissionRequirement } from '../../common/decorators/permission.decorator';
@@ -27,7 +31,7 @@ export class PermissionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user as any;
+    const user = request.user;
 
     if (!user) {
       throw new ForbiddenException('User not found in request');
@@ -54,7 +58,9 @@ export class PermissionGuard implements CanActivate {
       // Check the specific action
       const actionField = `can_${requirement.action}` as keyof AdminPermission;
       if (!permission[actionField]) {
-        throw new ForbiddenException(`No ${requirement.action} permission for this module`);
+        throw new ForbiddenException(
+          `No ${requirement.action} permission for this module`,
+        );
       }
 
       return true;

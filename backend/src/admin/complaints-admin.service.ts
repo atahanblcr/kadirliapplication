@@ -18,7 +18,16 @@ export class ComplaintsAdminService {
   ) {}
 
   async getComplaints(dto: QueryComplaintsDto) {
-    const { status, priority, target_type, reporter_id, date_from, date_to, page = 1, limit = 20 } = dto;
+    const {
+      status,
+      priority,
+      target_type,
+      reporter_id,
+      date_from,
+      date_to,
+      page = 1,
+      limit = 20,
+    } = dto;
 
     const qb = this.complaintRepository
       .createQueryBuilder('c')
@@ -39,7 +48,9 @@ export class ComplaintsAdminService {
       qb.andWhere('c.user_id = :reporter_id', { reporter_id });
     }
     if (date_from) {
-      qb.andWhere('c.created_at >= :date_from', { date_from: new Date(date_from) });
+      qb.andWhere('c.created_at >= :date_from', {
+        date_from: new Date(date_from),
+      });
     }
     if (date_to) {
       qb.andWhere('c.created_at <= :date_to', { date_to: new Date(date_to) });
@@ -53,12 +64,19 @@ export class ComplaintsAdminService {
     const [rawItems, total] = await qb.getManyAndCount();
 
     // Urgent/High önce, sonra created_at DESC
-    const priorityOrder: Record<string, number> = { urgent: 1, high: 2, medium: 3, low: 4 };
+    const priorityOrder: Record<string, number> = {
+      urgent: 1,
+      high: 2,
+      medium: 3,
+      low: 4,
+    };
     const items = rawItems.sort((a, b) => {
       const pa = priorityOrder[a.priority] ?? 4;
       const pb = priorityOrder[b.priority] ?? 4;
       if (pa !== pb) return pa - pb;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
 
     return {
@@ -81,7 +99,9 @@ export class ComplaintsAdminService {
     if (!complaint) throw new NotFoundException('Şikayet bulunamadı');
 
     if (complaint.status !== 'pending') {
-      throw new BadRequestException('Sadece bekleyen şikayetler incelemeye alınabilir');
+      throw new BadRequestException(
+        'Sadece bekleyen şikayetler incelemeye alınabilir',
+      );
     }
 
     await this.complaintRepository.update(id, {
@@ -97,7 +117,11 @@ export class ComplaintsAdminService {
     return { complaint: this.mapComplaint(updated!) };
   }
 
-  async resolveComplaint(id: string, dto: UpdateComplaintStatusDto, adminId: string) {
+  async resolveComplaint(
+    id: string,
+    dto: UpdateComplaintStatusDto,
+    adminId: string,
+  ) {
     const complaint = await this.complaintRepository.findOne({ where: { id } });
     if (!complaint) throw new NotFoundException('Şikayet bulunamadı');
 
@@ -114,7 +138,9 @@ export class ComplaintsAdminService {
       admin_notes: dto.admin_response,
       resolved_by: adminId,
       resolved_at: now,
-      ...(complaint.status === 'pending' ? { reviewed_by: adminId, reviewed_at: now } : {}),
+      ...(complaint.status === 'pending'
+        ? { reviewed_by: adminId, reviewed_at: now }
+        : {}),
     });
 
     const updated = await this.complaintRepository.findOne({
@@ -124,7 +150,11 @@ export class ComplaintsAdminService {
     return { complaint: this.mapComplaint(updated!) };
   }
 
-  async rejectComplaint(id: string, dto: UpdateComplaintStatusDto, adminId: string) {
+  async rejectComplaint(
+    id: string,
+    dto: UpdateComplaintStatusDto,
+    adminId: string,
+  ) {
     const complaint = await this.complaintRepository.findOne({ where: { id } });
     if (!complaint) throw new NotFoundException('Şikayet bulunamadı');
 
@@ -141,7 +171,9 @@ export class ComplaintsAdminService {
       admin_notes: dto.admin_response,
       resolved_by: adminId,
       resolved_at: now,
-      ...(complaint.status === 'pending' ? { reviewed_by: adminId, reviewed_at: now } : {}),
+      ...(complaint.status === 'pending'
+        ? { reviewed_by: adminId, reviewed_at: now }
+        : {}),
     });
 
     const updated = await this.complaintRepository.findOne({

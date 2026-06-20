@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PharmacyAdminService } from './pharmacy-admin.service';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import { NotFoundException } from '@nestjs/common';
 
 describe('PharmacyAdminService', () => {
@@ -9,8 +12,21 @@ describe('PharmacyAdminService', () => {
   let pharmacyRepo: any;
   let scheduleRepo: any;
 
-  const mockPharmacy = { id: 'pharmacy-1', name: 'Test Pharmacy', address: 'Test Address' };
-  const mockSchedule = { id: 'schedule-1', pharmacy_id: 'pharmacy-1', pharmacy: mockPharmacy, duty_date: '2026-02-27', start_time: '19:00', end_time: '09:00', source: 'manual', created_at: new Date() };
+  const mockPharmacy = {
+    id: 'pharmacy-1',
+    name: 'Test Pharmacy',
+    address: 'Test Address',
+  };
+  const mockSchedule = {
+    id: 'schedule-1',
+    pharmacy_id: 'pharmacy-1',
+    pharmacy: mockPharmacy,
+    duty_date: '2026-02-27',
+    start_time: '19:00',
+    end_time: '09:00',
+    source: 'manual',
+    created_at: new Date(),
+  };
 
   beforeEach(async () => {
     pharmacyRepo = {
@@ -42,7 +58,10 @@ describe('PharmacyAdminService', () => {
       providers: [
         PharmacyAdminService,
         { provide: getRepositoryToken(Pharmacy), useValue: pharmacyRepo },
-        { provide: getRepositoryToken(PharmacySchedule), useValue: scheduleRepo },
+        {
+          provide: getRepositoryToken(PharmacySchedule),
+          useValue: scheduleRepo,
+        },
       ],
     }).compile();
 
@@ -61,7 +80,10 @@ describe('PharmacyAdminService', () => {
     it('should create pharmacy', async () => {
       pharmacyRepo.create.mockReturnValue(mockPharmacy);
       pharmacyRepo.save.mockResolvedValue(mockPharmacy);
-      const result = await service.createPharmacy({ name: 'Test', address: 'Test' });
+      const result = await service.createPharmacy({
+        name: 'Test',
+        address: 'Test',
+      });
       expect(result.pharmacy).toBeDefined();
     });
   });
@@ -69,13 +91,17 @@ describe('PharmacyAdminService', () => {
   describe('updatePharmacy', () => {
     it('should update pharmacy', async () => {
       pharmacyRepo.findOne.mockResolvedValue(mockPharmacy);
-      const result = await service.updatePharmacy('pharmacy-1', { name: 'Updated' });
+      const result = await service.updatePharmacy('pharmacy-1', {
+        name: 'Updated',
+      });
       expect(result.pharmacy).toBeDefined();
     });
 
     it('should throw NotFoundException', async () => {
       pharmacyRepo.findOne.mockResolvedValue(null);
-      await expect(service.updatePharmacy('nonexistent', { name: 'Test' })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updatePharmacy('nonexistent', { name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -100,7 +126,10 @@ describe('PharmacyAdminService', () => {
       pharmacyRepo.findOne.mockResolvedValue(mockPharmacy);
       scheduleRepo.create.mockReturnValue(mockSchedule);
       scheduleRepo.save.mockResolvedValue(mockSchedule);
-      const result = await service.assignSchedule({ pharmacy_id: 'pharmacy-1', date: '2026-02-27' });
+      const result = await service.assignSchedule({
+        pharmacy_id: 'pharmacy-1',
+        date: '2026-02-27',
+      });
       expect(result.schedule).toBeDefined();
     });
   });

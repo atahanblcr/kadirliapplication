@@ -1,11 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, DeepPartial, IsNull } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   DeathNotice,
@@ -13,7 +8,10 @@ import {
   Mosque,
 } from '../database/entities/death-notice.entity';
 import { QueryDeathNoticeDto } from './dto/query-death-notice.dto';
-import { getPaginationMeta, getPaginationOffset } from '../common/utils/pagination.util';
+import {
+  getPaginationMeta,
+  getPaginationOffset,
+} from '../common/utils/pagination.util';
 
 @Injectable()
 export class DeathsService {
@@ -41,7 +39,9 @@ export class DeathsService {
       .where('d.status = :status', { status: 'approved' });
 
     if (funeral_date) {
-      qb.andWhere('d.funeral_date = :funeralDate', { funeralDate: funeral_date });
+      qb.andWhere('d.funeral_date = :funeralDate', {
+        funeralDate: funeral_date,
+      });
     }
 
     qb.orderBy('d.funeral_date', 'DESC')
@@ -71,7 +71,12 @@ export class DeathsService {
 
   // ── ADMIN: TÜM VEFAT İLANLARI ────────────────────────────────────────────
 
-  async findAllAdmin(dto: { page?: number; limit?: number; status?: string; search?: string }) {
+  async findAllAdmin(dto: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) {
     const { page = 1, limit = 20, status, search } = dto;
 
     const qb = this.noticeRepository

@@ -19,8 +19,14 @@ import { CategoryProperty } from '../database/entities/category-property.entity'
 function makeQb(data: any[] = [], total = 0) {
   const qb: any = {};
   const chainMethods = [
-    'leftJoinAndSelect', 'where', 'andWhere', 'orWhere',
-    'orderBy', 'skip', 'take', 'select',
+    'leftJoinAndSelect',
+    'where',
+    'andWhere',
+    'orWhere',
+    'orderBy',
+    'skip',
+    'take',
+    'select',
   ];
   chainMethods.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, total]);
@@ -54,7 +60,7 @@ const makeAd = (overrides: Partial<Ad> = {}): Ad =>
     created_at: new Date('2026-02-10'),
     updated_at: new Date('2026-02-10'),
     ...overrides,
-  } as Ad);
+  }) as Ad;
 
 const makeCategory = (overrides: Partial<AdCategory> = {}): AdCategory =>
   ({
@@ -65,7 +71,7 @@ const makeCategory = (overrides: Partial<AdCategory> = {}): AdCategory =>
     is_active: true,
     display_order: 0,
     ...overrides,
-  } as AdCategory);
+  }) as AdCategory;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -131,7 +137,9 @@ describe('AdsService', () => {
 
       expect(result.ads).toEqual(ads);
       expect(result.meta.total).toBe(1);
-      expect(qb.where).toHaveBeenCalledWith('ad.status = :status', { status: 'approved' });
+      expect(qb.where).toHaveBeenCalledWith('ad.status = :status', {
+        status: 'approved',
+      });
     });
 
     it('kategoriye göre filtreleyebilmeli', async () => {
@@ -149,8 +157,12 @@ describe('AdsService', () => {
 
       await service.findAll({ min_price: 1000, max_price: 5000 });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('ad.price >= :minPrice', { minPrice: 1000 });
-      expect(qb.andWhere).toHaveBeenCalledWith('ad.price <= :maxPrice', { maxPrice: 5000 });
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.price >= :minPrice', {
+        minPrice: 1000,
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.price <= :maxPrice', {
+        maxPrice: 5000,
+      });
     });
 
     it('search ile ILIKE araması yapmalı', async () => {
@@ -201,13 +213,19 @@ describe('AdsService', () => {
       const result = await service.findOne('ad-uuid-1');
 
       expect(result).toBe(ad);
-      expect(adRepo.increment).toHaveBeenCalledWith({ id: 'ad-uuid-1' }, 'view_count', 1);
+      expect(adRepo.increment).toHaveBeenCalledWith(
+        { id: 'ad-uuid-1' },
+        'view_count',
+        1,
+      );
     });
 
     it('ilan bulunamazsa NotFoundException fırlatmalı', async () => {
       adRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('unknown')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -230,7 +248,11 @@ describe('AdsService', () => {
       adRepo.createQueryBuilder.mockReturnValue(qb);
       categoryRepo.findOne.mockResolvedValue(makeCategory());
       categoryRepo.count.mockResolvedValue(0); // leaf category
-      adRepo.create.mockReturnValue({ ...createDto, id: 'new-ad', status: 'pending' });
+      adRepo.create.mockReturnValue({
+        ...createDto,
+        id: 'new-ad',
+        status: 'pending',
+      });
       adRepo.save.mockResolvedValue({
         id: 'new-ad',
         status: 'pending',
@@ -252,7 +274,9 @@ describe('AdsService', () => {
       qb.getCount = jest.fn().mockResolvedValue(10);
       adRepo.createQueryBuilder.mockReturnValue(qb);
 
-      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('geçersiz kategori ise BadRequestException fırlatmalı', async () => {
@@ -261,7 +285,9 @@ describe('AdsService', () => {
       adRepo.createQueryBuilder.mockReturnValue(qb);
       categoryRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('alt kategorisi olan kategori seçilirse BadRequestException fırlatmalı', async () => {
@@ -271,7 +297,9 @@ describe('AdsService', () => {
       categoryRepo.findOne.mockResolvedValue(makeCategory());
       categoryRepo.count.mockResolvedValue(3); // 3 alt kategori var
 
-      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-uuid-1', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('cover_image_id image_ids içinde değilse BadRequestException fırlatmalı', async () => {
@@ -282,7 +310,9 @@ describe('AdsService', () => {
       categoryRepo.count.mockResolvedValue(0);
 
       const badDto = { ...createDto, cover_image_id: 'not-in-list' };
-      await expect(service.create('user-uuid-1', badDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-uuid-1', badDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('property değerleri varsa kaydedilmeli', async () => {
@@ -319,7 +349,9 @@ describe('AdsService', () => {
       adRepo.findOne.mockResolvedValue(ad);
       adRepo.save.mockResolvedValue({ ...ad, title: 'Güncel' });
 
-      const result = await service.update('ad-uuid-1', 'user-uuid-1', { title: 'Güncel' });
+      const result = await service.update('ad-uuid-1', 'user-uuid-1', {
+        title: 'Güncel',
+      });
 
       expect(result.title).toBe('Güncel');
     });
@@ -329,7 +361,9 @@ describe('AdsService', () => {
       adRepo.findOne.mockResolvedValue(ad);
       adRepo.save.mockImplementation((entity: any) => Promise.resolve(entity));
 
-      const result = await service.update('ad-uuid-1', 'user-uuid-1', { title: 'Değişti' });
+      const result = await service.update('ad-uuid-1', 'user-uuid-1', {
+        title: 'Değişti',
+      });
 
       expect(result.status).toBe('pending');
     });
@@ -373,7 +407,9 @@ describe('AdsService', () => {
         properties: [{ property_id: 'p1', value: 'V1' }],
       });
 
-      expect(propertyValueRepo.delete).toHaveBeenCalledWith({ ad_id: 'ad-uuid-1' });
+      expect(propertyValueRepo.delete).toHaveBeenCalledWith({
+        ad_id: 'ad-uuid-1',
+      });
       expect(propertyValueRepo.save).toHaveBeenCalled();
     });
   });
@@ -395,7 +431,9 @@ describe('AdsService', () => {
     it('başkasının ilanını silemez', async () => {
       adRepo.findOne.mockResolvedValue(makeAd({ user_id: 'baska' }));
 
-      await expect(service.remove('ad-uuid-1', 'user-uuid-1')).rejects.toThrow(ForbiddenException);
+      await expect(service.remove('ad-uuid-1', 'user-uuid-1')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('ilan yoksa NotFoundException', async () => {
@@ -416,14 +454,18 @@ describe('AdsService', () => {
       extensionRepo.create.mockImplementation((d: any) => d);
       extensionRepo.save.mockResolvedValue({});
 
-      const result = await service.extend('ad-uuid-1', 'user-uuid-1', { ads_watched: 3 });
+      const result = await service.extend('ad-uuid-1', 'user-uuid-1', {
+        ads_watched: 3,
+      });
 
       expect(result.ad.extension_count).toBe(1);
       expect(result.ad.remaining_extensions).toBe(2);
       expect(result.message).toContain('3 gün');
       // expires_at 3 gün uzamalı
       const expected = new Date('2026-02-20');
-      expect(ad.expires_at.toISOString().slice(0, 10)).toBe(expected.toISOString().slice(0, 10));
+      expect(ad.expires_at.toISOString().slice(0, 10)).toBe(
+        expected.toISOString().slice(0, 10),
+      );
     });
 
     it('1 reklam izleme = 1 gün uzatma', async () => {
@@ -434,11 +476,15 @@ describe('AdsService', () => {
       extensionRepo.create.mockImplementation((d: any) => d);
       extensionRepo.save.mockResolvedValue({});
 
-      const result = await service.extend('ad-uuid-1', 'user-uuid-1', { ads_watched: 1 });
+      const result = await service.extend('ad-uuid-1', 'user-uuid-1', {
+        ads_watched: 1,
+      });
 
       expect(result.ad.extension_count).toBe(2);
       const expected = new Date('2026-02-18');
-      expect(ad.expires_at.toISOString().slice(0, 10)).toBe(expected.toISOString().slice(0, 10));
+      expect(ad.expires_at.toISOString().slice(0, 10)).toBe(
+        expected.toISOString().slice(0, 10),
+      );
     });
 
     it('max uzatma (3) aşılınca BadRequestException', async () => {
@@ -486,9 +532,9 @@ describe('AdsService', () => {
       adRepo.findOne.mockResolvedValue(makeAd());
       favoriteRepo.findOne.mockResolvedValue({ id: 'fav-1' });
 
-      await expect(service.addFavorite('ad-uuid-1', 'user-uuid-1')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.addFavorite('ad-uuid-1', 'user-uuid-1'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('30 favori limitini aşınca BadRequestException', async () => {
@@ -496,15 +542,17 @@ describe('AdsService', () => {
       favoriteRepo.findOne.mockResolvedValue(null);
       favoriteRepo.count.mockResolvedValue(30);
 
-      await expect(service.addFavorite('ad-uuid-1', 'user-uuid-1')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.addFavorite('ad-uuid-1', 'user-uuid-1'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('ilan yoksa NotFoundException', async () => {
       adRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.addFavorite('x', 'y')).rejects.toThrow(NotFoundException);
+      await expect(service.addFavorite('x', 'y')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -523,7 +571,9 @@ describe('AdsService', () => {
     it('favori yoksa NotFoundException', async () => {
       favoriteRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.removeFavorite('x', 'y')).rejects.toThrow(NotFoundException);
+      await expect(service.removeFavorite('x', 'y')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -535,10 +585,15 @@ describe('AdsService', () => {
       const qb = makeQb(ads, 1);
       adRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findMyAds('user-uuid-1', { page: 1, limit: 20 });
+      const result = await service.findMyAds('user-uuid-1', {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.ads).toEqual(ads);
-      expect(qb.where).toHaveBeenCalledWith('ad.user_id = :userId', { userId: 'user-uuid-1' });
+      expect(qb.where).toHaveBeenCalledWith('ad.user_id = :userId', {
+        userId: 'user-uuid-1',
+      });
     });
 
     it('status filtresi uygulanabilmeli', async () => {
@@ -547,7 +602,9 @@ describe('AdsService', () => {
 
       await service.findMyAds('user-uuid-1', { status: 'pending' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('ad.status = :status', { status: 'pending' });
+      expect(qb.andWhere).toHaveBeenCalledWith('ad.status = :status', {
+        status: 'pending',
+      });
     });
   });
 
@@ -612,7 +669,9 @@ describe('AdsService', () => {
     it('kategori yoksa NotFoundException', async () => {
       categoryRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findCategoryProperties('x')).rejects.toThrow(NotFoundException);
+      await expect(service.findCategoryProperties('x')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -627,12 +686,18 @@ describe('AdsService', () => {
       const result = await service.trackPhoneClick('ad-uuid-1');
 
       expect(result.phone).toBe('05551234567');
-      expect(adRepo.increment).toHaveBeenCalledWith({ id: 'ad-uuid-1' }, 'phone_click_count', 1);
+      expect(adRepo.increment).toHaveBeenCalledWith(
+        { id: 'ad-uuid-1' },
+        'phone_click_count',
+        1,
+      );
     });
 
     it('ilan yoksa NotFoundException', async () => {
       adRepo.findOne.mockResolvedValue(null);
-      await expect(service.trackPhoneClick('x')).rejects.toThrow(NotFoundException);
+      await expect(service.trackPhoneClick('x')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -645,12 +710,18 @@ describe('AdsService', () => {
       const result = await service.trackWhatsappClick('ad-uuid-1');
 
       expect(result.whatsapp_url).toBe('https://wa.me/905551234567');
-      expect(adRepo.increment).toHaveBeenCalledWith({ id: 'ad-uuid-1' }, 'whatsapp_click_count', 1);
+      expect(adRepo.increment).toHaveBeenCalledWith(
+        { id: 'ad-uuid-1' },
+        'whatsapp_click_count',
+        1,
+      );
     });
 
     it('ilan yoksa NotFoundException', async () => {
       adRepo.findOne.mockResolvedValue(null);
-      await expect(service.trackWhatsappClick('x')).rejects.toThrow(NotFoundException);
+      await expect(service.trackWhatsappClick('x')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

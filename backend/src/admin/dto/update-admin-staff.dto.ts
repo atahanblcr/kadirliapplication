@@ -1,4 +1,11 @@
-import { IsOptional, IsString, IsEnum, MinLength, MaxLength, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  MinLength,
+  MaxLength,
+  IsBoolean,
+} from 'class-validator';
 import { UserRole } from '../../common/enums/user-role.enum';
 
 export class UpdateAdminStaffDto {

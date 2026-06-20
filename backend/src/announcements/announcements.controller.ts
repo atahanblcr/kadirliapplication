@@ -41,10 +41,7 @@ export class AnnouncementsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(
-    @CurrentUser() user: User,
-    @Query() dto: QueryAnnouncementDto,
-  ) {
+  async findAll(@CurrentUser() user: User, @Query() dto: QueryAnnouncementDto) {
     return this.announcementsService.findAll(user, dto);
   }
 
@@ -66,10 +63,7 @@ export class AnnouncementsController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @CurrentUser() user: User,
-    @Body() dto: CreateAnnouncementDto,
-  ) {
+  async create(@CurrentUser() user: User, @Body() dto: CreateAnnouncementDto) {
     return this.announcementsService.create(user.id, dto);
   }
 

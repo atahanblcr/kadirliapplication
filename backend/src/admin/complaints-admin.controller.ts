@@ -22,7 +22,9 @@ import { UserRole } from '../common/enums/user-role.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class ComplaintsAdminController {
-  constructor(private readonly complaintsAdminService: ComplaintsAdminService) {}
+  constructor(
+    private readonly complaintsAdminService: ComplaintsAdminService,
+  ) {}
 
   // GET /admin/complaints
   @Get()
@@ -75,6 +77,9 @@ export class ComplaintsAdminController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: { priority: string },
   ) {
-    return this.complaintsAdminService.updateComplaintPriority(id, dto.priority);
+    return this.complaintsAdminService.updateComplaintPriority(
+      id,
+      dto.priority,
+    );
   }
 }

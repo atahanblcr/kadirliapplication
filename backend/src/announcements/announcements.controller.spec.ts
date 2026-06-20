@@ -48,9 +48,7 @@ describe('AnnouncementsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AnnouncementsController],
-      providers: [
-        { provide: AnnouncementsService, useValue: mockService },
-      ],
+      providers: [{ provide: AnnouncementsService, useValue: mockService }],
     }).compile();
 
     controller = module.get<AnnouncementsController>(AnnouncementsController);
@@ -92,7 +90,14 @@ describe('AnnouncementsController', () => {
       const query = { page: 1, limit: 20 };
       mockService.findAll.mockResolvedValue({
         announcements: [mockAnnouncement],
-        meta: { page: 1, limit: 20, total: 1, total_pages: 1, has_next: false, has_prev: false },
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 1,
+          total_pages: 1,
+          has_next: false,
+          has_prev: false,
+        },
       });
 
       const result = await controller.findAll(mockUser as User, query);
@@ -104,10 +109,20 @@ describe('AnnouncementsController', () => {
     it('Sayfalama meta bilgisi dönmeli', async () => {
       mockService.findAll.mockResolvedValue({
         announcements: [],
-        meta: { page: 2, limit: 10, total: 25, total_pages: 3, has_next: true, has_prev: true },
+        meta: {
+          page: 2,
+          limit: 10,
+          total: 25,
+          total_pages: 3,
+          has_next: true,
+          has_prev: true,
+        },
       });
 
-      const result = await controller.findAll(mockUser as User, { page: 2, limit: 10 });
+      const result = await controller.findAll(mockUser as User, {
+        page: 2,
+        limit: 10,
+      });
 
       expect(result.meta.total_pages).toBe(3);
     });
@@ -128,7 +143,9 @@ describe('AnnouncementsController', () => {
     });
 
     it('Service hata fırlatırsa controller iletmeli', async () => {
-      mockService.findOne.mockRejectedValue(new NotFoundException('Duyuru bulunamadı'));
+      mockService.findOne.mockRejectedValue(
+        new NotFoundException('Duyuru bulunamadı'),
+      );
 
       await expect(
         controller.findOne('non-existent', mockUser as User),
@@ -182,7 +199,9 @@ describe('AnnouncementsController', () => {
       const updated = { ...mockAnnouncement, title: 'Güncellendi' };
       mockService.update.mockResolvedValue(updated);
 
-      const result = await controller.update('ann-uuid', { title: 'Güncellendi' });
+      const result = await controller.update('ann-uuid', {
+        title: 'Güncellendi',
+      });
 
       expect(mockService.update).toHaveBeenCalledWith('ann-uuid', {
         title: 'Güncellendi',

@@ -8,9 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../database/entities/user.entity';
-import { AdminPermission, AdminModule } from '../database/entities/admin-permission.entity';
+import { AdminPermission } from '../database/entities/admin-permission.entity';
 import { UserRole } from '../common/enums/user-role.enum';
-import { CreateAdminStaffDto, PermissionDto } from './dto/create-admin-staff.dto';
+import {
+  CreateAdminStaffDto,
+  PermissionDto,
+} from './dto/create-admin-staff.dto';
 import { UpdateAdminStaffDto } from './dto/update-admin-staff.dto';
 import { UpdateAdminPermissionsDto } from './dto/update-admin-permissions.dto';
 import { ResetStaffPasswordDto } from './dto/reset-staff-password.dto';
@@ -36,7 +39,11 @@ export class StaffAdminService {
     }
 
     // Only MOD/ADMIN/SUPER_ADMIN can list staff
-    if (![UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(requestingUser.role)) {
+    if (
+      ![UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(
+        requestingUser.role,
+      )
+    ) {
       throw new ForbiddenException('Only admin staff can list staff members');
     }
 
@@ -44,13 +51,19 @@ export class StaffAdminService {
     const limit = dto.limit || 20;
     const offset = (page - 1) * limit;
 
-    const query = this.userRepository.createQueryBuilder('u')
-      .where('u.role IN (:...roles)', { roles: [UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN] });
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .where('u.role IN (:...roles)', {
+        roles: [UserRole.MODERATOR, UserRole.ADMIN, UserRole.SUPER_ADMIN],
+      });
 
     if (dto.search) {
-      query.andWhere('(u.email ILIKE :search OR u.username ILIKE :search OR u.phone LIKE :search)', {
-        search: `%${dto.search}%`,
-      });
+      query.andWhere(
+        '(u.email ILIKE :search OR u.username ILIKE :search OR u.phone LIKE :search)',
+        {
+          search: `%${dto.search}%`,
+        },
+      );
     }
 
     if (dto.role) {
@@ -61,9 +74,7 @@ export class StaffAdminService {
       query.andWhere('u.is_active = :is_active', { is_active: dto.is_active });
     }
 
-    query.orderBy('u.created_at', 'DESC')
-      .skip(offset)
-      .take(limit);
+    query.orderBy('u.created_at', 'DESC').skip(offset).take(limit);
 
     const [data, total] = await query.getManyAndCount();
 
@@ -125,7 +136,9 @@ export class StaffAdminService {
 
     // Only MODERATOR/ADMIN can be created (not SUPER_ADMIN)
     if (![UserRole.MODERATOR, UserRole.ADMIN].includes(dto.role)) {
-      throw new BadRequestException('Only MODERATOR or ADMIN roles can be created');
+      throw new BadRequestException(
+        'Only MODERATOR or ADMIN roles can be created',
+      );
     }
 
     // Check email/phone uniqueness
@@ -168,7 +181,10 @@ export class StaffAdminService {
     // Add permissions if provided
     let permissions: AdminPermission[] = [];
     if (dto.permissions && dto.permissions.length > 0) {
-      permissions = await this.upsertPermissions(savedStaff.id, dto.permissions);
+      permissions = await this.upsertPermissions(
+        savedStaff.id,
+        dto.permissions,
+      );
     }
 
     return {
@@ -177,7 +193,11 @@ export class StaffAdminService {
     };
   }
 
-  async updateStaff(requestingUserId: string, targetId: string, dto: UpdateAdminStaffDto) {
+  async updateStaff(
+    requestingUserId: string,
+    targetId: string,
+    dto: UpdateAdminStaffDto,
+  ) {
     const requestingUser = await this.userRepository.findOne({
       where: { id: requestingUserId },
     });
@@ -200,12 +220,19 @@ export class StaffAdminService {
     }
 
     // Prevent downgrading SUPER_ADMIN to lower role
-    if (targetStaff.role === UserRole.SUPER_ADMIN && dto.role && dto.role !== UserRole.SUPER_ADMIN) {
+    if (
+      targetStaff.role === UserRole.SUPER_ADMIN &&
+      dto.role &&
+      dto.role !== UserRole.SUPER_ADMIN
+    ) {
       throw new ForbiddenException('Cannot downgrade SUPER_ADMIN role');
     }
 
     // Prevent creating new SUPER_ADMIN via update
-    if (dto.role === UserRole.SUPER_ADMIN && targetStaff.role !== UserRole.SUPER_ADMIN) {
+    if (
+      dto.role === UserRole.SUPER_ADMIN &&
+      targetStaff.role !== UserRole.SUPER_ADMIN
+    ) {
       throw new ForbiddenException('Cannot promote to SUPER_ADMIN');
     }
 
@@ -231,7 +258,11 @@ export class StaffAdminService {
     };
   }
 
-  async updateStaffPermissions(requestingUserId: string, targetId: string, dto: UpdateAdminPermissionsDto) {
+  async updateStaffPermissions(
+    requestingUserId: string,
+    targetId: string,
+    dto: UpdateAdminPermissionsDto,
+  ) {
     const requestingUser = await this.userRepository.findOne({
       where: { id: requestingUserId },
     });
@@ -242,7 +273,9 @@ export class StaffAdminService {
 
     // Only SUPER_ADMIN can update permissions
     if (requestingUser.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Only SUPER_ADMIN can update staff permissions');
+      throw new ForbiddenException(
+        'Only SUPER_ADMIN can update staff permissions',
+      );
     }
 
     const targetStaff = await this.userRepository.findOne({
@@ -255,7 +288,9 @@ export class StaffAdminService {
 
     // Only update permissions for MODERATOR (ADMIN/SUPER_ADMIN have full access)
     if (targetStaff.role !== UserRole.MODERATOR) {
-      throw new BadRequestException('Permissions can only be set for MODERATOR role');
+      throw new BadRequestException(
+        'Permissions can only be set for MODERATOR role',
+      );
     }
 
     return this.upsertPermissions(targetId, dto.permissions);
@@ -272,7 +307,9 @@ export class StaffAdminService {
 
     // Only SUPER_ADMIN can deactivate staff
     if (requestingUser.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Only SUPER_ADMIN can deactivate staff members');
+      throw new ForbiddenException(
+        'Only SUPER_ADMIN can deactivate staff members',
+      );
     }
 
     const targetStaff = await this.userRepository.findOne({
@@ -301,7 +338,11 @@ export class StaffAdminService {
     };
   }
 
-  async resetStaffPassword(requestingUserId: string, targetId: string, dto: ResetStaffPasswordDto) {
+  async resetStaffPassword(
+    requestingUserId: string,
+    targetId: string,
+    dto: ResetStaffPasswordDto,
+  ) {
     const requestingUser = await this.userRepository.findOne({
       where: { id: requestingUserId },
     });
@@ -312,7 +353,9 @@ export class StaffAdminService {
 
     // Only SUPER_ADMIN can reset passwords
     if (requestingUser.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Only SUPER_ADMIN can reset staff passwords');
+      throw new ForbiddenException(
+        'Only SUPER_ADMIN can reset staff passwords',
+      );
     }
 
     const targetStaff = await this.userRepository.findOne({
@@ -325,7 +368,10 @@ export class StaffAdminService {
 
     const hashedPassword = await bcrypt.hash(dto.new_password, 10);
 
-    await this.userRepository.update({ id: targetId }, { password: hashedPassword });
+    await this.userRepository.update(
+      { id: targetId },
+      { password: hashedPassword },
+    );
 
     const updated = await this.userRepository.findOne({
       where: { id: targetId },
@@ -341,7 +387,10 @@ export class StaffAdminService {
     };
   }
 
-  private async upsertPermissions(userId: string, permissions: PermissionDto[]): Promise<AdminPermission[]> {
+  private async upsertPermissions(
+    userId: string,
+    permissions: PermissionDto[],
+  ): Promise<AdminPermission[]> {
     // Delete existing permissions
     await this.permissionRepository.delete({ user_id: userId });
 

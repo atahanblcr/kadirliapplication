@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GuideCategory, GuideItem } from '../database/entities/guide.entity';
@@ -24,9 +28,7 @@ export class GuideAdminService {
       name: cat.name,
       slug: cat.slug,
       parent_id: cat.parent_id ?? null,
-      parent: cat.parent
-        ? { id: cat.parent.id, name: cat.parent.name }
-        : null,
+      parent: cat.parent ? { id: cat.parent.id, name: cat.parent.name } : null,
       children: cat.children
         ? cat.children.map((c) => ({
             id: c.id,
@@ -118,7 +120,9 @@ export class GuideAdminService {
       });
       if (!parent) throw new BadRequestException('Üst kategori bulunamadı');
       if (parent.parent_id) {
-        throw new BadRequestException('Maksimum 2 seviye hiyerarşi desteklenir');
+        throw new BadRequestException(
+          'Maksimum 2 seviye hiyerarşi desteklenir',
+        );
       }
     }
 
@@ -152,7 +156,9 @@ export class GuideAdminService {
 
     if (dto.parent_id !== undefined) {
       if (dto.parent_id === id) {
-        throw new BadRequestException('Kategori kendisinin üst kategorisi olamaz');
+        throw new BadRequestException(
+          'Kategori kendisinin üst kategorisi olamaz',
+        );
       }
       if (dto.parent_id) {
         const parent = await this.guideCategoryRepository.findOne({
@@ -160,13 +166,20 @@ export class GuideAdminService {
         });
         if (!parent) throw new BadRequestException('Üst kategori bulunamadı');
         if (parent.parent_id) {
-          throw new BadRequestException('Maksimum 2 seviye hiyerarşi desteklenir');
+          throw new BadRequestException(
+            'Maksimum 2 seviye hiyerarşi desteklenir',
+          );
         }
       }
     }
 
     const fields: (keyof UpdateGuideCategoryDto)[] = [
-      'name', 'parent_id', 'icon', 'color', 'display_order', 'is_active',
+      'name',
+      'parent_id',
+      'icon',
+      'color',
+      'display_order',
+      'is_active',
     ];
 
     for (const field of fields) {
@@ -286,8 +299,18 @@ export class GuideAdminService {
     }
 
     const fields: (keyof UpdateGuideItemDto)[] = [
-      'category_id', 'name', 'phone', 'address', 'email', 'website_url',
-      'working_hours', 'latitude', 'longitude', 'logo_file_id', 'description', 'is_active',
+      'category_id',
+      'name',
+      'phone',
+      'address',
+      'email',
+      'website_url',
+      'working_hours',
+      'latitude',
+      'longitude',
+      'logo_file_id',
+      'description',
+      'is_active',
     ];
 
     for (const field of fields) {

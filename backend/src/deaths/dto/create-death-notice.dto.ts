@@ -9,7 +9,6 @@ import {
   MaxLength,
   Min,
   Max,
-  ValidateIf,
 } from 'class-validator';
 
 export class CreateDeathNoticeDto {

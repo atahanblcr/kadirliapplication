@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -23,10 +17,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  async updateProfile(
-    @CurrentUser() user: User,
-    @Body() dto: UpdateUserDto,
-  ) {
+  async updateProfile(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
     const updated = await this.usersService.updateProfile(user.id, dto);
     return { user: updated };
   }
@@ -36,10 +27,8 @@ export class UsersController {
     @CurrentUser() user: User,
     @Body() dto: UpdateNotificationsDto,
   ) {
-    const notification_preferences = await this.usersService.updateNotificationPreferences(
-      user.id,
-      dto,
-    );
+    const notification_preferences =
+      await this.usersService.updateNotificationPreferences(user.id, dto);
     return { notification_preferences };
   }
 }

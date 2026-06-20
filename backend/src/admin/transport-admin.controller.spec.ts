@@ -36,24 +36,34 @@ describe('TransportAdminController', () => {
     }).compile();
 
     controller = module.get<TransportAdminController>(TransportAdminController);
-    transportAdminService = module.get(TransportAdminService) as jest.Mocked<TransportAdminService>;
+    transportAdminService = module.get(TransportAdminService);
   });
 
   describe('getIntercityRoutes', () => {
     it('should return intercity routes', async () => {
       const dto = { search: 'test' };
-      transportAdminService.getAdminIntercityRoutes.mockResolvedValue({ success: true, data: [] });
-      const result = await controller.getIntercityRoutes(dto);
-      expect(transportAdminService.getAdminIntercityRoutes).toHaveBeenCalledWith(dto);
+      transportAdminService.getAdminIntercityRoutes.mockResolvedValue({
+        success: true,
+        data: [],
+      });
+      await controller.getIntercityRoutes(dto);
+      expect(
+        transportAdminService.getAdminIntercityRoutes,
+      ).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('getIntercityRoute', () => {
     it('should return intercity route detail', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      transportAdminService.getAdminIntercityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.getIntercityRoute(id);
-      expect(transportAdminService.getAdminIntercityRoute).toHaveBeenCalledWith(id);
+      transportAdminService.getAdminIntercityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.getIntercityRoute(id);
+      expect(transportAdminService.getAdminIntercityRoute).toHaveBeenCalledWith(
+        id,
+      );
     });
   });
 
@@ -66,9 +76,14 @@ describe('TransportAdminController', () => {
   describe('createIntercityRoute', () => {
     it('should create intercity route', async () => {
       const dto = { from_city: 'Istanbul', to_city: 'Ankara' };
-      transportAdminService.createIntercityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.createIntercityRoute(dto);
-      expect(transportAdminService.createIntercityRoute).toHaveBeenCalledWith(dto);
+      transportAdminService.createIntercityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.createIntercityRoute(dto);
+      expect(transportAdminService.createIntercityRoute).toHaveBeenCalledWith(
+        dto,
+      );
     });
   });
 
@@ -76,9 +91,15 @@ describe('TransportAdminController', () => {
     it('should update intercity route', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { from_city: 'Updated' };
-      transportAdminService.updateIntercityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.updateIntercityRoute(id, dto);
-      expect(transportAdminService.updateIntercityRoute).toHaveBeenCalledWith(id, dto);
+      transportAdminService.updateIntercityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.updateIntercityRoute(id, dto);
+      expect(transportAdminService.updateIntercityRoute).toHaveBeenCalledWith(
+        id,
+        dto,
+      );
     });
   });
 
@@ -87,7 +108,9 @@ describe('TransportAdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       transportAdminService.deleteIntercityRoute.mockResolvedValue(undefined);
       await controller.deleteIntercityRoute(id);
-      expect(transportAdminService.deleteIntercityRoute).toHaveBeenCalledWith(id);
+      expect(transportAdminService.deleteIntercityRoute).toHaveBeenCalledWith(
+        id,
+      );
     });
   });
 
@@ -99,8 +122,11 @@ describe('TransportAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.addIntercitySchedule(routeId, dto);
-      expect(transportAdminService.addIntercitySchedule).toHaveBeenCalledWith(routeId, dto);
+      await controller.addIntercitySchedule(routeId, dto);
+      expect(transportAdminService.addIntercitySchedule).toHaveBeenCalledWith(
+        routeId,
+        dto,
+      );
     });
   });
 
@@ -112,47 +138,65 @@ describe('TransportAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.updateIntercitySchedule(scheduleId, dto);
-      expect(transportAdminService.updateIntercitySchedule).toHaveBeenCalledWith(
-        scheduleId,
-        dto,
-      );
+      await controller.updateIntercitySchedule(scheduleId, dto);
+      expect(
+        transportAdminService.updateIntercitySchedule,
+      ).toHaveBeenCalledWith(scheduleId, dto);
     });
   });
 
   describe('deleteIntercitySchedule', () => {
     it('should delete intercity schedule', async () => {
       const scheduleId = '123e4567-e89b-12d3-a456-426614174000';
-      transportAdminService.deleteIntercitySchedule.mockResolvedValue(undefined);
+      transportAdminService.deleteIntercitySchedule.mockResolvedValue(
+        undefined,
+      );
       await controller.deleteIntercitySchedule(scheduleId);
-      expect(transportAdminService.deleteIntercitySchedule).toHaveBeenCalledWith(scheduleId);
+      expect(
+        transportAdminService.deleteIntercitySchedule,
+      ).toHaveBeenCalledWith(scheduleId);
     });
   });
 
   describe('getIntracityRoutes', () => {
     it('should return intracity routes', async () => {
       const dto = { search: 'test' };
-      transportAdminService.getAdminIntracityRoutes.mockResolvedValue({ success: true, data: [] });
-      const result = await controller.getIntracityRoutes(dto);
-      expect(transportAdminService.getAdminIntracityRoutes).toHaveBeenCalledWith(dto);
+      transportAdminService.getAdminIntracityRoutes.mockResolvedValue({
+        success: true,
+        data: [],
+      });
+      await controller.getIntracityRoutes(dto);
+      expect(
+        transportAdminService.getAdminIntracityRoutes,
+      ).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('getIntracityRoute', () => {
     it('should return intracity route detail', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      transportAdminService.getAdminIntracityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.getIntracityRoute(id);
-      expect(transportAdminService.getAdminIntracityRoute).toHaveBeenCalledWith(id);
+      transportAdminService.getAdminIntracityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.getIntracityRoute(id);
+      expect(transportAdminService.getAdminIntracityRoute).toHaveBeenCalledWith(
+        id,
+      );
     });
   });
 
   describe('createIntracityRoute', () => {
     it('should create intracity route', async () => {
       const dto = { name: 'T1', fare: 5.0 };
-      transportAdminService.createIntracityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.createIntracityRoute(dto);
-      expect(transportAdminService.createIntracityRoute).toHaveBeenCalledWith(dto);
+      transportAdminService.createIntracityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.createIntracityRoute(dto);
+      expect(transportAdminService.createIntracityRoute).toHaveBeenCalledWith(
+        dto,
+      );
     });
   });
 
@@ -160,9 +204,15 @@ describe('TransportAdminController', () => {
     it('should update intracity route', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'T1-Updated' };
-      transportAdminService.updateIntracityRoute.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.updateIntracityRoute(id, dto);
-      expect(transportAdminService.updateIntracityRoute).toHaveBeenCalledWith(id, dto);
+      transportAdminService.updateIntracityRoute.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.updateIntracityRoute(id, dto);
+      expect(transportAdminService.updateIntracityRoute).toHaveBeenCalledWith(
+        id,
+        dto,
+      );
     });
   });
 
@@ -171,7 +221,9 @@ describe('TransportAdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       transportAdminService.deleteIntracityRoute.mockResolvedValue(undefined);
       await controller.deleteIntracityRoute(id);
-      expect(transportAdminService.deleteIntracityRoute).toHaveBeenCalledWith(id);
+      expect(transportAdminService.deleteIntracityRoute).toHaveBeenCalledWith(
+        id,
+      );
     });
   });
 
@@ -179,9 +231,15 @@ describe('TransportAdminController', () => {
     it('should add intracity stop', async () => {
       const routeId = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Stop 1' };
-      transportAdminService.addIntracityStop.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.addIntracityStop(routeId, dto);
-      expect(transportAdminService.addIntracityStop).toHaveBeenCalledWith(routeId, dto);
+      transportAdminService.addIntracityStop.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.addIntracityStop(routeId, dto);
+      expect(transportAdminService.addIntracityStop).toHaveBeenCalledWith(
+        routeId,
+        dto,
+      );
     });
   });
 
@@ -189,9 +247,15 @@ describe('TransportAdminController', () => {
     it('should update intracity stop', async () => {
       const stopId = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated Stop' };
-      transportAdminService.updateIntracityStop.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.updateIntracityStop(stopId, dto);
-      expect(transportAdminService.updateIntracityStop).toHaveBeenCalledWith(stopId, dto);
+      transportAdminService.updateIntracityStop.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.updateIntracityStop(stopId, dto);
+      expect(transportAdminService.updateIntracityStop).toHaveBeenCalledWith(
+        stopId,
+        dto,
+      );
     });
   });
 
@@ -200,7 +264,9 @@ describe('TransportAdminController', () => {
       const stopId = '123e4567-e89b-12d3-a456-426614174000';
       transportAdminService.deleteIntracityStop.mockResolvedValue(undefined);
       await controller.deleteIntracityStop(stopId);
-      expect(transportAdminService.deleteIntracityStop).toHaveBeenCalledWith(stopId);
+      expect(transportAdminService.deleteIntracityStop).toHaveBeenCalledWith(
+        stopId,
+      );
     });
   });
 
@@ -212,8 +278,11 @@ describe('TransportAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.reorderIntracityStop(stopId, dto);
-      expect(transportAdminService.reorderIntracityStop).toHaveBeenCalledWith(stopId, dto);
+      await controller.reorderIntracityStop(stopId, dto);
+      expect(transportAdminService.reorderIntracityStop).toHaveBeenCalledWith(
+        stopId,
+        dto,
+      );
     });
   });
 });

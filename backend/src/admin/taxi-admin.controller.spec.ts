@@ -31,7 +31,7 @@ describe('TaxiAdminController', () => {
     }).compile();
 
     controller = module.get<TaxiAdminController>(TaxiAdminController);
-    taxiAdminService = module.get(TaxiAdminService) as jest.Mocked<TaxiAdminService>;
+    taxiAdminService = module.get(TaxiAdminService);
   });
 
   describe('getTaxiDrivers', () => {
@@ -58,7 +58,9 @@ describe('TaxiAdminController', () => {
       const result = await controller.getTaxiDriver(mockTaxiDriver.id);
 
       expect(result.driver).toEqual(mockTaxiDriver);
-      expect(taxiAdminService.getAdminTaxiDriver).toHaveBeenCalledWith(mockTaxiDriver.id);
+      expect(taxiAdminService.getAdminTaxiDriver).toHaveBeenCalledWith(
+        mockTaxiDriver.id,
+      );
     });
   });
 
@@ -86,7 +88,10 @@ describe('TaxiAdminController', () => {
       const result = await controller.updateTaxiDriver(mockTaxiDriver.id, dto);
 
       expect(result.driver).toBeDefined();
-      expect(taxiAdminService.updateTaxiDriver).toHaveBeenCalledWith(mockTaxiDriver.id, dto);
+      expect(taxiAdminService.updateTaxiDriver).toHaveBeenCalledWith(
+        mockTaxiDriver.id,
+        dto,
+      );
     });
   });
 
@@ -96,7 +101,9 @@ describe('TaxiAdminController', () => {
 
       await controller.deleteTaxiDriver(mockTaxiDriver.id);
 
-      expect(taxiAdminService.deleteTaxiDriver).toHaveBeenCalledWith(mockTaxiDriver.id);
+      expect(taxiAdminService.deleteTaxiDriver).toHaveBeenCalledWith(
+        mockTaxiDriver.id,
+      );
     });
   });
 });

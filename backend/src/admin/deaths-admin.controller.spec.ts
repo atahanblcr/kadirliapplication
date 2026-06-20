@@ -32,12 +32,15 @@ describe('DeathsAdminController', () => {
     }).compile();
 
     controller = module.get<DeathsAdminController>(DeathsAdminController);
-    deathsAdminService = module.get(DeathsAdminService) as jest.Mocked<DeathsAdminService>;
+    deathsAdminService = module.get(DeathsAdminService);
   });
 
   describe('getAllDeaths', () => {
     it('should return list of deaths', async () => {
-      deathsAdminService.getAllDeaths.mockResolvedValue({ success: true, data: [] });
+      deathsAdminService.getAllDeaths.mockResolvedValue({
+        success: true,
+        data: [],
+      });
       const result = await controller.getAllDeaths({});
       expect(result.success).toBe(true);
       expect(deathsAdminService.getAllDeaths).toHaveBeenCalled();
@@ -46,7 +49,10 @@ describe('DeathsAdminController', () => {
 
   describe('getCemeteries', () => {
     it('should return cemeteries', async () => {
-      deathsAdminService.getCemeteries.mockResolvedValue({ success: true, data: [] });
+      deathsAdminService.getCemeteries.mockResolvedValue({
+        success: true,
+        data: [],
+      });
       const result = await controller.getCemeteries();
       expect(result.success).toBe(true);
       expect(deathsAdminService.getCemeteries).toHaveBeenCalled();
@@ -56,7 +62,10 @@ describe('DeathsAdminController', () => {
   describe('createCemetery', () => {
     it('should create cemetery', async () => {
       const dto = { name: 'Test Cemetery' };
-      deathsAdminService.createCemetery.mockResolvedValue({ success: true, data: {} });
+      deathsAdminService.createCemetery.mockResolvedValue({
+        success: true,
+        data: {},
+      });
       const result = await controller.createCemetery(dto);
       expect(result.success).toBe(true);
       expect(deathsAdminService.createCemetery).toHaveBeenCalledWith(dto);
@@ -67,8 +76,11 @@ describe('DeathsAdminController', () => {
     it('should update cemetery', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      deathsAdminService.updateCemetery.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.updateCemetery(id, dto);
+      deathsAdminService.updateCemetery.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.updateCemetery(id, dto);
       expect(deathsAdminService.updateCemetery).toHaveBeenCalledWith(id, dto);
     });
   });
@@ -76,15 +88,21 @@ describe('DeathsAdminController', () => {
   describe('deleteCemetery', () => {
     it('should delete cemetery', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      deathsAdminService.deleteCemetery.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.deleteCemetery(id);
+      deathsAdminService.deleteCemetery.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.deleteCemetery(id);
       expect(deathsAdminService.deleteCemetery).toHaveBeenCalledWith(id);
     });
   });
 
   describe('getMosques', () => {
     it('should return mosques', async () => {
-      deathsAdminService.getMosques.mockResolvedValue({ success: true, data: [] });
+      deathsAdminService.getMosques.mockResolvedValue({
+        success: true,
+        data: [],
+      });
       const result = await controller.getMosques();
       expect(result.success).toBe(true);
       expect(deathsAdminService.getMosques).toHaveBeenCalled();
@@ -94,8 +112,11 @@ describe('DeathsAdminController', () => {
   describe('createMosque', () => {
     it('should create mosque', async () => {
       const dto = { name: 'Test Mosque' };
-      deathsAdminService.createMosque.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.createMosque(dto);
+      deathsAdminService.createMosque.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.createMosque(dto);
       expect(deathsAdminService.createMosque).toHaveBeenCalledWith(dto);
     });
   });
@@ -104,7 +125,10 @@ describe('DeathsAdminController', () => {
     it('should update mosque', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      deathsAdminService.updateMosque.mockResolvedValue({ success: true, data: {} });
+      deathsAdminService.updateMosque.mockResolvedValue({
+        success: true,
+        data: {},
+      });
       await controller.updateMosque(id, dto);
       expect(deathsAdminService.updateMosque).toHaveBeenCalledWith(id, dto);
     });
@@ -113,7 +137,10 @@ describe('DeathsAdminController', () => {
   describe('deleteMosque', () => {
     it('should delete mosque', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      deathsAdminService.deleteMosque.mockResolvedValue({ success: true, data: {} });
+      deathsAdminService.deleteMosque.mockResolvedValue({
+        success: true,
+        data: {},
+      });
       await controller.deleteMosque(id);
       expect(deathsAdminService.deleteMosque).toHaveBeenCalledWith(id);
     });
@@ -135,8 +162,11 @@ describe('DeathsAdminController', () => {
     it('should create death notice', async () => {
       const adminId = 'admin-123';
       const dto = { name: 'Deceased', death_date: '2026-02-27' };
-      deathsAdminService.createDeath.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.createDeath(adminId, dto);
+      deathsAdminService.createDeath.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.createDeath(adminId, dto);
       expect(deathsAdminService.createDeath).toHaveBeenCalledWith(adminId, dto);
     });
   });
@@ -146,17 +176,27 @@ describe('DeathsAdminController', () => {
       const adminId = 'admin-123';
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated Name' };
-      deathsAdminService.updateDeath.mockResolvedValue({ success: true, data: {} });
+      deathsAdminService.updateDeath.mockResolvedValue({
+        success: true,
+        data: {},
+      });
       await controller.updateDeath(adminId, id, dto);
-      expect(deathsAdminService.updateDeath).toHaveBeenCalledWith(adminId, id, dto);
+      expect(deathsAdminService.updateDeath).toHaveBeenCalledWith(
+        adminId,
+        id,
+        dto,
+      );
     });
   });
 
   describe('deleteDeath', () => {
     it('should delete death notice', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      deathsAdminService.deleteDeath.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.deleteDeath(id);
+      deathsAdminService.deleteDeath.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.deleteDeath(id);
       expect(deathsAdminService.deleteDeath).toHaveBeenCalledWith(id);
     });
   });

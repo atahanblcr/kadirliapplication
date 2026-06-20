@@ -71,7 +71,15 @@ export class TransportAdminService {
   }
 
   async getAdminIntercityRoutes(dto: QueryIntercityRoutesDto) {
-    const { search, company_name, from_city, to_city, is_active, page = 1, limit = 20 } = dto;
+    const {
+      search,
+      company_name,
+      from_city,
+      to_city,
+      is_active,
+      page = 1,
+      limit = 20,
+    } = dto;
     const skip = (page - 1) * limit;
 
     const qb = this.intercityRouteRepository
@@ -88,13 +96,14 @@ export class TransportAdminService {
       );
     }
     if (company_name) {
-      qb.andWhere(
-        '(r.company_name ILIKE :cn OR r.company ILIKE :cn)',
-        { cn: `%${company_name}%` },
-      );
+      qb.andWhere('(r.company_name ILIKE :cn OR r.company ILIKE :cn)', {
+        cn: `%${company_name}%`,
+      });
     }
     if (from_city) {
-      qb.andWhere('r.from_city ILIKE :from_city', { from_city: `%${from_city}%` });
+      qb.andWhere('r.from_city ILIKE :from_city', {
+        from_city: `%${from_city}%`,
+      });
     }
     if (to_city) {
       qb.andWhere('r.destination ILIKE :to_city', { to_city: `%${to_city}%` });
@@ -143,7 +152,9 @@ export class TransportAdminService {
   }
 
   async updateIntercityRoute(id: string, dto: UpdateIntercityRouteDto) {
-    const route = await this.intercityRouteRepository.findOne({ where: { id } });
+    const route = await this.intercityRouteRepository.findOne({
+      where: { id },
+    });
     if (!route) throw new NotFoundException('Şehirlerarası hat bulunamadı');
 
     if (dto.company_name !== undefined) {
@@ -152,10 +163,13 @@ export class TransportAdminService {
     }
     if (dto.from_city !== undefined) route.from_city = dto.from_city;
     if (dto.to_city !== undefined) route.destination = dto.to_city;
-    if (dto.duration_minutes !== undefined) route.duration_minutes = dto.duration_minutes;
+    if (dto.duration_minutes !== undefined)
+      route.duration_minutes = dto.duration_minutes;
     if (dto.price !== undefined) route.price = dto.price;
-    if (dto.contact_phone !== undefined) route.contact_phone = dto.contact_phone;
-    if (dto.contact_website !== undefined) route.contact_website = dto.contact_website;
+    if (dto.contact_phone !== undefined)
+      route.contact_phone = dto.contact_phone;
+    if (dto.contact_website !== undefined)
+      route.contact_website = dto.contact_website;
     if (dto.amenities !== undefined) route.amenities = dto.amenities;
     if (dto.is_active !== undefined) route.is_active = dto.is_active;
 
@@ -164,13 +178,17 @@ export class TransportAdminService {
   }
 
   async deleteIntercityRoute(id: string) {
-    const route = await this.intercityRouteRepository.findOne({ where: { id } });
+    const route = await this.intercityRouteRepository.findOne({
+      where: { id },
+    });
     if (!route) throw new NotFoundException('Şehirlerarası hat bulunamadı');
     await this.intercityRouteRepository.remove(route);
   }
 
   async addIntercitySchedule(routeId: string, dto: CreateIntercityScheduleDto) {
-    const route = await this.intercityRouteRepository.findOne({ where: { id: routeId } });
+    const route = await this.intercityRouteRepository.findOne({
+      where: { id: routeId },
+    });
     if (!route) throw new NotFoundException('Şehirlerarası hat bulunamadı');
 
     const schedule = this.intercityScheduleRepository.create({
@@ -184,14 +202,19 @@ export class TransportAdminService {
     return { schedule: this.mapIntercitySchedule(saved) };
   }
 
-  async updateIntercitySchedule(scheduleId: string, dto: UpdateIntercityScheduleDto) {
+  async updateIntercitySchedule(
+    scheduleId: string,
+    dto: UpdateIntercityScheduleDto,
+  ) {
     const schedule = await this.intercityScheduleRepository.findOne({
       where: { id: scheduleId },
     });
     if (!schedule) throw new NotFoundException('Sefer bulunamadı');
 
-    if (dto.departure_time !== undefined) schedule.departure_time = dto.departure_time;
-    if (dto.days_of_week !== undefined) schedule.days_of_week = dto.days_of_week;
+    if (dto.departure_time !== undefined)
+      schedule.departure_time = dto.departure_time;
+    if (dto.days_of_week !== undefined)
+      schedule.days_of_week = dto.days_of_week;
     if (dto.is_active !== undefined) schedule.is_active = dto.is_active;
 
     const saved = await this.intercityScheduleRepository.save(schedule);
@@ -310,7 +333,9 @@ export class TransportAdminService {
   }
 
   async getAdminIntracityRoute(id: string) {
-    const route = await this.intracityRouteRepository.findOne({ where: { id } });
+    const route = await this.intracityRouteRepository.findOne({
+      where: { id },
+    });
     if (!route) throw new NotFoundException('Şehir içi hat bulunamadı');
 
     const stops = await this.getStopsWithNeighborhood(id);
@@ -334,15 +359,20 @@ export class TransportAdminService {
   }
 
   async updateIntracityRoute(id: string, dto: UpdateIntracityRouteDto) {
-    const route = await this.intracityRouteRepository.findOne({ where: { id } });
+    const route = await this.intracityRouteRepository.findOne({
+      where: { id },
+    });
     if (!route) throw new NotFoundException('Şehir içi hat bulunamadı');
 
     if (dto.line_number !== undefined) route.route_number = dto.line_number;
     if (dto.name !== undefined) route.route_name = dto.name;
     if (dto.color !== undefined) route.color = dto.color;
-    if (dto.first_departure !== undefined) route.first_departure = dto.first_departure;
-    if (dto.last_departure !== undefined) route.last_departure = dto.last_departure;
-    if (dto.frequency_minutes !== undefined) route.frequency_minutes = dto.frequency_minutes;
+    if (dto.first_departure !== undefined)
+      route.first_departure = dto.first_departure;
+    if (dto.last_departure !== undefined)
+      route.last_departure = dto.last_departure;
+    if (dto.frequency_minutes !== undefined)
+      route.frequency_minutes = dto.frequency_minutes;
     if (dto.fare !== undefined) route.fare = dto.fare;
     if (dto.is_active !== undefined) route.is_active = dto.is_active;
 
@@ -351,13 +381,17 @@ export class TransportAdminService {
   }
 
   async deleteIntracityRoute(id: string) {
-    const route = await this.intracityRouteRepository.findOne({ where: { id } });
+    const route = await this.intracityRouteRepository.findOne({
+      where: { id },
+    });
     if (!route) throw new NotFoundException('Şehir içi hat bulunamadı');
     await this.intracityRouteRepository.remove(route);
   }
 
   async addIntracityStop(routeId: string, dto: CreateIntracityStopDto) {
-    const route = await this.intracityRouteRepository.findOne({ where: { id: routeId } });
+    const route = await this.intracityRouteRepository.findOne({
+      where: { id: routeId },
+    });
     if (!route) throw new NotFoundException('Şehir içi hat bulunamadı');
 
     const maxOrderResult = await this.intracityStopRepository
@@ -386,12 +420,16 @@ export class TransportAdminService {
   }
 
   async updateIntracityStop(stopId: string, dto: UpdateIntracityStopDto) {
-    const stop = await this.intracityStopRepository.findOne({ where: { id: stopId } });
+    const stop = await this.intracityStopRepository.findOne({
+      where: { id: stopId },
+    });
     if (!stop) throw new NotFoundException('Durak bulunamadı');
 
     if (dto.name !== undefined) stop.stop_name = dto.name;
-    if (dto.neighborhood_id !== undefined) stop.neighborhood_id = dto.neighborhood_id;
-    if (dto.time_from_start !== undefined) stop.time_from_start = dto.time_from_start;
+    if (dto.neighborhood_id !== undefined)
+      stop.neighborhood_id = dto.neighborhood_id;
+    if (dto.time_from_start !== undefined)
+      stop.time_from_start = dto.time_from_start;
     if (dto.latitude !== undefined) stop.latitude = dto.latitude;
     if (dto.longitude !== undefined) stop.longitude = dto.longitude;
 
@@ -403,7 +441,9 @@ export class TransportAdminService {
   }
 
   async deleteIntracityStop(stopId: string) {
-    const stop = await this.intracityStopRepository.findOne({ where: { id: stopId } });
+    const stop = await this.intracityStopRepository.findOne({
+      where: { id: stopId },
+    });
     if (!stop) throw new NotFoundException('Durak bulunamadı');
 
     const routeId = stop.route_id;
@@ -423,7 +463,9 @@ export class TransportAdminService {
   }
 
   async reorderIntracityStop(stopId: string, dto: ReorderStopDto) {
-    const stop = await this.intracityStopRepository.findOne({ where: { id: stopId } });
+    const stop = await this.intracityStopRepository.findOne({
+      where: { id: stopId },
+    });
     if (!stop) throw new NotFoundException('Durak bulunamadı');
 
     const { new_order } = dto;
@@ -440,22 +482,28 @@ export class TransportAdminService {
           .createQueryBuilder()
           .update(IntracityStop)
           .set({ stop_order: () => 'stop_order - 1' })
-          .where('route_id = :routeId AND stop_order > :old AND stop_order <= :new', {
-            routeId,
-            old: old_order,
-            new: new_order,
-          })
+          .where(
+            'route_id = :routeId AND stop_order > :old AND stop_order <= :new',
+            {
+              routeId,
+              old: old_order,
+              new: new_order,
+            },
+          )
           .execute();
       } else {
         await manager
           .createQueryBuilder()
           .update(IntracityStop)
           .set({ stop_order: () => 'stop_order + 1' })
-          .where('route_id = :routeId AND stop_order >= :new AND stop_order < :old', {
-            routeId,
-            new: new_order,
-            old: old_order,
-          })
+          .where(
+            'route_id = :routeId AND stop_order >= :new AND stop_order < :old',
+            {
+              routeId,
+              new: new_order,
+              old: old_order,
+            },
+          )
           .execute();
       }
 

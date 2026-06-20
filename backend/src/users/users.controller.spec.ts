@@ -16,7 +16,11 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     age: 25,
     role: UserRole.USER,
     primary_neighborhood_id: 'nb-uuid-1',
-    primary_neighborhood: { id: 'nb-uuid-1', name: 'Merkez', slug: 'merkez' } as any,
+    primary_neighborhood: {
+      id: 'nb-uuid-1',
+      name: 'Merkez',
+      slug: 'merkez',
+    } as any,
     location_type: 'neighborhood',
     notification_preferences: {
       announcements: true,
@@ -33,7 +37,7 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     created_at: new Date('2026-01-01'),
     updated_at: new Date('2026-01-01'),
     ...overrides,
-  } as User);
+  }) as User;
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -64,7 +68,7 @@ describe('UsersController', () => {
   // ── GET /users/me ─────────────────────────────────────────────────────────
 
   describe('GET /users/me', () => {
-    it('JWT\'den gelen kullanıcıyı döndürmeli', async () => {
+    it("JWT'den gelen kullanıcıyı döndürmeli", async () => {
       const user = makeUser();
 
       const result = await controller.getMe(user);
@@ -72,7 +76,7 @@ describe('UsersController', () => {
       expect(result).toEqual({ user });
     });
 
-    it('service çağırmadan sadece JWT user\'ını döndürmeli', async () => {
+    it("service çağırmadan sadece JWT user'ını döndürmeli", async () => {
       const user = makeUser();
 
       await controller.getMe(user);
@@ -102,7 +106,9 @@ describe('UsersController', () => {
       usersService.updateProfile.mockRejectedValue(new Error('Service hatası'));
 
       const dto: UpdateUserDto = { username: 'x' };
-      await expect(controller.updateProfile(user, dto)).rejects.toThrow('Service hatası');
+      await expect(controller.updateProfile(user, dto)).rejects.toThrow(
+        'Service hatası',
+      );
     });
 
     it('boş DTO ile çağrılabilmeli', async () => {
@@ -131,10 +137,17 @@ describe('UsersController', () => {
       };
       usersService.updateNotificationPreferences.mockResolvedValue(preferences);
 
-      const dto: UpdateNotificationsDto = { announcements: false, ads: true, events: false };
+      const dto: UpdateNotificationsDto = {
+        announcements: false,
+        ads: true,
+        events: false,
+      };
       const result = await controller.updateNotifications(user, dto);
 
-      expect(usersService.updateNotificationPreferences).toHaveBeenCalledWith(user.id, dto);
+      expect(usersService.updateNotificationPreferences).toHaveBeenCalledWith(
+        user.id,
+        dto,
+      );
       expect(result).toEqual({ notification_preferences: preferences });
     });
 
@@ -155,9 +168,9 @@ describe('UsersController', () => {
         new Error('Bildirim hatası'),
       );
 
-      await expect(
-        controller.updateNotifications(user, {}),
-      ).rejects.toThrow('Bildirim hatası');
+      await expect(controller.updateNotifications(user, {})).rejects.toThrow(
+        'Bildirim hatası',
+      );
     });
   });
 });

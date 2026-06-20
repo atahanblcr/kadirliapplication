@@ -42,7 +42,9 @@ export class CreateAdDto {
   @IsNotEmpty({ message: 'Açıklama boş olamaz' })
   @MinLength(10, { message: 'Açıklama en az 10 karakter olmalıdır' })
   @MaxLength(2000, { message: 'Açıklama en fazla 2000 karakter olabilir' })
-  @Matches(/^[^<>]*$/, { message: 'Açıklama HTML içeremez (düz metin kullanın)' })
+  @Matches(/^[^<>]*$/, {
+    message: 'Açıklama HTML içeremez (düz metin kullanın)',
+  })
   description: string;
 
   @IsNumber({}, { message: 'Fiyat sayısal olmalıdır' })
@@ -52,7 +54,9 @@ export class CreateAdDto {
 
   @IsString()
   @IsNotEmpty({ message: 'İletişim telefonu boş olamaz' })
-  @Matches(/^05\d{9}$/, { message: 'Geçerli bir telefon numarası girin (05XXXXXXXXX)' })
+  @Matches(/^05\d{9}$/, {
+    message: 'Geçerli bir telefon numarası girin (05XXXXXXXXX)',
+  })
   contact_phone: string;
 
   @IsOptional()

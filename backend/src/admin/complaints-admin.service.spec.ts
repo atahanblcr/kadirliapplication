@@ -76,9 +76,12 @@ describe('ComplaintsAdminService', () => {
         limit: 20,
       });
 
-      expect(mockComplaintRepo.andWhere).toHaveBeenCalledWith('c.status = :status', {
-        status: 'pending',
-      });
+      expect(mockComplaintRepo.andWhere).toHaveBeenCalledWith(
+        'c.status = :status',
+        {
+          status: 'pending',
+        },
+      );
     });
   });
 
@@ -153,7 +156,11 @@ describe('ComplaintsAdminService', () => {
       mockComplaintRepo.findOne.mockResolvedValue(mockComplaint);
 
       await expect(
-        service.resolveComplaint('complaint-1', { admin_response: '' }, 'admin-1'),
+        service.resolveComplaint(
+          'complaint-1',
+          { admin_response: '' },
+          'admin-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -189,7 +196,10 @@ describe('ComplaintsAdminService', () => {
           priority: 'urgent',
         });
 
-      const result = await service.updateComplaintPriority('complaint-1', 'urgent');
+      const result = await service.updateComplaintPriority(
+        'complaint-1',
+        'urgent',
+      );
 
       expect(result.complaint.priority).toBe('urgent');
     });

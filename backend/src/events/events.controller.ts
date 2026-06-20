@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { QueryEventDto } from './dto/query-event.dto';
 

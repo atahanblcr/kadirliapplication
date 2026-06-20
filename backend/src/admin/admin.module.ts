@@ -2,7 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../database/entities/user.entity';
 import { Ad } from '../database/entities/ad.entity';
-import { Cemetery, DeathNotice, Mosque } from '../database/entities/death-notice.entity';
+import {
+  Cemetery,
+  DeathNotice,
+  Mosque,
+} from '../database/entities/death-notice.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Business } from '../database/entities/business.entity';
@@ -10,7 +14,10 @@ import { BusinessCategory } from '../database/entities/business-category.entity'
 import { FileEntity } from '../database/entities/file.entity';
 import { Announcement } from '../database/entities/announcement.entity';
 import { Notification } from '../database/entities/notification.entity';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import {
   IntercityRoute,
   IntercitySchedule,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event } from '../database/entities/event.entity';
@@ -25,7 +29,11 @@ export class EventAdminService {
       description: event.description ?? null,
       category_id: event.category_id ?? null,
       category: event.category
-        ? { id: event.category.id, name: event.category.name, icon: event.category.icon ?? null }
+        ? {
+            id: event.category.id,
+            name: event.category.name,
+            icon: event.category.icon ?? null,
+          }
         : null,
       event_date: event.event_date,
       event_time: event.event_time,
@@ -46,12 +54,13 @@ export class EventAdminService {
       cover_image_id: event.cover_image_id ?? null,
       cover_image_url: (event.cover_image as any)?.url ?? null,
       status: event.status,
-      images: event.images?.map((img) => ({
-        id: img.id,
-        file_id: img.file_id,
-        url: (img.file as any)?.url ?? null,
-        display_order: img.display_order,
-      })) ?? [],
+      images:
+        event.images?.map((img) => ({
+          id: img.id,
+          file_id: img.file_id,
+          url: (img.file as any)?.url ?? null,
+          display_order: img.display_order,
+        })) ?? [],
       created_at: event.created_at,
       updated_at: event.updated_at,
     };
@@ -225,11 +234,27 @@ export class EventAdminService {
     }
 
     const fields: (keyof UpdateEventDto)[] = [
-      'title', 'description', 'category_id', 'event_date', 'event_time',
-      'duration_minutes', 'venue_name', 'venue_address', 'is_local', 'city',
-      'latitude', 'longitude', 'organizer', 'ticket_price', 'is_free',
-      'age_restriction', 'capacity', 'website_url', 'ticket_url',
-      'cover_image_id', 'status',
+      'title',
+      'description',
+      'category_id',
+      'event_date',
+      'event_time',
+      'duration_minutes',
+      'venue_name',
+      'venue_address',
+      'is_local',
+      'city',
+      'latitude',
+      'longitude',
+      'organizer',
+      'ticket_price',
+      'is_free',
+      'age_restriction',
+      'capacity',
+      'website_url',
+      'ticket_url',
+      'cover_image_id',
+      'status',
     ];
 
     for (const field of fields) {

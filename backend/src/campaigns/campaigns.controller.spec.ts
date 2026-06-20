@@ -6,8 +6,7 @@ import { Campaign } from '../database/entities/campaign.entity';
 
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
 
-const makeUser = (): User =>
-  ({ id: 'user-uuid-1', role: 'user' } as User);
+const makeUser = (): User => ({ id: 'user-uuid-1', role: 'user' }) as User;
 
 const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
   ({
@@ -15,7 +14,7 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     title: 'Kahvelerde %50 İndirim',
     status: 'approved',
     ...overrides,
-  } as Campaign);
+  }) as Campaign;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -55,7 +54,7 @@ describe('CampaignsController', () => {
       expect(service.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
     });
 
-    it('filtreleri service\'e iletmeli', async () => {
+    it("filtreleri service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ campaigns: [], meta: {} as any });
       const dto = { category_id: 'cat-1', active_only: true };
 
@@ -82,7 +81,9 @@ describe('CampaignsController', () => {
     it('service hatası yayılmalı', async () => {
       service.findOne.mockRejectedValue(new Error('Bulunamadı'));
 
-      await expect(controller.findOne('nonexistent')).rejects.toThrow('Bulunamadı');
+      await expect(controller.findOne('nonexistent')).rejects.toThrow(
+        'Bulunamadı',
+      );
     });
   });
 
@@ -96,7 +97,10 @@ describe('CampaignsController', () => {
       const result = await controller.viewCode(makeUser(), 'camp-uuid-1');
 
       expect(result).toEqual(expected);
-      expect(service.viewCode).toHaveBeenCalledWith('user-uuid-1', 'camp-uuid-1');
+      expect(service.viewCode).toHaveBeenCalledWith(
+        'user-uuid-1',
+        'camp-uuid-1',
+      );
     });
 
     it('service hatası yayılmalı', async () => {
@@ -107,5 +111,4 @@ describe('CampaignsController', () => {
       ).rejects.toThrow('Kampanya bulunamadı');
     });
   });
-
 });

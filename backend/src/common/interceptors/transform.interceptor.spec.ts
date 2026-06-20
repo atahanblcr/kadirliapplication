@@ -1,4 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { TransformInterceptor, ApiResponse } from './transform.interceptor';
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { of } from 'rxjs';
@@ -53,10 +52,14 @@ describe('TransformInterceptor', () => {
     const testData = { id: 1 };
     mockHandler.handle = jest.fn().mockReturnValue(of(testData));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result.meta.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
-      done();
-    });
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result.meta.timestamp).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+        );
+        done();
+      });
   });
 
   it('should include request path in meta', (done) => {
@@ -64,61 +67,69 @@ describe('TransformInterceptor', () => {
     mockRequest.url = '/api/products/123';
     mockHandler.handle = jest.fn().mockReturnValue(of(testData));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result.meta.path).toBe('/api/products/123');
-      done();
-    });
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result.meta.path).toBe('/api/products/123');
+        done();
+      });
   });
 
   it('should handle null data', (done) => {
     mockHandler.handle = jest.fn().mockReturnValue(of(null));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: null,
-          meta: expect.objectContaining({
-            timestamp: expect.any(String),
-            path: '/api/users',
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result).toEqual(
+          expect.objectContaining({
+            success: true,
+            data: null,
+            meta: expect.objectContaining({
+              timestamp: expect.any(String),
+              path: '/api/users',
+            }),
           }),
-        }),
-      );
-      done();
-    });
+        );
+        done();
+      });
   });
 
   it('should handle undefined data', (done) => {
     mockHandler.handle = jest.fn().mockReturnValue(of(undefined));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: undefined,
-          meta: expect.objectContaining({
-            timestamp: expect.any(String),
-            path: '/api/users',
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result).toEqual(
+          expect.objectContaining({
+            success: true,
+            data: undefined,
+            meta: expect.objectContaining({
+              timestamp: expect.any(String),
+              path: '/api/users',
+            }),
           }),
-        }),
-      );
-      done();
-    });
+        );
+        done();
+      });
   });
 
   it('should handle array data', (done) => {
     const testData = [{ id: 1 }, { id: 2 }];
     mockHandler.handle = jest.fn().mockReturnValue(of(testData));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result).toEqual(
-        expect.objectContaining({
-          success: true,
-          data: testData,
-        }),
-      );
-      done();
-    });
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result).toEqual(
+          expect.objectContaining({
+            success: true,
+            data: testData,
+          }),
+        );
+        done();
+      });
   });
 
   it('should handle complex nested data', (done) => {
@@ -129,11 +140,13 @@ describe('TransformInterceptor', () => {
     };
     mockHandler.handle = jest.fn().mockReturnValue(of(testData));
 
-    interceptor.intercept(mockContext, mockHandler).subscribe((result: ApiResponse<any>) => {
-      expect(result.data).toEqual(testData);
-      expect(result.success).toBe(true);
-      done();
-    });
+    interceptor
+      .intercept(mockContext, mockHandler)
+      .subscribe((result: ApiResponse<any>) => {
+        expect(result.data).toEqual(testData);
+        expect(result.success).toBe(true);
+        done();
+      });
   });
 
   it('should call next.handle() once', (done) => {

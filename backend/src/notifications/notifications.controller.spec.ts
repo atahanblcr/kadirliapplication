@@ -49,7 +49,7 @@ describe('NotificationsController', () => {
       expect(service.findAll).toHaveBeenCalledWith('user-uuid-1', {});
     });
 
-    it('filtreleri service\'e iletmeli', async () => {
+    it("filtreleri service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ notifications: [], unread_count: 0 });
       const dto = { page: 2, limit: 10, unread_only: true };
 
@@ -71,7 +71,9 @@ describe('NotificationsController', () => {
 
   describe('markAllRead', () => {
     it('tüm bildirimleri okundu işaretlemeli', async () => {
-      service.markAllRead.mockResolvedValue({ message: 'Tüm bildirimler okundu' });
+      service.markAllRead.mockResolvedValue({
+        message: 'Tüm bildirimler okundu',
+      });
 
       const result = await controller.markAllRead('user-uuid-1');
 
@@ -84,7 +86,9 @@ describe('NotificationsController', () => {
 
   describe('registerFcmToken', () => {
     it('FCM token kaydetmeli', async () => {
-      service.registerFcmToken.mockResolvedValue({ message: 'Token kaydedildi' });
+      service.registerFcmToken.mockResolvedValue({
+        message: 'Token kaydedildi',
+      });
       const dto = { fcm_token: 'fcm-abc123', device_type: 'android' as const };
 
       const result = await controller.registerFcmToken('user-uuid-1', dto);
@@ -109,7 +113,9 @@ describe('NotificationsController', () => {
 
   describe('markRead', () => {
     it('bildirimi okundu işaretlemeli', async () => {
-      service.markRead.mockResolvedValue({ message: 'Okundu olarak işaretlendi' });
+      service.markRead.mockResolvedValue({
+        message: 'Okundu olarak işaretlendi',
+      });
 
       const result = await controller.markRead('user-uuid-1', 'notif-uuid-1');
 

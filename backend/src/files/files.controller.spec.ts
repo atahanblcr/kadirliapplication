@@ -14,7 +14,7 @@ const makeMulterFile = (
     size: 100_000,
     path: './uploads/1234567890_abc123.jpg',
     ...overrides,
-  } as Express.Multer.File);
+  }) as Express.Multer.File;
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ describe('FilesController', () => {
   // ── POST /files/upload ────────────────────────────────────────────────────
 
   describe('uploadFile', () => {
-    it('dosyayı service\'e iletmeli', async () => {
+    it("dosyayı service'e iletmeli", async () => {
       const file = makeMulterFile();
       const dto = { module_type: 'ad' as const };
       const expected = {
@@ -59,9 +59,12 @@ describe('FilesController', () => {
       expect(service.uploadFile).toHaveBeenCalledWith('user-uuid-1', file, dto);
     });
 
-    it('module_id ile birlikte service\'e iletmeli', async () => {
+    it("module_id ile birlikte service'e iletmeli", async () => {
       const file = makeMulterFile();
-      const dto = { module_type: 'announcement' as const, module_id: 'mod-uuid-1' };
+      const dto = {
+        module_type: 'announcement' as const,
+        module_id: 'mod-uuid-1',
+      };
       service.uploadFile.mockResolvedValue({ file: {} } as any);
 
       await controller.uploadFile('user-uuid-1', file, dto);
@@ -70,7 +73,9 @@ describe('FilesController', () => {
     });
 
     it('service hatası yayılmalı', async () => {
-      service.uploadFile.mockRejectedValue(new Error('Desteklenmeyen dosya tipi'));
+      service.uploadFile.mockRejectedValue(
+        new Error('Desteklenmeyen dosya tipi'),
+      );
 
       await expect(
         controller.uploadFile('user-uuid-1', makeMulterFile(), {
@@ -83,7 +88,7 @@ describe('FilesController', () => {
   // ── DELETE /files/:id ─────────────────────────────────────────────────────
 
   describe('deleteFile', () => {
-    it('dosyayı service\'e iletmeli', async () => {
+    it("dosyayı service'e iletmeli", async () => {
       service.deleteFile.mockResolvedValue({ message: 'Dosya silindi' });
 
       const result = await controller.deleteFile('user-uuid-1', 'file-uuid-1');

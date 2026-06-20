@@ -97,8 +97,15 @@ export class AdminController {
   async getNeighborhoods(@Query() dto: QueryNeighborhoodsDto) {
     const page = parseInt(dto.page ?? '1', 10);
     const limit = parseInt(dto.limit ?? '50', 10);
-    const is_active = dto.is_active !== undefined ? dto.is_active === 'true' : undefined;
-    return this.adminService.getNeighborhoods(dto.search, dto.type, is_active, page, limit);
+    const is_active =
+      dto.is_active !== undefined ? dto.is_active === 'true' : undefined;
+    return this.adminService.getNeighborhoods(
+      dto.search,
+      dto.type,
+      is_active,
+      page,
+      limit,
+    );
   }
 
   // POST /admin/neighborhoods

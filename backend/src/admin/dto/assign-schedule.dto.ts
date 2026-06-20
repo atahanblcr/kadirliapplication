@@ -1,4 +1,11 @@
-import { IsUUID, IsDateString, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsUUID,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class AssignScheduleDto {
   @IsUUID()

@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import { QueryScheduleDto } from './dto/query-schedule.dto';
 
 @Injectable()

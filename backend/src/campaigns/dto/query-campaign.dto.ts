@@ -1,4 +1,11 @@
-import { IsOptional, IsUUID, IsBoolean, IsInt, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsUUID,
+  IsBoolean,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
 export class QueryCampaignDto {
@@ -22,7 +29,9 @@ export class QueryCampaignDto {
   // Varsayılan: true → aktif tarih aralığı filtresi uygular
   // false → süresi dolmuş kampanyaları da dahil eder
   @IsOptional()
-  @Transform(({ value }) => value === 'false' || value === false ? false : true)
+  @Transform(({ value }) =>
+    value === 'false' || value === false ? false : true,
+  )
   @IsBoolean()
   active_only?: boolean;
 }

@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DeathNotice, Cemetery, Mosque } from '../database/entities/death-notice.entity';
+import {
+  DeathNotice,
+  Cemetery,
+  Mosque,
+} from '../database/entities/death-notice.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 import { QueryDeathsDto } from './dto/query-deaths.dto';
 import { CreateDeathDto } from './dto/create-death.dto';
@@ -84,7 +88,8 @@ export class DeathsAdminService {
     const notice = await this.deathRepository.findOne({ where: { id } });
     if (!notice) throw new NotFoundException('Vefat ilanı bulunamadı');
 
-    if (dto.deceased_name !== undefined) notice.deceased_name = dto.deceased_name;
+    if (dto.deceased_name !== undefined)
+      notice.deceased_name = dto.deceased_name;
     if (dto.age !== undefined) notice.age = dto.age;
     if (dto.funeral_date !== undefined) {
       notice.funeral_date = dto.funeral_date;
@@ -96,9 +101,12 @@ export class DeathsAdminService {
     if (dto.funeral_time !== undefined) notice.funeral_time = dto.funeral_time;
     if (dto.cemetery_id !== undefined) notice.cemetery_id = dto.cemetery_id;
     if (dto.mosque_id !== undefined) notice.mosque_id = dto.mosque_id;
-    if (dto.condolence_address !== undefined) notice.condolence_address = dto.condolence_address;
-    if (dto.photo_file_id !== undefined) notice.photo_file_id = dto.photo_file_id;
-    if (dto.neighborhood_id !== undefined) notice.neighborhood_id = dto.neighborhood_id;
+    if (dto.condolence_address !== undefined)
+      notice.condolence_address = dto.condolence_address;
+    if (dto.photo_file_id !== undefined)
+      notice.photo_file_id = dto.photo_file_id;
+    if (dto.neighborhood_id !== undefined)
+      notice.neighborhood_id = dto.neighborhood_id;
 
     await this.deathRepository.save(notice);
     const updated = await this.deathRepository.findOne({
@@ -116,7 +124,9 @@ export class DeathsAdminService {
   }
 
   async getCemeteries() {
-    const cemeteries = await this.cemeteryRepository.find({ order: { name: 'ASC' } });
+    const cemeteries = await this.cemeteryRepository.find({
+      order: { name: 'ASC' },
+    });
     return { cemeteries };
   }
 
@@ -141,7 +151,9 @@ export class DeathsAdminService {
   }
 
   async getMosques() {
-    const mosques = await this.mosqueRepository.find({ order: { name: 'ASC' } });
+    const mosques = await this.mosqueRepository.find({
+      order: { name: 'ASC' },
+    });
     return { mosques };
   }
 

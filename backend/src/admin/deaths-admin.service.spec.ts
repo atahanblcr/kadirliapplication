@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { DeathsAdminService } from './deaths-admin.service';
-import { DeathNotice, Cemetery, Mosque } from '../database/entities/death-notice.entity';
+import {
+  DeathNotice,
+  Cemetery,
+  Mosque,
+} from '../database/entities/death-notice.entity';
 import { Neighborhood } from '../database/entities/neighborhood.entity';
 
 describe('DeathsAdminService', () => {
@@ -101,7 +105,10 @@ describe('DeathsAdminService', () => {
         { provide: getRepositoryToken(DeathNotice), useValue: deathRepo },
         { provide: getRepositoryToken(Cemetery), useValue: cemeteryRepo },
         { provide: getRepositoryToken(Mosque), useValue: mosqueRepo },
-        { provide: getRepositoryToken(Neighborhood), useValue: neighborhoodRepo },
+        {
+          provide: getRepositoryToken(Neighborhood),
+          useValue: neighborhoodRepo,
+        },
       ],
     }).compile();
 
@@ -123,7 +130,7 @@ describe('DeathsAdminService', () => {
     it('should paginate deaths correctly', async () => {
       deathRepo.getManyAndCount.mockResolvedValue([[mockDeathNotice], 100]);
 
-      const result = await service.getAllDeaths({ page: '2', limit: '25' });
+      await service.getAllDeaths({ page: '2', limit: '25' });
 
       expect(deathRepo.skip).toHaveBeenCalledWith(25); // (2-1) * 25
       expect(deathRepo.take).toHaveBeenCalledWith(25);
@@ -456,7 +463,9 @@ describe('DeathsAdminService', () => {
       const result = await service.getCemeteries();
 
       expect(result.cemeteries).toEqual([mockCemetery]);
-      expect(cemeteryRepo.find).toHaveBeenCalledWith({ order: { name: 'ASC' } });
+      expect(cemeteryRepo.find).toHaveBeenCalledWith({
+        order: { name: 'ASC' },
+      });
     });
 
     it('should return empty list when no cemeteries exist', async () => {
@@ -472,7 +481,9 @@ describe('DeathsAdminService', () => {
 
       await service.getCemeteries();
 
-      expect(cemeteryRepo.find).toHaveBeenCalledWith({ order: { name: 'ASC' } });
+      expect(cemeteryRepo.find).toHaveBeenCalledWith({
+        order: { name: 'ASC' },
+      });
     });
   });
 
@@ -643,7 +654,6 @@ describe('DeathsAdminService', () => {
     });
 
     it('should only return active neighborhoods', async () => {
-      const inactiveNeighborhood = { ...mockNeighborhood, is_active: false };
       neighborhoodRepo.find.mockResolvedValue([mockNeighborhood]);
 
       await service.getDeathNeighborhoods();

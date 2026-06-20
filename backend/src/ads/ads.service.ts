@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Brackets, DeepPartial, MoreThan } from 'typeorm';
+import { Repository, Brackets, DeepPartial } from 'typeorm';
 import { Ad } from '../database/entities/ad.entity';
 import { AdImage } from '../database/entities/ad-image.entity';
 import { AdFavorite } from '../database/entities/ad-favorite.entity';
@@ -18,7 +18,10 @@ import { CreateAdDto } from './dto/create-ad.dto';
 import { UpdateAdDto } from './dto/update-ad.dto';
 import { QueryAdDto, QueryMyAdsDto } from './dto/query-ad.dto';
 import { ExtendAdDto } from './dto/extend-ad.dto';
-import { getPaginationMeta, getPaginationOffset } from '../common/utils/pagination.util';
+import {
+  getPaginationMeta,
+  getPaginationOffset,
+} from '../common/utils/pagination.util';
 
 @Injectable()
 export class AdsService {
@@ -44,7 +47,15 @@ export class AdsService {
   // ── İLAN LİSTESİ (Public) ─────────────────────────────────────────────────
 
   async findAll(dto: QueryAdDto) {
-    const { page = 1, limit = 20, category_id, min_price, max_price, sort = '-created_at', search } = dto;
+    const {
+      page = 1,
+      limit = 20,
+      category_id,
+      min_price,
+      max_price,
+      sort = '-created_at',
+      search,
+    } = dto;
 
     const qb = this.adRepository
       .createQueryBuilder('ad')
@@ -150,7 +161,9 @@ export class AdsService {
       .getCount();
 
     if (dailyCount >= 10) {
-      throw new BadRequestException('Günlük ilan limitine ulaştınız (maksimum 10 ilan)');
+      throw new BadRequestException(
+        'Günlük ilan limitine ulaştınız (maksimum 10 ilan)',
+      );
     }
 
     // Kategori kontrolü (leaf category olmalı)
@@ -170,7 +183,9 @@ export class AdsService {
 
     // cover_image_id, image_ids içinde olmalı
     if (!dto.image_ids.includes(dto.cover_image_id)) {
-      throw new BadRequestException('Kapak fotoğrafı yüklenen fotoğraflar arasında olmalıdır');
+      throw new BadRequestException(
+        'Kapak fotoğrafı yüklenen fotoğraflar arasında olmalıdır',
+      );
     }
 
     // İlan oluştur — expires_at = NOW + 7 gün (CLAUDE.md iş kuralı)

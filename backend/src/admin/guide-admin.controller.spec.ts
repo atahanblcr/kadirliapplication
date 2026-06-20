@@ -27,12 +27,15 @@ describe('GuideAdminController', () => {
     }).compile();
 
     controller = module.get<GuideAdminController>(GuideAdminController);
-    guideAdminService = module.get(GuideAdminService) as jest.Mocked<GuideAdminService>;
+    guideAdminService = module.get(GuideAdminService);
   });
 
   describe('getGuideCategories', () => {
     it('should return guide categories', () => {
-      guideAdminService.getGuideCategories.mockReturnValue({ success: true, data: [] });
+      guideAdminService.getGuideCategories.mockReturnValue({
+        success: true,
+        data: [],
+      });
       const result = controller.getGuideCategories();
       expect(result.success).toBe(true);
       expect(guideAdminService.getGuideCategories).toHaveBeenCalled();
@@ -42,8 +45,11 @@ describe('GuideAdminController', () => {
   describe('createGuideCategory', () => {
     it('should create guide category', () => {
       const dto = { name: 'Test Category' };
-      guideAdminService.createGuideCategory.mockReturnValue({ success: true, data: {} });
-      const result = controller.createGuideCategory(dto);
+      guideAdminService.createGuideCategory.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.createGuideCategory(dto);
       expect(guideAdminService.createGuideCategory).toHaveBeenCalledWith(dto);
     });
   });
@@ -52,9 +58,15 @@ describe('GuideAdminController', () => {
     it('should update guide category', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated' };
-      guideAdminService.updateGuideCategory.mockReturnValue({ success: true, data: {} });
-      const result = controller.updateGuideCategory(id, dto);
-      expect(guideAdminService.updateGuideCategory).toHaveBeenCalledWith(id, dto);
+      guideAdminService.updateGuideCategory.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.updateGuideCategory(id, dto);
+      expect(guideAdminService.updateGuideCategory).toHaveBeenCalledWith(
+        id,
+        dto,
+      );
     });
   });
 
@@ -70,8 +82,11 @@ describe('GuideAdminController', () => {
   describe('getGuideItems', () => {
     it('should return guide items', () => {
       const dto = { category_id: '123' };
-      guideAdminService.getGuideItems.mockReturnValue({ success: true, data: [] });
-      const result = controller.getGuideItems(dto);
+      guideAdminService.getGuideItems.mockReturnValue({
+        success: true,
+        data: [],
+      });
+      controller.getGuideItems(dto);
       expect(guideAdminService.getGuideItems).toHaveBeenCalledWith(dto);
     });
   });
@@ -79,8 +94,11 @@ describe('GuideAdminController', () => {
   describe('createGuideItem', () => {
     it('should create guide item', () => {
       const dto = { title: 'Test Item', category_id: '123' };
-      guideAdminService.createGuideItem.mockReturnValue({ success: true, data: {} });
-      const result = controller.createGuideItem(dto);
+      guideAdminService.createGuideItem.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.createGuideItem(dto);
       expect(guideAdminService.createGuideItem).toHaveBeenCalledWith(dto);
     });
   });
@@ -89,8 +107,11 @@ describe('GuideAdminController', () => {
     it('should update guide item', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { title: 'Updated' };
-      guideAdminService.updateGuideItem.mockReturnValue({ success: true, data: {} });
-      const result = controller.updateGuideItem(id, dto);
+      guideAdminService.updateGuideItem.mockReturnValue({
+        success: true,
+        data: {},
+      });
+      controller.updateGuideItem(id, dto);
       expect(guideAdminService.updateGuideItem).toHaveBeenCalledWith(id, dto);
     });
   });

@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { PharmacyService } from './pharmacy.service';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 
 // ─── QueryBuilder mock ──────────────────────────────────────────────────────
 
@@ -29,9 +32,11 @@ const makePharmacy = (overrides: Partial<Pharmacy> = {}): Pharmacy =>
     pharmacist_name: 'Ecz. Ali YILMAZ',
     is_active: true,
     ...overrides,
-  } as Pharmacy);
+  }) as Pharmacy;
 
-const makeSchedule = (overrides: Partial<PharmacySchedule> = {}): PharmacySchedule =>
+const makeSchedule = (
+  overrides: Partial<PharmacySchedule> = {},
+): PharmacySchedule =>
   ({
     id: 'sched-uuid-1',
     pharmacy_id: 'pharma-uuid-1',
@@ -42,7 +47,7 @@ const makeSchedule = (overrides: Partial<PharmacySchedule> = {}): PharmacySchedu
     source: 'manual',
     created_at: new Date('2026-02-20'),
     ...overrides,
-  } as PharmacySchedule);
+  }) as PharmacySchedule;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -195,10 +200,9 @@ describe('PharmacyService', () => {
 
       await service.getSchedule({ start_date: '2026-02-01' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        's.duty_date >= :start_date',
-        { start_date: '2026-02-01' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('s.duty_date >= :start_date', {
+        start_date: '2026-02-01',
+      });
     });
 
     it('end_date filtresi uygulanmalı', async () => {
@@ -207,10 +211,9 @@ describe('PharmacyService', () => {
 
       await service.getSchedule({ end_date: '2026-02-28' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        's.duty_date <= :end_date',
-        { end_date: '2026-02-28' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('s.duty_date <= :end_date', {
+        end_date: '2026-02-28',
+      });
     });
 
     it('filtre yoksa andWhere çağrılmamalı', async () => {
@@ -244,7 +247,10 @@ describe('PharmacyService', () => {
       const qb = makeQb([]);
       scheduleRepo.createQueryBuilder.mockReturnValue(qb);
 
-      await service.getSchedule({ start_date: '2026-02-01', end_date: '2026-02-28' });
+      await service.getSchedule({
+        start_date: '2026-02-01',
+        end_date: '2026-02-28',
+      });
 
       expect(qb.andWhere).toHaveBeenCalledTimes(2);
     });
@@ -254,7 +260,10 @@ describe('PharmacyService', () => {
 
   describe('getList', () => {
     it('aktif eczaneleri isim sırasıyla döndürmeli', async () => {
-      const pharmacies = [makePharmacy(), makePharmacy({ id: 'p-2', name: 'Yeni Eczane' })];
+      const pharmacies = [
+        makePharmacy(),
+        makePharmacy({ id: 'p-2', name: 'Yeni Eczane' }),
+      ];
       pharmacyRepo.find.mockResolvedValue(pharmacies);
 
       const result = await service.getList();

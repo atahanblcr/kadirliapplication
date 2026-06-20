@@ -35,7 +35,9 @@ export class AuthService {
 
   // ── OTP İSTEME ──────────────────────────────────────────────────────────────
 
-  async requestOtp(phone: string): Promise<{ message: string; expires_in: number; retry_after: number }> {
+  async requestOtp(
+    phone: string,
+  ): Promise<{ message: string; expires_in: number; retry_after: number }> {
     const devMode = this.configService.get<string>('OTP_DEV_MODE') === 'true';
     const rateLimitKey = `otp:rate:${phone}`;
     const blockKey = `otp:block:${phone}`;
@@ -47,7 +49,10 @@ export class AuthService {
     }
 
     // Rate limit: 10 OTP/saat
-    const hourLimit = this.configService.get<number>('OTP_RATE_LIMIT_PER_HOUR', 10);
+    const hourLimit = this.configService.get<number>(
+      'OTP_RATE_LIMIT_PER_HOUR',
+      10,
+    );
     const currentCount = await this.redis.incr(rateLimitKey);
     if (currentCount === 1) {
       await this.redis.expire(rateLimitKey, 3600);
@@ -103,10 +108,15 @@ export class AuthService {
     }
 
     if (attempts > maxAttempts) {
-      const blockDuration = this.configService.get<number>('OTP_BLOCK_DURATION_MINUTES', 5);
+      const blockDuration = this.configService.get<number>(
+        'OTP_BLOCK_DURATION_MINUTES',
+        5,
+      );
       await this.redis.setex(blockKey, blockDuration * 60, '1');
       await this.redis.del(otpKey, attemptsKey);
-      throw new UnauthorizedException('Çok fazla hatalı deneme. 5 dakika beklemeniz gerekiyor.');
+      throw new UnauthorizedException(
+        'Çok fazla hatalı deneme. 5 dakika beklemeniz gerekiyor.',
+      );
     }
 
     const otpMatch = crypto.timingSafeEqual(
@@ -130,7 +140,10 @@ export class AuthService {
       // Yeni kullanıcı - temp token
       const tempToken = this.jwtService.sign(
         { phone, type: 'registration' },
-        { expiresIn: '30m' as any, secret: this.configService.get('JWT_SECRET') },
+        {
+          expiresIn: '30m' as any,
+          secret: this.configService.get('JWT_SECRET'),
+        },
       );
       return { is_new_user: true, temp_token: tempToken };
     }
@@ -155,9 +168,16 @@ export class AuthService {
   async register(
     phone: string,
     dto: RegisterDto,
-  ): Promise<{ access_token: string; refresh_token: string; expires_in: number; user: Partial<User> }> {
+  ): Promise<{
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    user: Partial<User>;
+  }> {
     if (!dto.accept_terms) {
-      throw new BadRequestException('Kullanım şartlarını kabul etmeniz gerekiyor');
+      throw new BadRequestException(
+        'Kullanım şartlarını kabul etmeniz gerekiyor',
+      );
     }
 
     // Username benzersiz mi?
@@ -206,8 +226,17 @@ export class AuthService {
   async adminLogin(
     email: string,
     password: string,
-  ): Promise<{ access_token: string; refresh_token: string; expires_in: number; user: Partial<User> }> {
-    const allowedRoles = [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MODERATOR];
+  ): Promise<{
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    user: Partial<User>;
+  }> {
+    const allowedRoles = [
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.MODERATOR,
+    ];
 
     // Email ile kullanıcı bul, password alanını da dahil et (select: false)
     const user = await this.userRepository
@@ -247,7 +276,9 @@ export class AuthService {
 
   // ── REFRESH TOKEN ────────────────────────────────────────────────────────────
 
-  async refreshToken(refreshToken: string): Promise<{ access_token: string; expires_in: number }> {
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<{ access_token: string; expires_in: number }> {
     try {
       const payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -265,7 +296,7 @@ export class AuthService {
         { user_id: user.id, role: user.role, phone: user.phone },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d') as any,
+          expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d'),
         },
       );
 
@@ -289,7 +320,7 @@ export class AuthService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  private async sendSms(phone: string, otp: string): Promise<void> {
+  private async sendSms(phone: string, _otp: string): Promise<void> {
     // TODO: SMS provider entegrasyonu (Netgsm, İleti365, vb.)
     const maskedPhone = phone.slice(0, 4) + '****' + phone.slice(-2);
     this.logger.log(`SMS gönderiliyor: ${maskedPhone}`);
@@ -305,11 +336,11 @@ export class AuthService {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d') as any,
+        expiresIn: this.configService.get('JWT_EXPIRES_IN', '30d'),
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '90d') as any,
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '90d'),
       }),
     ]);
 

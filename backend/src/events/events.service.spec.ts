@@ -10,8 +10,13 @@ import { EventCategory } from '../database/entities/event-category.entity';
 function makeListQb(data: any[] = [], total = 0) {
   const qb: any = {};
   const chain = [
-    'leftJoinAndSelect', 'where', 'andWhere',
-    'orderBy', 'addOrderBy', 'skip', 'take',
+    'leftJoinAndSelect',
+    'where',
+    'andWhere',
+    'orderBy',
+    'addOrderBy',
+    'skip',
+    'take',
   ];
   chain.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, total]);
@@ -37,7 +42,7 @@ const makeCategory = (overrides: Partial<EventCategory> = {}): EventCategory =>
     display_order: 1,
     is_active: true,
     ...overrides,
-  } as EventCategory);
+  }) as EventCategory;
 
 const makeEvent = (overrides: Partial<Event> = {}): Event =>
   ({
@@ -55,7 +60,7 @@ const makeEvent = (overrides: Partial<Event> = {}): Event =>
     status: 'published',
     created_at: new Date('2026-02-10'),
     ...overrides,
-  } as Event);
+  }) as Event;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -132,10 +137,9 @@ describe('EventsService', () => {
 
       await service.findCategories();
 
-      expect(countQb.where).toHaveBeenCalledWith(
-        'e.status = :status',
-        { status: 'published' },
-      );
+      expect(countQb.where).toHaveBeenCalledWith('e.status = :status', {
+        status: 'published',
+      });
       expect(countQb.andWhere).toHaveBeenCalledWith('e.deleted_at IS NULL');
     });
 
@@ -194,10 +198,9 @@ describe('EventsService', () => {
 
       await service.findAll({});
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'e.status = :status',
-        { status: 'published' },
-      );
+      expect(qb.where).toHaveBeenCalledWith('e.status = :status', {
+        status: 'published',
+      });
     });
 
     it('event_date >= TODAY filtresi uygulanmalı', async () => {
@@ -207,10 +210,9 @@ describe('EventsService', () => {
       await service.findAll({});
 
       const today = new Date().toISOString().slice(0, 10);
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.event_date >= :today',
-        { today },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.event_date >= :today', {
+        today,
+      });
     });
 
     it('deleted_at IS NULL filtresi uygulanmalı (soft delete)', async () => {
@@ -228,10 +230,9 @@ describe('EventsService', () => {
 
       await service.findAll({ category_id: 'cat-uuid-1' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.category_id = :category_id',
-        { category_id: 'cat-uuid-1' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.category_id = :category_id', {
+        category_id: 'cat-uuid-1',
+      });
     });
 
     it('city filtresi uygulanmalı', async () => {
@@ -240,10 +241,9 @@ describe('EventsService', () => {
 
       await service.findAll({ city: 'Kadirli' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.city = :city',
-        { city: 'Kadirli' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.city = :city', {
+        city: 'Kadirli',
+      });
     });
 
     it('start_date filtresi uygulanmalı', async () => {
@@ -252,10 +252,9 @@ describe('EventsService', () => {
 
       await service.findAll({ start_date: '2026-02-01' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.event_date >= :start_date',
-        { start_date: '2026-02-01' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.event_date >= :start_date', {
+        start_date: '2026-02-01',
+      });
     });
 
     it('end_date filtresi uygulanmalı', async () => {
@@ -264,10 +263,9 @@ describe('EventsService', () => {
 
       await service.findAll({ end_date: '2026-02-28' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.event_date <= :end_date',
-        { end_date: '2026-02-28' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.event_date <= :end_date', {
+        end_date: '2026-02-28',
+      });
     });
 
     it('is_free=true filtresi uygulanmalı', async () => {
@@ -276,10 +274,9 @@ describe('EventsService', () => {
 
       await service.findAll({ is_free: true });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'e.is_free = :is_free',
-        { is_free: true },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('e.is_free = :is_free', {
+        is_free: true,
+      });
     });
 
     it('is_free tanımlı değilse filtre uygulanmamalı', async () => {

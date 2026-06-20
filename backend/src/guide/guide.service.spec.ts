@@ -35,7 +35,7 @@ const makeCategory = (overrides: Partial<GuideCategory> = {}): GuideCategory =>
     parent_id: null,
     parent: null,
     ...overrides,
-  } as GuideCategory);
+  }) as GuideCategory;
 
 const makeItem = (overrides: Partial<GuideItem> = {}): GuideItem =>
   ({
@@ -48,7 +48,7 @@ const makeItem = (overrides: Partial<GuideItem> = {}): GuideItem =>
     working_hours: '08:00-18:00',
     is_active: true,
     ...overrides,
-  } as GuideItem);
+  }) as GuideItem;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -124,10 +124,9 @@ describe('GuideService', () => {
 
       await service.findCategories();
 
-      expect(countQb.where).toHaveBeenCalledWith(
-        'gi.is_active = :active',
-        { active: true },
-      );
+      expect(countQb.where).toHaveBeenCalledWith('gi.is_active = :active', {
+        active: true,
+      });
     });
 
     it('kategorilerde id, name, slug, icon, color alanları bulunmalı', async () => {
@@ -194,10 +193,9 @@ describe('GuideService', () => {
 
       await service.findAll({});
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'gi.is_active = :active',
-        { active: true },
-      );
+      expect(qb.where).toHaveBeenCalledWith('gi.is_active = :active', {
+        active: true,
+      });
     });
 
     it('kategori ve parent ilişkisi yüklenmeli', async () => {
@@ -206,8 +204,14 @@ describe('GuideService', () => {
 
       await service.findAll({});
 
-      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('gi.category', 'category');
-      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('category.parent', 'parent');
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+        'gi.category',
+        'category',
+      );
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+        'category.parent',
+        'parent',
+      );
     });
 
     it('isim sırasıyla sıralanmalı (ASC)', async () => {

@@ -71,7 +71,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen(port);
-  logger.log(`🚀 KadirliApp Backend çalışıyor: http://localhost:${port}/${apiPrefix}`);
+  logger.log(
+    `🚀 KadirliApp Backend çalışıyor: http://localhost:${port}/${apiPrefix}`,
+  );
   logger.log(`📋 Environment: ${configService.get('NODE_ENV')}`);
 }
 

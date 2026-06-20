@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { In } from 'typeorm';
 import { CampaignAdminService } from './campaign-admin.service';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
 import { Business } from '../database/entities/business.entity';
@@ -59,8 +58,14 @@ describe('CampaignAdminService', () => {
         CampaignAdminService,
         { provide: getRepositoryToken(Campaign), useValue: campaignRepository },
         { provide: getRepositoryToken(Business), useValue: businessRepository },
-        { provide: getRepositoryToken(BusinessCategory), useValue: businessCategoryRepository },
-        { provide: getRepositoryToken(CampaignImage), useValue: campaignImageRepository },
+        {
+          provide: getRepositoryToken(BusinessCategory),
+          useValue: businessCategoryRepository,
+        },
+        {
+          provide: getRepositoryToken(CampaignImage),
+          useValue: campaignImageRepository,
+        },
         { provide: getRepositoryToken(FileEntity), useValue: fileRepository },
       ],
     }).compile();
@@ -121,9 +126,12 @@ describe('CampaignAdminService', () => {
         limit: 20,
       });
 
-      expect(campaignRepository.andWhere).toHaveBeenCalledWith('c.status = :status', {
-        status: 'approved',
-      });
+      expect(campaignRepository.andWhere).toHaveBeenCalledWith(
+        'c.status = :status',
+        {
+          status: 'approved',
+        },
+      );
     });
 
     it('should skip status filter when not provided', async () => {
@@ -282,7 +290,9 @@ describe('CampaignAdminService', () => {
     it('should throw NotFoundException when campaign not found', async () => {
       campaignRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.approveCampaign('admin-1', 'invalid-id')).rejects.toThrow(
+      await expect(
+        service.approveCampaign('admin-1', 'invalid-id'),
+      ).rejects.toThrow(
         new NotFoundException('Kampanya bulunamadı veya onay beklemiyordur'),
       );
     });
@@ -320,7 +330,7 @@ describe('CampaignAdminService', () => {
       const mockCampaign = { id: '1', status: 'pending' };
       campaignRepository.findOne.mockResolvedValue(mockCampaign);
 
-      const result = await service.rejectCampaign('admin-1', '1', {
+      await service.rejectCampaign('admin-1', '1', {
         reason: 'Quality issue',
         note: 'Image resolution too low',
       });
@@ -390,7 +400,12 @@ describe('CampaignAdminService', () => {
         code_view_count: 5,
         rejected_reason: null,
         images: [
-          { id: 'img-1', file_id: 'file-1', display_order: 1, file: { cdn_url: 'url1', storage_path: null } },
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            display_order: 1,
+            file: { cdn_url: 'url1', storage_path: null },
+          },
         ],
         created_at: new Date(),
         updated_at: new Date(),
@@ -416,7 +431,12 @@ describe('CampaignAdminService', () => {
         status: 'approved',
         code_view_count: 0,
         images: [
-          { id: 'img-1', file_id: 'file-1', display_order: 1, file: { cdn_url: null, storage_path: '/path/to/file' } },
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            display_order: 1,
+            file: { cdn_url: null, storage_path: '/path/to/file' },
+          },
         ],
         created_at: new Date(),
         updated_at: new Date(),
@@ -432,9 +452,9 @@ describe('CampaignAdminService', () => {
     it('should throw NotFoundException when campaign not found', async () => {
       campaignRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getAdminCampaignDetail('invalid-id')).rejects.toThrow(
-        new NotFoundException('Kampanya bulunamadı'),
-      );
+      await expect(
+        service.getAdminCampaignDetail('invalid-id'),
+      ).rejects.toThrow(new NotFoundException('Kampanya bulunamadı'));
     });
   });
 
@@ -658,9 +678,9 @@ describe('CampaignAdminService', () => {
 
       businessRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.createAdminCampaign('admin-1', createDto)).rejects.toThrow(
-        new NotFoundException('İşletme bulunamadı'),
-      );
+      await expect(
+        service.createAdminCampaign('admin-1', createDto),
+      ).rejects.toThrow(new NotFoundException('İşletme bulunamadı'));
     });
 
     it('should throw BadRequestException when file not found', async () => {
@@ -677,7 +697,9 @@ describe('CampaignAdminService', () => {
       businessRepository.findOne.mockResolvedValue(mockBusiness);
       fileRepository.findBy.mockResolvedValue(mockFiles);
 
-      await expect(service.createAdminCampaign('admin-1', createDto)).rejects.toThrow(
+      await expect(
+        service.createAdminCampaign('admin-1', createDto),
+      ).rejects.toThrow(
         new BadRequestException('Bir veya daha fazla dosya bulunamadı'),
       );
     });
@@ -745,7 +767,9 @@ describe('CampaignAdminService', () => {
 
       await service.updateAdminCampaign('1', updateDto);
 
-      expect(campaignImageRepository.delete).toHaveBeenCalledWith({ campaign_id: '1' });
+      expect(campaignImageRepository.delete).toHaveBeenCalledWith({
+        campaign_id: '1',
+      });
       expect(campaignImageRepository.save).toHaveBeenCalled();
     });
 
@@ -758,7 +782,9 @@ describe('CampaignAdminService', () => {
 
       await service.updateAdminCampaign('1', updateDto);
 
-      expect(campaignImageRepository.delete).toHaveBeenCalledWith({ campaign_id: '1' });
+      expect(campaignImageRepository.delete).toHaveBeenCalledWith({
+        campaign_id: '1',
+      });
       expect(campaignImageRepository.save).not.toHaveBeenCalled();
     });
 

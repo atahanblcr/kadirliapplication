@@ -42,7 +42,10 @@ export class User {
   @Column({ type: 'uuid', nullable: true })
   primary_neighborhood_id: string;
 
-  @ManyToOne(() => Neighborhood, (n) => n.users, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Neighborhood, (n) => n.users, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'primary_neighborhood_id' })
   primary_neighborhood: Neighborhood;
 

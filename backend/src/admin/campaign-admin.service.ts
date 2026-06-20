@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Campaign, CampaignImage } from '../database/entities/campaign.entity';
@@ -99,7 +103,9 @@ export class CampaignAdminService {
     });
 
     if (!campaign) {
-      throw new NotFoundException('Kampanya bulunamadı veya onay beklemiyordur');
+      throw new NotFoundException(
+        'Kampanya bulunamadı veya onay beklemiyordur',
+      );
     }
 
     await this.campaignRepository.update(id, {
@@ -117,7 +123,9 @@ export class CampaignAdminService {
     });
 
     if (!campaign) {
-      throw new NotFoundException('Kampanya bulunamadı veya onay beklemiyordur');
+      throw new NotFoundException(
+        'Kampanya bulunamadı veya onay beklemiyordur',
+      );
     }
 
     const rejected_reason = dto.note
@@ -157,8 +165,12 @@ export class CampaignAdminService {
   async createBusinessCategory(dto: CreateBusinessCategoryDto) {
     const slug = dto.name
       .toLowerCase()
-      .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/ı/g, 'i')
+      .replace(/ş/g, 's')
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
 
@@ -253,7 +265,7 @@ export class CampaignAdminService {
       approved_at: new Date(),
     });
 
-    const saved = (await this.campaignRepository.save(campaign)) as Campaign;
+    const saved = await this.campaignRepository.save(campaign);
 
     if (dto.image_ids && dto.image_ids.length > 0) {
       const imageEntities = dto.image_ids.map((fileId, idx) =>
@@ -283,7 +295,8 @@ export class CampaignAdminService {
     const updateData: Record<string, unknown> = {};
     if (dto.title !== undefined) updateData.title = dto.title;
     if (dto.description !== undefined) updateData.description = dto.description;
-    if (dto.discount_rate !== undefined) updateData.discount_percentage = dto.discount_rate;
+    if (dto.discount_rate !== undefined)
+      updateData.discount_percentage = dto.discount_rate;
     if (dto.code !== undefined) updateData.discount_code = dto.code;
     if (dto.valid_from !== undefined) updateData.start_date = dto.valid_from;
     if (dto.valid_until !== undefined) updateData.end_date = dto.valid_until;
@@ -295,7 +308,9 @@ export class CampaignAdminService {
 
     if (dto.image_ids !== undefined) {
       if (dto.image_ids.length > 0) {
-        const files = await this.fileRepository.findBy({ id: In(dto.image_ids) });
+        const files = await this.fileRepository.findBy({
+          id: In(dto.image_ids),
+        });
         if (files.length !== dto.image_ids.length) {
           throw new BadRequestException('Bir veya daha fazla dosya bulunamadı');
         }

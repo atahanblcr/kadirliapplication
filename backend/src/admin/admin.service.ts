@@ -1,15 +1,13 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../database/entities/user.entity';
 import { Event } from '../database/entities/event.entity';
-import { EventCategory } from '../database/entities/event-category.entity';
 import { Pharmacy } from '../database/entities/pharmacy.entity';
 import { TaxiDriver } from '../database/entities/taxi-driver.entity';
 import { Ad } from '../database/entities/ad.entity';
@@ -206,7 +204,12 @@ export class AdminService {
     );
 
     const total = approvals.length;
-    return { approvals: approvals.slice(skip, skip + limit), total, page, limit };
+    return {
+      approvals: approvals.slice(skip, skip + limit),
+      total,
+      page,
+      limit,
+    };
   }
 
   // ── İLAN ONAYLA ───────────────────────────────────────────────────────────
@@ -230,7 +233,9 @@ export class AdminService {
       qb.andWhere('ad.status = :status', { status: dto.status });
     }
     if (dto.category_id) {
-      qb.andWhere('ad.category_id = :category_id', { category_id: dto.category_id });
+      qb.andWhere('ad.category_id = :category_id', {
+        category_id: dto.category_id,
+      });
     }
     if (dto.user_id) {
       qb.andWhere('ad.user_id = :user_id', { user_id: dto.user_id });
@@ -307,7 +312,13 @@ export class AdminService {
     return { message: 'İlan reddedildi' };
   }
 
-  async getNeighborhoods(search?: string, type?: string, is_active?: boolean, page = 1, limit = 50) {
+  async getNeighborhoods(
+    search?: string,
+    type?: string,
+    is_active?: boolean,
+    page = 1,
+    limit = 50,
+  ) {
     const skip = (page - 1) * limit;
 
     const qb = this.neighborhoodRepository
@@ -338,7 +349,9 @@ export class AdminService {
   }
 
   async updateNeighborhood(id: string, dto: any) {
-    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    const neighborhood = await this.neighborhoodRepository.findOne({
+      where: { id },
+    });
     if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
 
     Object.assign(neighborhood, dto);
@@ -347,17 +360,17 @@ export class AdminService {
   }
 
   async deleteNeighborhood(id: string) {
-    const neighborhood = await this.neighborhoodRepository.findOne({ where: { id } });
+    const neighborhood = await this.neighborhoodRepository.findOne({
+      where: { id },
+    });
     if (!neighborhood) throw new NotFoundException('Mahalle bulunamadı');
     await this.neighborhoodRepository.delete(id);
     return { message: 'Mahalle silindi' };
   }
 
-
   // ══════════════════════════════════════════════════════════════════════════
   // ETKİNLİK YÖNETİMİ (Events Admin)
   // ══════════════════════════════════════════════════════════════════════════
-
 
   // ── İLAN SİL (ADMIN) ─────────────────────────────────────────────────────
 
@@ -449,8 +462,6 @@ export class AdminService {
     return activities.slice(0, 10);
   }
 
-
-
   // ── ADMIN PROFİL ────────────────────────────────────────────────────────────
 
   async getAdminProfile(adminId: string) {
@@ -472,7 +483,9 @@ export class AdminService {
       await this.userRepository.update(adminId, { username: dto.username });
     }
 
-    const updated = await this.userRepository.findOne({ where: { id: adminId } });
+    const updated = await this.userRepository.findOne({
+      where: { id: adminId },
+    });
     return {
       id: updated!.id,
       email: updated!.email,

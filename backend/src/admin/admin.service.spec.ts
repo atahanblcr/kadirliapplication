@@ -144,10 +144,6 @@ describe('AdminService', () => {
   let announcementRepo: any;
   let notifRepo: any;
   let pharmRepo: any;
-  let businessRepo: any;
-  let businessCategoryRepo: any;
-  let cemeteryRepo: any;
-  let mosqueRepo: any;
   let neighborhoodRepo: any;
   let eventRepo: any;
   let taxiDriverRepo: any;
@@ -213,10 +209,6 @@ describe('AdminService', () => {
     announcementRepo = module.get(getRepositoryToken(Announcement));
     notifRepo = module.get(getRepositoryToken(Notification));
     pharmRepo = module.get(getRepositoryToken(Pharmacy));
-    businessRepo = module.get(getRepositoryToken(Business));
-    businessCategoryRepo = module.get(getRepositoryToken(BusinessCategory));
-    cemeteryRepo = module.get(getRepositoryToken(Cemetery));
-    mosqueRepo = module.get(getRepositoryToken(Mosque));
     neighborhoodRepo = module.get(getRepositoryToken(Neighborhood));
     eventRepo = module.get(getRepositoryToken(Event));
     taxiDriverRepo = module.get(getRepositoryToken(TaxiDriver));

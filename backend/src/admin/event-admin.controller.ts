@@ -60,10 +60,7 @@ export class EventAdminController {
 
   // POST /admin/events
   @Post()
-  createEvent(
-    @Body() dto: CreateEventDto,
-    @CurrentUser('id') userId: string,
-  ) {
+  createEvent(@Body() dto: CreateEventDto, @CurrentUser('id') userId: string) {
     return this.eventAdminService.createEvent(dto, userId);
   }
 

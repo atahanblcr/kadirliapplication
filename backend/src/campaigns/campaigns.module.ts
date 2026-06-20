@@ -11,7 +11,12 @@ import { CampaignsController } from './campaigns.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Campaign, CampaignImage, CampaignCodeView, Business]),
+    TypeOrmModule.forFeature([
+      Campaign,
+      CampaignImage,
+      CampaignCodeView,
+      Business,
+    ]),
   ],
   controllers: [CampaignsController],
   providers: [CampaignsService],

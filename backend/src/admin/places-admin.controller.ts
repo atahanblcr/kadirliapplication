@@ -93,10 +93,7 @@ export class PlacesAdminController {
 
   // POST /admin/places
   @Post()
-  createPlace(
-    @Body() dto: CreatePlaceDto,
-    @CurrentUser('id') userId: string,
-  ) {
+  createPlace(@Body() dto: CreatePlaceDto, @CurrentUser('id') userId: string) {
     return this.placesAdminService.createPlace(dto, userId);
   }
 

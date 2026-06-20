@@ -24,15 +24,20 @@ describe('ComplaintsAdminController', () => {
       ],
     }).compile();
 
-    controller = module.get<ComplaintsAdminController>(ComplaintsAdminController);
-    complaintsAdminService = module.get(ComplaintsAdminService) as jest.Mocked<ComplaintsAdminService>;
+    controller = module.get<ComplaintsAdminController>(
+      ComplaintsAdminController,
+    );
+    complaintsAdminService = module.get(ComplaintsAdminService);
   });
 
   describe('getComplaints', () => {
     it('should return list of complaints', async () => {
       const dto = { status: 'open' };
-      complaintsAdminService.getComplaints.mockResolvedValue({ success: true, data: [] });
-      const result = await controller.getComplaints(dto);
+      complaintsAdminService.getComplaints.mockResolvedValue({
+        success: true,
+        data: [],
+      });
+      await controller.getComplaints(dto);
       expect(complaintsAdminService.getComplaints).toHaveBeenCalledWith(dto);
     });
   });
@@ -40,8 +45,11 @@ describe('ComplaintsAdminController', () => {
   describe('getComplaint', () => {
     it('should return complaint details', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      complaintsAdminService.getComplaintById.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.getComplaint(id);
+      complaintsAdminService.getComplaintById.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.getComplaint(id);
       expect(complaintsAdminService.getComplaintById).toHaveBeenCalledWith(id);
     });
   });
@@ -50,9 +58,15 @@ describe('ComplaintsAdminController', () => {
     it('should review a complaint', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const user = { id: 'admin-123' };
-      complaintsAdminService.reviewComplaint.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.reviewComplaint(id, user);
-      expect(complaintsAdminService.reviewComplaint).toHaveBeenCalledWith(id, user.id);
+      complaintsAdminService.reviewComplaint.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.reviewComplaint(id, user);
+      expect(complaintsAdminService.reviewComplaint).toHaveBeenCalledWith(
+        id,
+        user.id,
+      );
     });
   });
 
@@ -61,9 +75,16 @@ describe('ComplaintsAdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { resolution: 'Issue resolved' };
       const user = { id: 'admin-123' };
-      complaintsAdminService.resolveComplaint.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.resolveComplaint(id, dto, user);
-      expect(complaintsAdminService.resolveComplaint).toHaveBeenCalledWith(id, dto, user.id);
+      complaintsAdminService.resolveComplaint.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.resolveComplaint(id, dto, user);
+      expect(complaintsAdminService.resolveComplaint).toHaveBeenCalledWith(
+        id,
+        dto,
+        user.id,
+      );
     });
   });
 
@@ -72,9 +93,16 @@ describe('ComplaintsAdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { resolution: 'Invalid complaint' };
       const user = { id: 'admin-123' };
-      complaintsAdminService.rejectComplaint.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.rejectComplaint(id, dto, user);
-      expect(complaintsAdminService.rejectComplaint).toHaveBeenCalledWith(id, dto, user.id);
+      complaintsAdminService.rejectComplaint.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.rejectComplaint(id, dto, user);
+      expect(complaintsAdminService.rejectComplaint).toHaveBeenCalledWith(
+        id,
+        dto,
+        user.id,
+      );
     });
   });
 
@@ -86,11 +114,10 @@ describe('ComplaintsAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.updateComplaintPriority(id, dto);
-      expect(complaintsAdminService.updateComplaintPriority).toHaveBeenCalledWith(
-        id,
-        dto.priority,
-      );
+      await controller.updateComplaintPriority(id, dto);
+      expect(
+        complaintsAdminService.updateComplaintPriority,
+      ).toHaveBeenCalledWith(id, dto.priority);
     });
   });
 });

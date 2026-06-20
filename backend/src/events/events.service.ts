@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Event, EventImage } from '../database/entities/event.entity';
+import { Event } from '../database/entities/event.entity';
 import { EventCategory } from '../database/entities/event-category.entity';
 import { QueryEventDto } from './dto/query-event.dto';
 import {

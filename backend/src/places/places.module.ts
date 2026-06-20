@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import {
+  Place,
+  PlaceCategory,
+  PlaceImage,
+} from '../database/entities/place.entity';
 import { PlacesService } from './places.service';
 import { PlacesController } from './places.controller';
 

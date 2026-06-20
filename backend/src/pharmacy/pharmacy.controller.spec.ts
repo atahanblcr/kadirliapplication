@@ -58,7 +58,9 @@ describe('PharmacyController', () => {
     it('service hatası controller üzerinden yayılmalı', async () => {
       service.getCurrent.mockRejectedValue(new Error('Nöbetçi bulunamadı'));
 
-      await expect(controller.getCurrent()).rejects.toThrow('Nöbetçi bulunamadı');
+      await expect(controller.getCurrent()).rejects.toThrow(
+        'Nöbetçi bulunamadı',
+      );
     });
   });
 
@@ -67,7 +69,17 @@ describe('PharmacyController', () => {
   describe('getSchedule', () => {
     it('nöbet takvimini döndürmeli', async () => {
       const expected = {
-        schedule: [{ date: '2026-02-20', pharmacy: { id: 'p-1', name: 'Merkez', phone: '...', address: '...' } }],
+        schedule: [
+          {
+            date: '2026-02-20',
+            pharmacy: {
+              id: 'p-1',
+              name: 'Merkez',
+              phone: '...',
+              address: '...',
+            },
+          },
+        ],
       };
       service.getSchedule.mockResolvedValue(expected);
 
@@ -77,7 +89,7 @@ describe('PharmacyController', () => {
       expect(service.getSchedule).toHaveBeenCalledWith({});
     });
 
-    it('tarih filtrelerini service\'e iletmeli', async () => {
+    it("tarih filtrelerini service'e iletmeli", async () => {
       service.getSchedule.mockResolvedValue({ schedule: [] });
       const dto = { start_date: '2026-02-01', end_date: '2026-02-28' };
 
@@ -92,7 +104,18 @@ describe('PharmacyController', () => {
   describe('getList', () => {
     it('tüm aktif eczaneleri döndürmeli', async () => {
       const expected = {
-        pharmacies: [{ id: 'p-1', name: 'Merkez Eczanesi', address: '...', phone: '...', latitude: 37.3667, longitude: 36.1, working_hours: '08:30-19:00', pharmacist_name: 'Ecz. Ali' }],
+        pharmacies: [
+          {
+            id: 'p-1',
+            name: 'Merkez Eczanesi',
+            address: '...',
+            phone: '...',
+            latitude: 37.3667,
+            longitude: 36.1,
+            working_hours: '08:30-19:00',
+            pharmacist_name: 'Ecz. Ali',
+          },
+        ],
       };
       service.getList.mockResolvedValue(expected);
 

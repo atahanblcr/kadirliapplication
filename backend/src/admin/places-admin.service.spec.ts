@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PlacesAdminService } from './places-admin.service';
-import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import {
+  Place,
+  PlaceCategory,
+  PlaceImage,
+} from '../database/entities/place.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('PlacesAdminService', () => {
@@ -46,7 +50,10 @@ describe('PlacesAdminService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlacesAdminService,
-        { provide: getRepositoryToken(PlaceCategory), useValue: categoryRepository },
+        {
+          provide: getRepositoryToken(PlaceCategory),
+          useValue: categoryRepository,
+        },
         { provide: getRepositoryToken(Place), useValue: placeRepository },
         { provide: getRepositoryToken(PlaceImage), useValue: imageRepository },
       ],
@@ -65,8 +72,22 @@ describe('PlacesAdminService', () => {
   describe('getPlaceCategories', () => {
     it('should return all place categories sorted', async () => {
       const mockCategories = [
-        { id: 'cat-1', name: 'Historical', slug: 'historical', icon: '🏛️', display_order: 1, is_active: true },
-        { id: 'cat-2', name: 'Nature', slug: 'nature', icon: '🌲', display_order: 2, is_active: true },
+        {
+          id: 'cat-1',
+          name: 'Historical',
+          slug: 'historical',
+          icon: '🏛️',
+          display_order: 1,
+          is_active: true,
+        },
+        {
+          id: 'cat-2',
+          name: 'Nature',
+          slug: 'nature',
+          icon: '🌲',
+          display_order: 2,
+          is_active: true,
+        },
       ];
 
       categoryRepository.find.mockResolvedValueOnce(mockCategories);
@@ -93,11 +114,20 @@ describe('PlacesAdminService', () => {
   // ============================================================================
   describe('createPlaceCategory', () => {
     it('should create category with unique slug', async () => {
-      const dto = { name: 'Historical Sites', icon: '🏛️', display_order: 1, is_active: true };
+      const dto = {
+        name: 'Historical Sites',
+        icon: '🏛️',
+        display_order: 1,
+        is_active: true,
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(null); // No duplicate
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, slug: 'historical-sites' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        slug: 'historical-sites',
+      });
 
       const result = await service.createPlaceCategory(dto as any);
 
@@ -106,19 +136,33 @@ describe('PlacesAdminService', () => {
     });
 
     it('should handle Turkish characters in slug', async () => {
-      const dto = { name: 'Güzel Yerler Çağlayanlar', icon: '💧', display_order: 0, is_active: true };
+      const dto = {
+        name: 'Güzel Yerler Çağlayanlar',
+        icon: '💧',
+        display_order: 0,
+        is_active: true,
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, slug: 'guzel-yerler-caylayanlar' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        slug: 'guzel-yerler-caylayanlar',
+      });
 
-      const result = await service.createPlaceCategory(dto as any);
+      await service.createPlaceCategory(dto as any);
 
       expect(categoryRepository.save).toHaveBeenCalled();
     });
 
     it('should append counter when slug already exists', async () => {
-      const dto = { name: 'Park', icon: '🌳', display_order: 1, is_active: true };
+      const dto = {
+        name: 'Park',
+        icon: '🌳',
+        display_order: 1,
+        is_active: true,
+      };
 
       categoryRepository.findOne
         .mockResolvedValueOnce({ id: 'cat-1', slug: 'park' }) // park exists
@@ -126,7 +170,11 @@ describe('PlacesAdminService', () => {
         .mockResolvedValueOnce(null); // park-2 is unique
 
       categoryRepository.create.mockReturnValueOnce(dto);
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-3', ...dto, slug: 'park-2' });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-3',
+        ...dto,
+        slug: 'park-2',
+      });
 
       const result = await service.createPlaceCategory(dto as any);
 
@@ -137,8 +185,16 @@ describe('PlacesAdminService', () => {
       const dto = { name: 'Test' };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
-      categoryRepository.create.mockReturnValueOnce({ ...dto, display_order: 0 });
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, display_order: 0, slug: 'test' });
+      categoryRepository.create.mockReturnValueOnce({
+        ...dto,
+        display_order: 0,
+      });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        display_order: 0,
+        slug: 'test',
+      });
 
       await service.createPlaceCategory(dto as any);
 
@@ -149,8 +205,16 @@ describe('PlacesAdminService', () => {
       const dto = { name: 'Test' };
 
       categoryRepository.findOne.mockResolvedValueOnce(null);
-      categoryRepository.create.mockReturnValueOnce({ ...dto, is_active: true });
-      categoryRepository.save.mockResolvedValueOnce({ id: 'cat-1', ...dto, is_active: true, slug: 'test' });
+      categoryRepository.create.mockReturnValueOnce({
+        ...dto,
+        is_active: true,
+      });
+      categoryRepository.save.mockResolvedValueOnce({
+        id: 'cat-1',
+        ...dto,
+        is_active: true,
+        slug: 'test',
+      });
 
       await service.createPlaceCategory(dto as any);
 
@@ -163,7 +227,13 @@ describe('PlacesAdminService', () => {
   // ============================================================================
   describe('updatePlaceCategory', () => {
     it('should update category with partial fields', async () => {
-      const category = { id: 'cat-1', name: 'Old Name', icon: null, display_order: 1, is_active: true };
+      const category = {
+        id: 'cat-1',
+        name: 'Old Name',
+        icon: null,
+        display_order: 1,
+        is_active: true,
+      };
       const dto = { name: 'New Name', icon: '✨' };
 
       categoryRepository.findOne.mockResolvedValueOnce(category);
@@ -203,7 +273,9 @@ describe('PlacesAdminService', () => {
       categoryRepository.findOne.mockResolvedValueOnce(category);
 
       await expect(service.deletePlaceCategory('cat-1')).rejects.toThrow(
-        new BadRequestException('Mekan bulunan kategori silinemez. Önce mekanları silin veya taşıyın.'),
+        new BadRequestException(
+          'Mekan bulunan kategori silinemez. Önce mekanları silin veya taşıyın.',
+        ),
       );
     });
 
@@ -222,7 +294,28 @@ describe('PlacesAdminService', () => {
   describe('getAdminPlaces', () => {
     it('should return places with pagination', async () => {
       const mockPlaces = [
-        { id: 'place-1', name: 'Place 1', category: null, cover_image: null, images: [], is_active: true, is_free: true, created_at: new Date(), updated_at: new Date(), category_id: null, description: null, address: null, latitude: 0, longitude: 0, entrance_fee: null, opening_hours: null, best_season: null, how_to_get_there: null, distance_from_center: null, cover_image_id: null },
+        {
+          id: 'place-1',
+          name: 'Place 1',
+          category: null,
+          cover_image: null,
+          images: [],
+          is_active: true,
+          is_free: true,
+          created_at: new Date(),
+          updated_at: new Date(),
+          category_id: null,
+          description: null,
+          address: null,
+          latitude: 0,
+          longitude: 0,
+          entrance_fee: null,
+          opening_hours: null,
+          best_season: null,
+          how_to_get_there: null,
+          distance_from_center: null,
+          cover_image_id: null,
+        },
       ];
 
       placeRepository.getManyAndCount.mockResolvedValueOnce([mockPlaces, 10]);
@@ -238,7 +331,11 @@ describe('PlacesAdminService', () => {
     it('should apply search filter', async () => {
       placeRepository.getManyAndCount.mockResolvedValueOnce([[], 0]);
 
-      await service.getAdminPlaces({ search: 'Cappadocia', page: 1, limit: 20 });
+      await service.getAdminPlaces({
+        search: 'Cappadocia',
+        page: 1,
+        limit: 20,
+      });
 
       expect(placeRepository.andWhere).toHaveBeenCalledWith(
         expect.stringContaining('ILIKE'),
@@ -249,9 +346,16 @@ describe('PlacesAdminService', () => {
     it('should apply category_id filter', async () => {
       placeRepository.getManyAndCount.mockResolvedValueOnce([[], 0]);
 
-      await service.getAdminPlaces({ category_id: 'cat-1', page: 1, limit: 20 });
+      await service.getAdminPlaces({
+        category_id: 'cat-1',
+        page: 1,
+        limit: 20,
+      });
 
-      expect(placeRepository.andWhere).toHaveBeenCalledWith('p.category_id = :category_id', { category_id: 'cat-1' });
+      expect(placeRepository.andWhere).toHaveBeenCalledWith(
+        'p.category_id = :category_id',
+        { category_id: 'cat-1' },
+      );
     });
 
     it('should apply is_active filter', async () => {
@@ -259,7 +363,10 @@ describe('PlacesAdminService', () => {
 
       await service.getAdminPlaces({ is_active: true, page: 1, limit: 20 });
 
-      expect(placeRepository.andWhere).toHaveBeenCalledWith('p.is_active = :is_active', { is_active: true });
+      expect(placeRepository.andWhere).toHaveBeenCalledWith(
+        'p.is_active = :is_active',
+        { is_active: true },
+      );
     });
 
     it('should apply is_free filter', async () => {
@@ -267,7 +374,10 @@ describe('PlacesAdminService', () => {
 
       await service.getAdminPlaces({ is_free: false, page: 1, limit: 20 });
 
-      expect(placeRepository.andWhere).toHaveBeenCalledWith('p.is_free = :is_free', { is_free: false });
+      expect(placeRepository.andWhere).toHaveBeenCalledWith(
+        'p.is_free = :is_free',
+        { is_free: false },
+      );
     });
 
     it('should apply multiple filters together', async () => {
@@ -299,7 +409,14 @@ describe('PlacesAdminService', () => {
         category_id: 'cat-1',
         category: { id: 'cat-1', name: 'Nature', icon: '🌲' },
         cover_image: { url: 'https://cdn.example.com/cover.jpg' },
-        images: [{ id: 'img-1', file_id: 'file-1', file: { url: 'https://cdn.example.com/img1.jpg' }, display_order: 1 }],
+        images: [
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            file: { url: 'https://cdn.example.com/img1.jpg' },
+            display_order: 1,
+          },
+        ],
         address: 'Denizli',
         latitude: 37.9,
         longitude: 29.1,
@@ -360,7 +477,10 @@ describe('PlacesAdminService', () => {
         is_active: true,
       };
 
-      categoryRepository.findOne.mockResolvedValueOnce({ id: 'cat-1', name: 'Historical' });
+      categoryRepository.findOne.mockResolvedValueOnce({
+        id: 'cat-1',
+        name: 'Historical',
+      });
       placeRepository.create.mockReturnValueOnce(dto);
       placeRepository.save.mockResolvedValueOnce({ id: 'place-1', ...dto });
       placeRepository.findOne.mockResolvedValueOnce({
@@ -465,9 +585,9 @@ describe('PlacesAdminService', () => {
       placeRepository.findOne.mockResolvedValueOnce(place);
       categoryRepository.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.updatePlace('place-1', { category_id: 'invalid' })).rejects.toThrow(
-        new BadRequestException('Geçersiz kategori'),
-      );
+      await expect(
+        service.updatePlace('place-1', { category_id: 'invalid' }),
+      ).rejects.toThrow(new BadRequestException('Geçersiz kategori'));
     });
 
     it('should allow unsetting category_id with null', async () => {
@@ -541,33 +661,35 @@ describe('PlacesAdminService', () => {
       };
       const dto = { file_ids: ['file-3', 'file-4'] };
 
-      placeRepository.findOne.mockResolvedValueOnce(place).mockResolvedValueOnce({
-        id: 'place-1',
-        images: [
-          { id: 'img-1', display_order: 0, file_id: 'file-1', file: null },
-          { id: 'img-2', display_order: 1, file_id: 'file-2', file: null },
-          { id: 'img-3', display_order: 2, file_id: 'file-3', file: null },
-          { id: 'img-4', display_order: 3, file_id: 'file-4', file: null },
-        ],
-        category: null,
-        cover_image: null,
-        name: 'Test',
-        address: null,
-        latitude: 0,
-        longitude: 0,
-        is_active: true,
-        is_free: true,
-        category_id: null,
-        description: null,
-        entrance_fee: null,
-        opening_hours: null,
-        best_season: null,
-        how_to_get_there: null,
-        distance_from_center: null,
-        cover_image_id: null,
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      placeRepository.findOne
+        .mockResolvedValueOnce(place)
+        .mockResolvedValueOnce({
+          id: 'place-1',
+          images: [
+            { id: 'img-1', display_order: 0, file_id: 'file-1', file: null },
+            { id: 'img-2', display_order: 1, file_id: 'file-2', file: null },
+            { id: 'img-3', display_order: 2, file_id: 'file-3', file: null },
+            { id: 'img-4', display_order: 3, file_id: 'file-4', file: null },
+          ],
+          category: null,
+          cover_image: null,
+          name: 'Test',
+          address: null,
+          latitude: 0,
+          longitude: 0,
+          is_active: true,
+          is_free: true,
+          category_id: null,
+          description: null,
+          entrance_fee: null,
+          opening_hours: null,
+          best_season: null,
+          how_to_get_there: null,
+          distance_from_center: null,
+          cover_image_id: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
 
       imageRepository.create.mockImplementation((data) => data);
 
@@ -580,28 +702,32 @@ describe('PlacesAdminService', () => {
       const place = { id: 'place-1', images: null };
       const dto = { file_ids: ['file-1'] };
 
-      placeRepository.findOne.mockResolvedValueOnce(place).mockResolvedValueOnce({
-        id: 'place-1',
-        images: [{ id: 'img-1', display_order: 0, file_id: 'file-1', file: null }],
-        category: null,
-        cover_image: null,
-        name: 'Test',
-        address: null,
-        latitude: 0,
-        longitude: 0,
-        is_active: true,
-        is_free: true,
-        category_id: null,
-        description: null,
-        entrance_fee: null,
-        opening_hours: null,
-        best_season: null,
-        how_to_get_there: null,
-        distance_from_center: null,
-        cover_image_id: null,
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      placeRepository.findOne
+        .mockResolvedValueOnce(place)
+        .mockResolvedValueOnce({
+          id: 'place-1',
+          images: [
+            { id: 'img-1', display_order: 0, file_id: 'file-1', file: null },
+          ],
+          category: null,
+          cover_image: null,
+          name: 'Test',
+          address: null,
+          latitude: 0,
+          longitude: 0,
+          is_active: true,
+          is_free: true,
+          category_id: null,
+          description: null,
+          entrance_fee: null,
+          opening_hours: null,
+          best_season: null,
+          how_to_get_there: null,
+          distance_from_center: null,
+          cover_image_id: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
 
       imageRepository.create.mockImplementation((data) => data);
 
@@ -613,9 +739,9 @@ describe('PlacesAdminService', () => {
     it('should throw NotFoundException when place not found', async () => {
       placeRepository.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.addPlaceImages('invalid', { file_ids: ['file-1'] } as any)).rejects.toThrow(
-        new NotFoundException('Mekan bulunamadı'),
-      );
+      await expect(
+        service.addPlaceImages('invalid', { file_ids: ['file-1'] } as any),
+      ).rejects.toThrow(new NotFoundException('Mekan bulunamadı'));
     });
   });
 
@@ -624,7 +750,12 @@ describe('PlacesAdminService', () => {
   // ============================================================================
   describe('deletePlaceImage', () => {
     it('should delete image without affecting cover_image', async () => {
-      const image = { id: 'img-1', file_id: 'file-1', place_id: 'place-1', place: { cover_image_id: 'file-2' } };
+      const image = {
+        id: 'img-1',
+        file_id: 'file-1',
+        place_id: 'place-1',
+        place: { cover_image_id: 'file-2' },
+      };
 
       imageRepository.findOne.mockResolvedValueOnce(image);
 
@@ -635,13 +766,20 @@ describe('PlacesAdminService', () => {
     });
 
     it('should clear cover_image when deleting image used as cover', async () => {
-      const image = { id: 'img-1', file_id: 'file-1', place_id: 'place-1', place: { cover_image_id: 'file-1' } };
+      const image = {
+        id: 'img-1',
+        file_id: 'file-1',
+        place_id: 'place-1',
+        place: { cover_image_id: 'file-1' },
+      };
 
       imageRepository.findOne.mockResolvedValueOnce(image);
 
       await service.deletePlaceImage('img-1');
 
-      expect(placeRepository.update).toHaveBeenCalledWith('place-1', { cover_image_id: null });
+      expect(placeRepository.update).toHaveBeenCalledWith('place-1', {
+        cover_image_id: null,
+      });
       expect(imageRepository.delete).toHaveBeenCalledWith('img-1');
     });
 
@@ -693,16 +831,24 @@ describe('PlacesAdminService', () => {
 
       await service.reorderPlaceImages('place-1', dto as any);
 
-      expect(imageRepository.update).toHaveBeenCalledWith('img-2', { display_order: 0 });
-      expect(imageRepository.update).toHaveBeenCalledWith('img-1', { display_order: 1 });
-      expect(imageRepository.update).toHaveBeenCalledWith('img-3', { display_order: 2 });
+      expect(imageRepository.update).toHaveBeenCalledWith('img-2', {
+        display_order: 0,
+      });
+      expect(imageRepository.update).toHaveBeenCalledWith('img-1', {
+        display_order: 1,
+      });
+      expect(imageRepository.update).toHaveBeenCalledWith('img-3', {
+        display_order: 2,
+      });
     });
 
     it('should throw NotFoundException when place not found', async () => {
       placeRepository.findOne.mockResolvedValueOnce(null);
 
       await expect(
-        service.reorderPlaceImages('invalid', { ordered_ids: ['img-1'] } as any),
+        service.reorderPlaceImages('invalid', {
+          ordered_ids: ['img-1'],
+        } as any),
       ).rejects.toThrow(new NotFoundException('Mekan bulunamadı'));
     });
   });
@@ -731,7 +877,12 @@ describe('PlacesAdminService', () => {
         cover_image: { url: 'https://cdn.example.com/cover.jpg' },
         is_active: true,
         images: [
-          { id: 'img-1', file_id: 'file-1', file: { url: 'https://cdn.example.com/img1.jpg' }, display_order: 1 },
+          {
+            id: 'img-1',
+            file_id: 'file-1',
+            file: { url: 'https://cdn.example.com/img1.jpg' },
+            display_order: 1,
+          },
           { id: 'img-2', file_id: 'file-2', file: null, display_order: 2 },
         ],
         created_at: new Date('2026-01-01'),

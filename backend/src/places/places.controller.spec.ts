@@ -14,7 +14,7 @@ const makePlace = (overrides: Partial<Place> = {}): Place =>
     distance_from_center: 22,
     is_active: true,
     ...overrides,
-  } as Place);
+  }) as Place;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -43,7 +43,9 @@ describe('PlacesController', () => {
 
   describe('findAll', () => {
     it('mekan listesini döndürmeli', async () => {
-      const expected = { places: [{ id: 'place-uuid-1', name: 'Karatepe', user_distance: null }] };
+      const expected = {
+        places: [{ id: 'place-uuid-1', name: 'Karatepe', user_distance: null }],
+      };
       service.findAll.mockResolvedValue(expected);
 
       const result = await controller.findAll({});
@@ -52,7 +54,7 @@ describe('PlacesController', () => {
       expect(service.findAll).toHaveBeenCalledWith({});
     });
 
-    it('tüm filtreleri service\'e iletmeli', async () => {
+    it("tüm filtreleri service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ places: [] });
       const dto = {
         category_id: 'cat-1',
@@ -75,7 +77,7 @@ describe('PlacesController', () => {
       expect(result.places).toEqual([]);
     });
 
-    it('user koordinatlarıyla service\'e iletmeli', async () => {
+    it("user koordinatlarıyla service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ places: [] });
       const dto = { user_lat: 37.3667, user_lng: 36.1 };
 

@@ -150,7 +150,7 @@ describe('JwtStrategy', () => {
       await expect(strategy.validate(mockPayload)).resolves.not.toThrow();
     });
 
-    it('Payload\'dan user_id alınarak sorgu yapılmalı', async () => {
+    it("Payload'dan user_id alınarak sorgu yapılmalı", async () => {
       const payload: JwtPayload = {
         user_id: 'different-user-uuid',
         role: UserRole.ADMIN,

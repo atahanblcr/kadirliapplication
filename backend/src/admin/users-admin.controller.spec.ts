@@ -24,14 +24,14 @@ describe('UsersAdminController', () => {
     }).compile();
 
     controller = module.get<UsersAdminController>(UsersAdminController);
-    usersAdminService = module.get(UsersAdminService) as jest.Mocked<UsersAdminService>;
+    usersAdminService = module.get(UsersAdminService);
   });
 
   describe('getUsers', () => {
     it('should return list of users', async () => {
       const dto = { search: 'test' };
       usersAdminService.getUsers.mockResolvedValue({ success: true, data: [] });
-      const result = await controller.getUsers(dto);
+      await controller.getUsers(dto);
       expect(usersAdminService.getUsers).toHaveBeenCalledWith(dto);
     });
   });
@@ -40,7 +40,7 @@ describe('UsersAdminController', () => {
     it('should return user details', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       usersAdminService.getUser.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.getUser(id);
+      await controller.getUser(id);
       expect(usersAdminService.getUser).toHaveBeenCalledWith(id);
     });
   });
@@ -51,8 +51,12 @@ describe('UsersAdminController', () => {
       const userId = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { reason: 'Spam' };
       usersAdminService.banUser.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.banUser(adminId, userId, dto);
-      expect(usersAdminService.banUser).toHaveBeenCalledWith(adminId, userId, dto);
+      await controller.banUser(adminId, userId, dto);
+      expect(usersAdminService.banUser).toHaveBeenCalledWith(
+        adminId,
+        userId,
+        dto,
+      );
     });
   });
 
@@ -60,8 +64,11 @@ describe('UsersAdminController', () => {
     it('should unban a user', async () => {
       const adminId = 'admin-123';
       const userId = '123e4567-e89b-12d3-a456-426614174000';
-      usersAdminService.unbanUser.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.unbanUser(adminId, userId);
+      usersAdminService.unbanUser.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.unbanUser(adminId, userId);
       expect(usersAdminService.unbanUser).toHaveBeenCalledWith(adminId, userId);
     });
   });
@@ -71,9 +78,16 @@ describe('UsersAdminController', () => {
       const adminId = 'admin-123';
       const userId = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { role: 'moderator' };
-      usersAdminService.changeUserRole.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.changeUserRole(adminId, userId, dto);
-      expect(usersAdminService.changeUserRole).toHaveBeenCalledWith(adminId, userId, dto);
+      usersAdminService.changeUserRole.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.changeUserRole(adminId, userId, dto);
+      expect(usersAdminService.changeUserRole).toHaveBeenCalledWith(
+        adminId,
+        userId,
+        dto,
+      );
     });
   });
 });

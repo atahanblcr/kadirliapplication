@@ -13,7 +13,10 @@ import { UserRole } from '../common/enums/user-role.enum';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 import { QueryAnnouncementDto } from './dto/query-announcement.dto';
-import { getPaginationMeta, getPaginationOffset } from '../common/utils/pagination.util';
+import {
+  getPaginationMeta,
+  getPaginationOffset,
+} from '../common/utils/pagination.util';
 
 @Injectable()
 export class AnnouncementsService {
@@ -30,7 +33,11 @@ export class AnnouncementsService {
 
   async findAll(user: User, dto: QueryAnnouncementDto) {
     const { page = 1, limit = 20, type_id, priority, status } = dto;
-    const adminRoles = [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR];
+    const adminRoles = [
+      UserRole.ADMIN,
+      UserRole.SUPER_ADMIN,
+      UserRole.MODERATOR,
+    ];
     const isAdmin = adminRoles.includes(user.role);
 
     const qb = this.announcementRepository
@@ -53,7 +60,11 @@ export class AnnouncementsService {
               .where("a.target_type = 'all'")
               .orWhere(
                 "a.target_type = 'neighborhoods' AND a.target_neighborhoods @> :nbSlug::jsonb",
-                { nbSlug: JSON.stringify([user.primary_neighborhood?.slug ?? '']) },
+                {
+                  nbSlug: JSON.stringify([
+                    user.primary_neighborhood?.slug ?? '',
+                  ]),
+                },
               )
               .orWhere(
                 "a.target_type = 'users' AND a.target_user_ids @> :userId::jsonb",
@@ -112,7 +123,10 @@ export class AnnouncementsService {
 
   // ── DUYURU OLUŞTUR (Admin) ───────────────────────────────────────────────────
 
-  async create(userId: string, dto: CreateAnnouncementDto): Promise<{ announcement: Announcement; estimated_recipients: number }> {
+  async create(
+    userId: string,
+    dto: CreateAnnouncementDto,
+  ): Promise<{ announcement: Announcement; estimated_recipients: number }> {
     // Tip kontrolü
     const type = await this.typeRepository.findOne({
       where: { id: dto.type_id, is_active: true },
@@ -122,13 +136,23 @@ export class AnnouncementsService {
     }
 
     // Mahalle hedeflemesi varsa boş array kontrolü
-    if (dto.target_type === 'neighborhoods' && (!dto.target_neighborhoods || dto.target_neighborhoods.length === 0)) {
-      throw new BadRequestException('Mahalle hedeflemesi için en az bir mahalle seçilmeli');
+    if (
+      dto.target_type === 'neighborhoods' &&
+      (!dto.target_neighborhoods || dto.target_neighborhoods.length === 0)
+    ) {
+      throw new BadRequestException(
+        'Mahalle hedeflemesi için en az bir mahalle seçilmeli',
+      );
     }
 
     // Kullanıcı hedeflemesi varsa boş array kontrolü
-    if (dto.target_type === 'users' && (!dto.target_user_ids || dto.target_user_ids.length === 0)) {
-      throw new BadRequestException('Kullanıcı hedeflemesi için en az bir kullanıcı seçilmeli');
+    if (
+      dto.target_type === 'users' &&
+      (!dto.target_user_ids || dto.target_user_ids.length === 0)
+    ) {
+      throw new BadRequestException(
+        'Kullanıcı hedeflemesi için en az bir kullanıcı seçilmeli',
+      );
     }
 
     // İş kuralı: Manuel duyuru → direkt published
@@ -143,8 +167,12 @@ export class AnnouncementsService {
       sent_at: sentAt,
       has_pdf: !!dto.pdf_file_id,
       has_link: !!dto.external_link,
-      scheduled_for: dto.scheduled_for ? new Date(dto.scheduled_for) : undefined,
-      visible_until: dto.visible_until ? new Date(dto.visible_until) : undefined,
+      scheduled_for: dto.scheduled_for
+        ? new Date(dto.scheduled_for)
+        : undefined,
+      visible_until: dto.visible_until
+        ? new Date(dto.visible_until)
+        : undefined,
     } as DeepPartial<Announcement>);
 
     const saved = await this.announcementRepository.save(announcement);
@@ -179,10 +207,20 @@ export class AnnouncementsService {
 
     const updated = this.announcementRepository.merge(announcement, {
       ...dto,
-      has_pdf: dto.pdf_file_id !== undefined ? !!dto.pdf_file_id : announcement.has_pdf,
-      has_link: dto.external_link !== undefined ? !!dto.external_link : announcement.has_link,
-      scheduled_for: dto.scheduled_for ? new Date(dto.scheduled_for) : announcement.scheduled_for,
-      visible_until: dto.visible_until ? new Date(dto.visible_until) : announcement.visible_until,
+      has_pdf:
+        dto.pdf_file_id !== undefined
+          ? !!dto.pdf_file_id
+          : announcement.has_pdf,
+      has_link:
+        dto.external_link !== undefined
+          ? !!dto.external_link
+          : announcement.has_link,
+      scheduled_for: dto.scheduled_for
+        ? new Date(dto.scheduled_for)
+        : announcement.scheduled_for,
+      visible_until: dto.visible_until
+        ? new Date(dto.visible_until)
+        : announcement.visible_until,
     } as DeepPartial<Announcement>);
 
     return this.announcementRepository.save(updated);
@@ -209,7 +247,9 @@ export class AnnouncementsService {
 
   // ── HEMEN GÖNDER (Admin) ─────────────────────────────────────────────────────
 
-  async send(id: string): Promise<{ message: string; estimated_recipients: number }> {
+  async send(
+    id: string,
+  ): Promise<{ message: string; estimated_recipients: number }> {
     const announcement = await this.announcementRepository.findOne({
       where: { id },
     });
@@ -234,7 +274,9 @@ export class AnnouncementsService {
       target_user_ids: announcement.target_user_ids,
     } as CreateAnnouncementDto);
 
-    this.logger.log(`Duyuru gönderildi: ${id}, tahmini alıcı: ${estimated_recipients}`);
+    this.logger.log(
+      `Duyuru gönderildi: ${id}, tahmini alıcı: ${estimated_recipients}`,
+    );
 
     return {
       message: 'Duyuru gönderiliyor',
@@ -244,12 +286,17 @@ export class AnnouncementsService {
 
   // ── YARDIMCI METODLAR ───────────────────────────────────────────────────────
 
-  private async estimateRecipients(dto: Partial<CreateAnnouncementDto>): Promise<number> {
+  private async estimateRecipients(
+    dto: Partial<CreateAnnouncementDto>,
+  ): Promise<number> {
     // Basit tahmini sayım (gerçek push notification için kullanıcı sorgusu yapılacak)
     if (dto.target_type === 'all') {
       return 1000; // Placeholder: gerçek kullanıcı sayısına göre değişir
     }
-    if (dto.target_type === 'neighborhoods' && dto.target_neighborhoods?.length) {
+    if (
+      dto.target_type === 'neighborhoods' &&
+      dto.target_neighborhoods?.length
+    ) {
       return dto.target_neighborhoods.length * 200; // Mahalle başına ~200 kullanıcı
     }
     if (dto.target_type === 'users' && dto.target_user_ids?.length) {

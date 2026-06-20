@@ -65,10 +65,9 @@ export class GuideService {
     }
 
     if (search) {
-      qb.andWhere(
-        '(gi.name ILIKE :search OR gi.address ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      qb.andWhere('(gi.name ILIKE :search OR gi.address ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
     const items = await qb.getMany();

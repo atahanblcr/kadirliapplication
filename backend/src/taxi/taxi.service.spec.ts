@@ -36,7 +36,7 @@ const makeDriver = (overrides: Partial<TaxiDriver> = {}): TaxiDriver =>
     is_active: true,
     total_calls: 234,
     ...overrides,
-  } as TaxiDriver);
+  }) as TaxiDriver;
 
 const makeCall = (): TaxiCall =>
   ({
@@ -44,7 +44,7 @@ const makeCall = (): TaxiCall =>
     passenger_id: 'user-uuid-1',
     driver_id: 'driver-uuid-1',
     called_at: new Date(),
-  } as TaxiCall);
+  }) as TaxiCall;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -109,10 +109,9 @@ describe('TaxiService', () => {
 
       await service.findAll();
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'driver.is_verified = :verified',
-        { verified: true },
-      );
+      expect(qb.where).toHaveBeenCalledWith('driver.is_verified = :verified', {
+        verified: true,
+      });
     });
 
     it('sadece is_active=true filtresi uygulanmalı', async () => {
@@ -121,10 +120,9 @@ describe('TaxiService', () => {
 
       await service.findAll();
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'driver.is_active = :active',
-        { active: true },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('driver.is_active = :active', {
+        active: true,
+      });
     });
 
     it('soft delete filtrelemeli (deleted_at IS NULL)', async () => {
@@ -146,7 +144,10 @@ describe('TaxiService', () => {
     });
 
     it('birden fazla şoför varsa hepsini döndürmeli', async () => {
-      const drivers = [makeDriver(), makeDriver({ id: 'driver-uuid-2', name: 'Ali Taksi' })];
+      const drivers = [
+        makeDriver(),
+        makeDriver({ id: 'driver-uuid-2', name: 'Ali Taksi' }),
+      ];
       const qb = makeSelectQb(drivers);
       driverRepo.createQueryBuilder.mockReturnValue(qb);
 
@@ -201,7 +202,9 @@ describe('TaxiService', () => {
       expect(updateQb.set).toHaveBeenCalledWith({
         total_calls: expect.any(Function),
       });
-      expect(updateQb.where).toHaveBeenCalledWith('id = :id', { id: 'driver-uuid-1' });
+      expect(updateQb.where).toHaveBeenCalledWith('id = :id', {
+        id: 'driver-uuid-1',
+      });
       expect(updateQb.execute).toHaveBeenCalled();
     });
 

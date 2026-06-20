@@ -1,4 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { HttpExceptionFilter } from './http-exception.filter';
 import {
   HttpException,
@@ -186,7 +185,10 @@ describe('HttpExceptionFilter', () => {
     });
 
     it('should handle string message from HttpException', () => {
-      const exception = new HttpException('String message error', HttpStatus.BAD_REQUEST);
+      const exception = new HttpException(
+        'String message error',
+        HttpStatus.BAD_REQUEST,
+      );
 
       filter.catch(exception, mockHost);
 
@@ -252,7 +254,10 @@ describe('HttpExceptionFilter', () => {
     });
 
     it('should return UNPROCESSABLE_ENTITY for 422 status', () => {
-      const exception = new HttpException('Unprocessable', HttpStatus.UNPROCESSABLE_ENTITY);
+      const exception = new HttpException(
+        'Unprocessable',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
 
       filter.catch(exception, mockHost);
 
@@ -266,7 +271,10 @@ describe('HttpExceptionFilter', () => {
     });
 
     it('should return RATE_LIMIT_EXCEEDED for 429 status', () => {
-      const exception = new HttpException('Too many requests', HttpStatus.TOO_MANY_REQUESTS);
+      const exception = new HttpException(
+        'Too many requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
 
       filter.catch(exception, mockHost);
 

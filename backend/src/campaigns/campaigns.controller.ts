@@ -42,5 +42,4 @@ export class CampaignsController {
   ) {
     return this.campaignsService.viewCode(user.id, id);
   }
-
 }

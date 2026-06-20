@@ -67,7 +67,11 @@ describe('GuideController', () => {
           {
             id: 'item-uuid-1',
             name: 'Ali Elektrik',
-            category: { id: 'cat-1', name: 'Elektrikçi', parent: { id: 'p-1', name: 'Usta & Sanayi' } },
+            category: {
+              id: 'cat-1',
+              name: 'Elektrikçi',
+              parent: { id: 'p-1', name: 'Usta & Sanayi' },
+            },
             phone: '05331234567',
             address: 'Merkez Mah.',
             working_hours: '08:00-18:00',
@@ -82,7 +86,7 @@ describe('GuideController', () => {
       expect(service.findAll).toHaveBeenCalledWith({});
     });
 
-    it('filtreleri service\'e iletmeli', async () => {
+    it("filtreleri service'e iletmeli", async () => {
       service.findAll.mockResolvedValue({ items: [] });
       const dto = { category_id: 'cat-uuid-1', search: 'elektrik' };
 

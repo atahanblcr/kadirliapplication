@@ -24,9 +24,7 @@ export function normalizePhone(phone: string): string {
 export function getWhatsAppUrl(phone: string, message?: string): string {
   const normalized = normalizePhone(phone);
   const waPhone = '90' + normalized.slice(1);
-  const text = message
-    ? `?text=${encodeURIComponent(message)}`
-    : '';
+  const text = message ? `?text=${encodeURIComponent(message)}` : '';
   return `https://wa.me/${waPhone}${text}`;
 }
 

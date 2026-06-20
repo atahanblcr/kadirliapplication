@@ -26,15 +26,19 @@ function makeQb(data: any[] = []) {
 
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
 
-const makeSchedule = (overrides: Partial<IntercitySchedule> = {}): IntercitySchedule =>
+const makeSchedule = (
+  overrides: Partial<IntercitySchedule> = {},
+): IntercitySchedule =>
   ({
     id: 'schedule-uuid-1',
     departure_time: '06:00',
     is_active: true,
     ...overrides,
-  } as IntercitySchedule);
+  }) as IntercitySchedule;
 
-const makeIntercityRoute = (overrides: Partial<IntercityRoute> = {}): IntercityRoute =>
+const makeIntercityRoute = (
+  overrides: Partial<IntercityRoute> = {},
+): IntercityRoute =>
   ({
     id: 'intercity-uuid-1',
     destination: 'Adana',
@@ -44,7 +48,7 @@ const makeIntercityRoute = (overrides: Partial<IntercityRoute> = {}): IntercityR
     is_active: true,
     schedules: [makeSchedule()],
     ...overrides,
-  } as IntercityRoute);
+  }) as IntercityRoute;
 
 const makeStop = (overrides: Partial<IntracityStop> = {}): IntracityStop =>
   ({
@@ -53,9 +57,11 @@ const makeStop = (overrides: Partial<IntracityStop> = {}): IntracityStop =>
     stop_order: 1,
     time_from_start: 0,
     ...overrides,
-  } as IntracityStop);
+  }) as IntracityStop;
 
-const makeIntracityRoute = (overrides: Partial<IntracityRoute> = {}): IntracityRoute =>
+const makeIntracityRoute = (
+  overrides: Partial<IntracityRoute> = {},
+): IntracityRoute =>
   ({
     id: 'intracity-uuid-1',
     route_number: '1',
@@ -66,7 +72,7 @@ const makeIntracityRoute = (overrides: Partial<IntracityRoute> = {}): IntracityR
     is_active: true,
     stops: [makeStop()],
     ...overrides,
-  } as IntracityRoute);
+  }) as IntracityRoute;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -114,10 +120,9 @@ describe('TransportService', () => {
 
       await service.findIntercity();
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'r.is_active = :active',
-        { active: true },
-      );
+      expect(qb.where).toHaveBeenCalledWith('r.is_active = :active', {
+        active: true,
+      });
     });
 
     it('schedules ilişkisi aktif filtreli yüklenmeli', async () => {
@@ -169,8 +174,10 @@ describe('TransportService', () => {
       });
     });
 
-    it('price Number\'a dönüştürülmeli', async () => {
-      const route = makeIntercityRoute({ price: '150.00' as unknown as number });
+    it("price Number'a dönüştürülmeli", async () => {
+      const route = makeIntercityRoute({
+        price: '150.00' as unknown as number,
+      });
       const qb = makeQb([route]);
       intercityRepo.createQueryBuilder.mockReturnValue(qb);
 
@@ -235,10 +242,9 @@ describe('TransportService', () => {
 
       await service.findIntracity();
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'r.is_active = :active',
-        { active: true },
-      );
+      expect(qb.where).toHaveBeenCalledWith('r.is_active = :active', {
+        active: true,
+      });
     });
 
     it('stops ilişkisi yüklenmeli', async () => {

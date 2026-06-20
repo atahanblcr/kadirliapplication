@@ -108,8 +108,18 @@ describe('AdminController', () => {
 
     it('should return activities in correct format', async () => {
       const mockActivities = [
-        { id: '1', action: 'approved_ad', user: 'admin1', created_at: '2026-02-27' },
-        { id: '2', action: 'banned_user', user: 'admin2', created_at: '2026-02-26' },
+        {
+          id: '1',
+          action: 'approved_ad',
+          user: 'admin1',
+          created_at: '2026-02-27',
+        },
+        {
+          id: '2',
+          action: 'banned_user',
+          user: 'admin2',
+          created_at: '2026-02-26',
+        },
       ];
       mockAdminService.getRecentActivities.mockResolvedValue(mockActivities);
 
@@ -140,18 +150,21 @@ describe('AdminController', () => {
       await controller.getApprovals(dto);
 
       expect(service.getApprovals).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'campaigns' })
+        expect.objectContaining({ type: 'campaigns' }),
       );
     });
 
     it('should handle approvals with page parameter', async () => {
       const dto: QueryApprovalsDto = { type: 'events', page: 2 };
-      mockAdminService.getApprovals.mockResolvedValue({ data: [], meta: { total: 0 } });
+      mockAdminService.getApprovals.mockResolvedValue({
+        data: [],
+        meta: { total: 0 },
+      });
 
       await controller.getApprovals(dto);
 
       expect(service.getApprovals).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2 })
+        expect.objectContaining({ page: 2 }),
       );
     });
   });
@@ -170,12 +183,15 @@ describe('AdminController', () => {
 
     it('should pass status filter to service', async () => {
       const dto: QueryAdminAdsDto = { status: 'approved' };
-      mockAdminService.getAdminAds.mockResolvedValue({ data: [], meta: { total: 0 } });
+      mockAdminService.getAdminAds.mockResolvedValue({
+        data: [],
+        meta: { total: 0 },
+      });
 
       await controller.getAds(dto);
 
       expect(service.getAdminAds).toHaveBeenCalledWith(
-        expect.objectContaining({ status: 'approved' })
+        expect.objectContaining({ status: 'approved' }),
       );
     });
 
@@ -186,7 +202,10 @@ describe('AdminController', () => {
         page: 1,
         limit: 20,
       };
-      mockAdminService.getAdminAds.mockResolvedValue({ data: [], meta: { total: 0 } });
+      mockAdminService.getAdminAds.mockResolvedValue({
+        data: [],
+        meta: { total: 0 },
+      });
 
       await controller.getAds(dto);
 
@@ -216,7 +235,7 @@ describe('AdminController', () => {
     it('should handle non-existent ad', async () => {
       const adId = '123e4567-e89b-12d3-a456-426614174000';
       mockAdminService.deleteAdAsAdmin.mockRejectedValue(
-        new Error('Ad not found')
+        new Error('Ad not found'),
       );
 
       await expect(controller.deleteAd(adId)).rejects.toThrow('Ad not found');
@@ -238,10 +257,12 @@ describe('AdminController', () => {
     it('should handle approval error', async () => {
       const adminId = 'admin-123';
       const adId = '123e4567-e89b-12d3-a456-426614174000';
-      mockAdminService.approveAd.mockRejectedValue(new Error('Already approved'));
+      mockAdminService.approveAd.mockRejectedValue(
+        new Error('Already approved'),
+      );
 
       await expect(controller.approveAd(adminId, adId)).rejects.toThrow(
-        'Already approved'
+        'Already approved',
       );
     });
 
@@ -281,7 +302,7 @@ describe('AdminController', () => {
       expect(service.rejectAd).toHaveBeenCalledWith(
         adminId,
         adId,
-        expect.objectContaining({ reason: 'Duplicate posting' })
+        expect.objectContaining({ reason: 'Duplicate posting' }),
       );
     });
 
@@ -292,7 +313,7 @@ describe('AdminController', () => {
       mockAdminService.rejectAd.mockRejectedValue(new Error('Ad not found'));
 
       await expect(controller.rejectAd(adminId, adId, dto)).rejects.toThrow(
-        'Ad not found'
+        'Ad not found',
       );
     });
   });
@@ -314,7 +335,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1, // ← default page
-        50
+        50,
       );
     });
 
@@ -329,7 +350,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         2, // ← parsed to number
-        50
+        50,
       );
     });
 
@@ -344,7 +365,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         5,
-        50
+        50,
       );
     });
 
@@ -360,7 +381,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1,
-        50 // ← default limit
+        50, // ← default limit
       );
     });
 
@@ -375,7 +396,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1,
-        25 // ← parsed to number
+        25, // ← parsed to number
       );
     });
 
@@ -390,7 +411,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1,
-        100
+        100,
       );
     });
 
@@ -407,7 +428,7 @@ describe('AdminController', () => {
         undefined,
         undefined, // ← is_active undefined
         1,
-        50
+        50,
       );
     });
 
@@ -423,7 +444,7 @@ describe('AdminController', () => {
         undefined,
         true, // ← parsed to boolean true
         1,
-        50
+        50,
       );
     });
 
@@ -439,7 +460,7 @@ describe('AdminController', () => {
         undefined,
         false, // ← parsed to boolean false
         1,
-        50
+        50,
       );
     });
 
@@ -454,7 +475,7 @@ describe('AdminController', () => {
         undefined,
         false, // ← not 'true', so false
         1,
-        50
+        50,
       );
     });
 
@@ -470,7 +491,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1, // default page
-        50 // default limit
+        50, // default limit
       );
     });
 
@@ -491,7 +512,7 @@ describe('AdminController', () => {
         'city',
         true,
         2,
-        20
+        20,
       );
     });
 
@@ -510,7 +531,7 @@ describe('AdminController', () => {
         undefined,
         false,
         3,
-        50 // default limit
+        50, // default limit
       );
     });
 
@@ -525,7 +546,7 @@ describe('AdminController', () => {
         undefined,
         undefined,
         1,
-        50
+        50,
       );
     });
 
@@ -540,15 +561,13 @@ describe('AdminController', () => {
         'district',
         undefined,
         1,
-        50
+        50,
       );
     });
 
     it('should return neighborhoods data', async () => {
       const mockData = {
-        data: [
-          { id: '1', name: 'Merkez', type: 'city', is_active: true },
-        ],
+        data: [{ id: '1', name: 'Merkez', type: 'city', is_active: true }],
         meta: { total: 1, page: 1 },
       };
       mockAdminService.getNeighborhoods.mockResolvedValue(mockData);
@@ -587,11 +606,11 @@ describe('AdminController', () => {
         is_active: true,
       };
       mockAdminService.createNeighborhood.mockRejectedValue(
-        new Error('Validation failed')
+        new Error('Validation failed'),
       );
 
       await expect(controller.createNeighborhood(dto)).rejects.toThrow(
-        'Validation failed'
+        'Validation failed',
       );
     });
   });
@@ -615,11 +634,11 @@ describe('AdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto: UpdateNeighborhoodDto = { name: 'Test' };
       mockAdminService.updateNeighborhood.mockRejectedValue(
-        new Error('Neighborhood not found')
+        new Error('Neighborhood not found'),
       );
 
       await expect(controller.updateNeighborhood(id, dto)).rejects.toThrow(
-        'Neighborhood not found'
+        'Neighborhood not found',
       );
     });
   });
@@ -629,7 +648,7 @@ describe('AdminController', () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       mockAdminService.deleteNeighborhood.mockResolvedValue({ success: true });
 
-      const result = await controller.deleteNeighborhood(id);
+      await controller.deleteNeighborhood(id);
 
       expect(service.deleteNeighborhood).toHaveBeenCalledWith(id);
     });
@@ -637,11 +656,11 @@ describe('AdminController', () => {
     it('should handle delete errors', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
       mockAdminService.deleteNeighborhood.mockRejectedValue(
-        new Error('Cannot delete active neighborhood')
+        new Error('Cannot delete active neighborhood'),
       );
 
       await expect(controller.deleteNeighborhood(id)).rejects.toThrow(
-        'Cannot delete active neighborhood'
+        'Cannot delete active neighborhood',
       );
     });
   });
@@ -679,7 +698,10 @@ describe('AdminController', () => {
     it('should call adminService.updateAdminProfile with user id and dto', async () => {
       const user = { id: 'admin-123' };
       const dto: UpdateAdminProfileDto = { first_name: 'New Name' };
-      mockAdminService.updateAdminProfile.mockResolvedValue({ id: user.id, ...dto });
+      mockAdminService.updateAdminProfile.mockResolvedValue({
+        id: user.id,
+        ...dto,
+      });
 
       const result = await controller.updateProfile(user, dto);
 
@@ -691,11 +713,11 @@ describe('AdminController', () => {
       const user = { id: 'admin-123' };
       const dto: UpdateAdminProfileDto = { email: 'invalid-email' };
       mockAdminService.updateAdminProfile.mockRejectedValue(
-        new Error('Invalid email format')
+        new Error('Invalid email format'),
       );
 
       await expect(controller.updateProfile(user, dto)).rejects.toThrow(
-        'Invalid email format'
+        'Invalid email format',
       );
     });
 
@@ -706,7 +728,10 @@ describe('AdminController', () => {
         last_name: 'Doe',
         email: 'john@test.com',
       };
-      mockAdminService.updateAdminProfile.mockResolvedValue({ id: user.id, ...dto });
+      mockAdminService.updateAdminProfile.mockResolvedValue({
+        id: user.id,
+        ...dto,
+      });
 
       await controller.updateProfile(user, dto);
 
@@ -736,11 +761,11 @@ describe('AdminController', () => {
         new_password: 'NewPass123!',
       };
       mockAdminService.changeAdminPassword.mockRejectedValue(
-        new Error('Current password is incorrect')
+        new Error('Current password is incorrect'),
       );
 
       await expect(controller.changePassword(user, dto)).rejects.toThrow(
-        'Current password is incorrect'
+        'Current password is incorrect',
       );
     });
 
@@ -751,11 +776,11 @@ describe('AdminController', () => {
         new_password: 'weak',
       };
       mockAdminService.changeAdminPassword.mockRejectedValue(
-        new Error('Password does not meet requirements')
+        new Error('Password does not meet requirements'),
       );
 
       await expect(controller.changePassword(user, dto)).rejects.toThrow(
-        'Password does not meet requirements'
+        'Password does not meet requirements',
       );
     });
 
@@ -766,11 +791,11 @@ describe('AdminController', () => {
         new_password: 'SamePass123!',
       };
       mockAdminService.changeAdminPassword.mockRejectedValue(
-        new Error('New password cannot be same as current password')
+        new Error('New password cannot be same as current password'),
       );
 
       await expect(controller.changePassword(user, dto)).rejects.toThrow(
-        'New password cannot be same as current password'
+        'New password cannot be same as current password',
       );
     });
   });

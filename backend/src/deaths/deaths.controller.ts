@@ -111,5 +111,4 @@ export class DeathsController {
     const notice = await this.deathsService.findOne(id);
     return { notice };
   }
-
 }

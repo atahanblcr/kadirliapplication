@@ -20,7 +20,7 @@ const makeMulterFile = (
     size: 100_000,
     path: './uploads/1234567890_abc123.jpg',
     ...overrides,
-  } as Express.Multer.File);
+  }) as Express.Multer.File;
 
 const makeFileEntity = (overrides: Partial<FileEntity> = {}): FileEntity =>
   ({
@@ -35,7 +35,7 @@ const makeFileEntity = (overrides: Partial<FileEntity> = {}): FileEntity =>
     module_type: 'ad',
     uploaded_by: 'user-uuid-1',
     ...overrides,
-  } as FileEntity);
+  }) as FileEntity;
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
 
@@ -163,7 +163,9 @@ describe('FilesService', () => {
       fileRepo.save.mockResolvedValue(entity);
 
       await expect(
-        service.uploadFile('user-uuid-1', file, { module_type: 'announcement' }),
+        service.uploadFile('user-uuid-1', file, {
+          module_type: 'announcement',
+        }),
       ).resolves.toBeDefined();
     });
 

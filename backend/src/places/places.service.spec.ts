@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { PlacesService } from './places.service';
-import { Place, PlaceCategory, PlaceImage } from '../database/entities/place.entity';
+import {
+  Place,
+  PlaceCategory,
+  PlaceImage,
+} from '../database/entities/place.entity';
 
 // ─── QueryBuilder mock ──────────────────────────────────────────────────────
 
@@ -17,7 +21,7 @@ function makeQb(data: any[] = []) {
 // ─── Fabrikalar ──────────────────────────────────────────────────────────────
 
 const makeCategory = (): PlaceCategory =>
-  ({ id: 'cat-uuid-1', name: 'Tarihi Yerler' } as PlaceCategory);
+  ({ id: 'cat-uuid-1', name: 'Tarihi Yerler' }) as PlaceCategory;
 
 const makePlace = (overrides: Partial<Place> = {}): Place =>
   ({
@@ -34,7 +38,7 @@ const makePlace = (overrides: Partial<Place> = {}): Place =>
     cover_image: null,
     images: [],
     ...overrides,
-  } as Place);
+  }) as Place;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -80,10 +84,9 @@ describe('PlacesService', () => {
 
       await service.findAll({});
 
-      expect(qb.where).toHaveBeenCalledWith(
-        'p.is_active = :active',
-        { active: true },
-      );
+      expect(qb.where).toHaveBeenCalledWith('p.is_active = :active', {
+        active: true,
+      });
     });
 
     it('category ve cover_image ilişkileri yüklenmeli', async () => {
@@ -92,8 +95,14 @@ describe('PlacesService', () => {
 
       await service.findAll({});
 
-      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('p.category', 'category');
-      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('p.cover_image', 'cover_image');
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+        'p.category',
+        'category',
+      );
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+        'p.cover_image',
+        'cover_image',
+      );
     });
 
     it('varsayılan sıralama: name ASC', async () => {
@@ -129,10 +138,9 @@ describe('PlacesService', () => {
 
       await service.findAll({ category_id: 'cat-uuid-1' });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'p.category_id = :category_id',
-        { category_id: 'cat-uuid-1' },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('p.category_id = :category_id', {
+        category_id: 'cat-uuid-1',
+      });
     });
 
     it('is_free filtresi uygulanmalı', async () => {
@@ -141,10 +149,9 @@ describe('PlacesService', () => {
 
       await service.findAll({ is_free: true });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'p.is_free = :is_free',
-        { is_free: true },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('p.is_free = :is_free', {
+        is_free: true,
+      });
     });
 
     it('filtre verilmediğinde andWhere çağrılmamalı', async () => {

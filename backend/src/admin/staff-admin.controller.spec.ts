@@ -26,15 +26,18 @@ describe('StaffAdminController', () => {
     }).compile();
 
     controller = module.get<StaffAdminController>(StaffAdminController);
-    staffAdminService = module.get(StaffAdminService) as jest.Mocked<StaffAdminService>;
+    staffAdminService = module.get(StaffAdminService);
   });
 
   describe('getStaffList', () => {
     it('should return list of staff members', async () => {
       const requestingUserId = 'admin-123';
       const dto = { search: 'test' };
-      staffAdminService.getStaffList.mockResolvedValue({ success: true, data: [] });
-      const result = await controller.getStaffList(requestingUserId, dto);
+      staffAdminService.getStaffList.mockResolvedValue({
+        success: true,
+        data: [],
+      });
+      await controller.getStaffList(requestingUserId, dto);
       expect(staffAdminService.getStaffList).toHaveBeenCalledWith(
         requestingUserId,
         dto,
@@ -45,8 +48,11 @@ describe('StaffAdminController', () => {
   describe('getStaffDetail', () => {
     it('should return staff member details', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
-      staffAdminService.getStaffDetail.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.getStaffDetail(id);
+      staffAdminService.getStaffDetail.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.getStaffDetail(id);
       expect(staffAdminService.getStaffDetail).toHaveBeenCalledWith(id);
     });
   });
@@ -55,8 +61,11 @@ describe('StaffAdminController', () => {
     it('should create a staff member', async () => {
       const requestingUserId = 'admin-123';
       const dto = { name: 'New Staff', email: 'staff@test.com' };
-      staffAdminService.createStaff.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.createStaff(requestingUserId, dto);
+      staffAdminService.createStaff.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.createStaff(requestingUserId, dto);
       expect(staffAdminService.createStaff).toHaveBeenCalledWith(
         requestingUserId,
         dto,
@@ -69,8 +78,11 @@ describe('StaffAdminController', () => {
       const requestingUserId = 'admin-123';
       const id = '123e4567-e89b-12d3-a456-426614174000';
       const dto = { name: 'Updated Staff' };
-      staffAdminService.updateStaff.mockResolvedValue({ success: true, data: {} });
-      const result = await controller.updateStaff(requestingUserId, id, dto);
+      staffAdminService.updateStaff.mockResolvedValue({
+        success: true,
+        data: {},
+      });
+      await controller.updateStaff(requestingUserId, id, dto);
       expect(staffAdminService.updateStaff).toHaveBeenCalledWith(
         requestingUserId,
         id,
@@ -88,11 +100,7 @@ describe('StaffAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.updateStaffPermissions(
-        requestingUserId,
-        id,
-        dto,
-      );
+      await controller.updateStaffPermissions(requestingUserId, id, dto);
       expect(staffAdminService.updateStaffPermissions).toHaveBeenCalledWith(
         requestingUserId,
         id,
@@ -123,7 +131,7 @@ describe('StaffAdminController', () => {
         success: true,
         data: {},
       });
-      const result = await controller.resetStaffPassword(requestingUserId, id, dto);
+      await controller.resetStaffPassword(requestingUserId, id, dto);
       expect(staffAdminService.resetStaffPassword).toHaveBeenCalledWith(
         requestingUserId,
         id,

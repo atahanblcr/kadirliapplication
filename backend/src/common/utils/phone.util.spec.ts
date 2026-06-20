@@ -1,4 +1,8 @@
-import { normalizePhone, getWhatsAppUrl, isValidTurkishPhone } from './phone.util';
+import {
+  normalizePhone,
+  getWhatsAppUrl,
+  isValidTurkishPhone,
+} from './phone.util';
 
 describe('Phone Utilities', () => {
   // ============================================================================

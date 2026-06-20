@@ -11,10 +11,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   canActivate(context: ExecutionContext) {
     // Check if route is marked to skip auth
-    const skipAuth = this.reflector.getAllAndOverride<boolean>(
-      SKIP_AUTH_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const skipAuth = this.reflector.getAllAndOverride<boolean>(SKIP_AUTH_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (skipAuth) {
       return true;

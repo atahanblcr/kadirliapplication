@@ -29,7 +29,9 @@ import { FilesModule } from './files/files.module';
       isGlobal: true,
       envFilePath: '.env',
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
         PORT: Joi.number().default(3000),
         API_PREFIX: Joi.string().default('v1'),
         DATABASE_HOST: Joi.string().required(),
@@ -66,9 +68,10 @@ import { FilesModule } from './files/files.module';
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('DATABASE_LOGGING') === 'true',
-        ssl: configService.get<string>('DATABASE_SSL') === 'true'
-          ? { rejectUnauthorized: false }
-          : false,
+        ssl:
+          configService.get<string>('DATABASE_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
       inject: [ConfigService],
     }),

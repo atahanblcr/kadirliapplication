@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaxiDriver } from '../database/entities/taxi-driver.entity';
@@ -75,7 +71,9 @@ export class TaxiService {
       .where('id = :id', { id: driverId })
       .execute();
 
-    this.logger.log(`Taksi çağrısı kaydedildi: şoför=${driverId}, yolcu=${passengerId}`);
+    this.logger.log(
+      `Taksi çağrısı kaydedildi: şoför=${driverId}, yolcu=${passengerId}`,
+    );
 
     return {
       driver: {

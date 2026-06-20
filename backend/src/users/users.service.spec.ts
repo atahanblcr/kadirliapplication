@@ -15,7 +15,9 @@ import { UserRole } from '../common/enums/user-role.enum';
 
 // ─── Yardımcı fabrika fonksiyonları ─────────────────────────────────────────
 
-const makeNeighborhood = (overrides: Partial<Neighborhood> = {}): Neighborhood =>
+const makeNeighborhood = (
+  overrides: Partial<Neighborhood> = {},
+): Neighborhood =>
   ({
     id: 'nb-uuid-1',
     name: 'Merkez Mahallesi',
@@ -23,7 +25,7 @@ const makeNeighborhood = (overrides: Partial<Neighborhood> = {}): Neighborhood =
     type: 'neighborhood',
     is_active: true,
     ...overrides,
-  } as Neighborhood);
+  }) as Neighborhood;
 
 const makeUser = (overrides: Partial<User> = {}): User =>
   ({
@@ -56,7 +58,7 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     updated_at: new Date('2026-01-01'),
     deleted_at: null,
     ...overrides,
-  } as User);
+  }) as User;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -96,7 +98,7 @@ describe('UsersService', () => {
   // ── findById ──────────────────────────────────────────────────────────────
 
   describe('findById', () => {
-    it('kullanıcıyı relation\'larıyla döndürmeli', async () => {
+    it("kullanıcıyı relation'larıyla döndürmeli", async () => {
       const user = makeUser();
       userRepo.findOne.mockResolvedValue(user);
 
@@ -112,7 +114,9 @@ describe('UsersService', () => {
     it('kullanıcı bulunamazsa NotFoundException fırlatmalı', async () => {
       userRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findById('unknown-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('unknown-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -121,11 +125,16 @@ describe('UsersService', () => {
   describe('updateProfile', () => {
     describe('Kullanıcı adı güncelleme', () => {
       it('ilk kez kullanıcı adı değiştirebilmeli', async () => {
-        const user = makeUser({ username_last_changed_at: undefined as unknown as Date });
-        const updatedUser = makeUser({ username: 'yeni_kullanici', username_last_changed_at: new Date() });
+        const user = makeUser({
+          username_last_changed_at: undefined as unknown as Date,
+        });
+        const updatedUser = makeUser({
+          username: 'yeni_kullanici',
+          username_last_changed_at: new Date(),
+        });
         userRepo.findOne
-          .mockResolvedValueOnce(user)       // findById içinde
-          .mockResolvedValueOnce(null)       // benzersizlik kontrolü
+          .mockResolvedValueOnce(user) // findById içinde
+          .mockResolvedValueOnce(null) // benzersizlik kontrolü
           .mockResolvedValueOnce(updatedUser); // findById (reload)
         userRepo.save.mockResolvedValue(updatedUser);
 
@@ -161,18 +170,27 @@ describe('UsersService', () => {
         userRepo.findOne.mockResolvedValueOnce(user);
 
         const dto: UpdateUserDto = { username: 'farkli_isim' };
-        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(BadRequestException);
+        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(
+          BadRequestException,
+        );
       });
 
       it('başkası aynı kullanıcı adını kullanıyorsa ConflictException fırlatmalı', async () => {
-        const user = makeUser({ username_last_changed_at: undefined as unknown as Date });
-        const otherUser = makeUser({ id: 'diger-user', username: 'alinan_isim' });
+        const user = makeUser({
+          username_last_changed_at: undefined as unknown as Date,
+        });
+        const otherUser = makeUser({
+          id: 'diger-user',
+          username: 'alinan_isim',
+        });
         userRepo.findOne
           .mockResolvedValueOnce(user)
           .mockResolvedValueOnce(otherUser); // başkası kullanıyor
 
         const dto: UpdateUserDto = { username: 'alinan_isim' };
-        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(ConflictException);
+        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(
+          ConflictException,
+        );
       });
 
       it('aynı kullanıcı adı girilirse (değişiklik yok) hiçbir kısıtlama uygulanmamalı', async () => {
@@ -192,7 +210,9 @@ describe('UsersService', () => {
 
     describe('Mahalle güncelleme', () => {
       it('ilk kez mahalle değiştirebilmeli', async () => {
-        const user = makeUser({ neighborhood_last_changed_at: undefined as unknown as Date });
+        const user = makeUser({
+          neighborhood_last_changed_at: undefined as unknown as Date,
+        });
         const neighborhood = makeNeighborhood({ id: 'nb-uuid-2' });
         const updatedUser = makeUser({ primary_neighborhood_id: 'nb-uuid-2' });
         userRepo.findOne
@@ -217,16 +237,22 @@ describe('UsersService', () => {
         userRepo.findOne.mockResolvedValueOnce(user);
 
         const dto: UpdateUserDto = { primary_neighborhood_id: 'nb-uuid-99' };
-        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(BadRequestException);
+        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(
+          BadRequestException,
+        );
       });
 
       it('mahalle bulunamazsa BadRequestException fırlatmalı', async () => {
-        const user = makeUser({ neighborhood_last_changed_at: undefined as unknown as Date });
+        const user = makeUser({
+          neighborhood_last_changed_at: undefined as unknown as Date,
+        });
         userRepo.findOne.mockResolvedValueOnce(user);
         neighborhoodRepo.findOne.mockResolvedValue(null);
 
         const dto: UpdateUserDto = { primary_neighborhood_id: 'olmayan-nb' };
-        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(BadRequestException);
+        await expect(service.updateProfile('user-uuid-1', dto)).rejects.toThrow(
+          BadRequestException,
+        );
       });
 
       it('aynı mahalle girilirse kısıtlama uygulanmamalı', async () => {
@@ -280,7 +306,9 @@ describe('UsersService', () => {
       it('kullanıcı bulunamazsa NotFoundException fırlatmalı', async () => {
         userRepo.findOne.mockResolvedValue(null);
 
-        await expect(service.updateProfile('olmayan-id', {})).rejects.toThrow(NotFoundException);
+        await expect(service.updateProfile('olmayan-id', {})).rejects.toThrow(
+          NotFoundException,
+        );
       });
     });
   });
@@ -302,7 +330,10 @@ describe('UsersService', () => {
         campaigns: true,
       };
 
-      const result = await service.updateNotificationPreferences('user-uuid-1', dto);
+      const result = await service.updateNotificationPreferences(
+        'user-uuid-1',
+        dto,
+      );
 
       expect(result).toEqual({
         announcements: false,
@@ -320,7 +351,10 @@ describe('UsersService', () => {
       userRepo.save.mockResolvedValue(user);
 
       const dto: UpdateNotificationsDto = { ads: true };
-      const result = await service.updateNotificationPreferences('user-uuid-1', dto);
+      const result = await service.updateNotificationPreferences(
+        'user-uuid-1',
+        dto,
+      );
 
       // Diğer alanlar mevcut değerleriyle kalmalı
       expect(result.announcements).toBe(true);

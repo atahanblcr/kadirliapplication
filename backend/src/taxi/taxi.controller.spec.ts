@@ -15,14 +15,14 @@ const makeDriver = (overrides: Partial<TaxiDriver> = {}): TaxiDriver =>
     vehicle_info: 'Beyaz Renault Megane',
     total_calls: 234,
     ...overrides,
-  } as TaxiDriver);
+  }) as TaxiDriver;
 
 const makeUser = (): User =>
   ({
     id: 'user-uuid-1',
     phone: '05339876543',
     role: 'user',
-  } as User);
+  }) as User;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -83,7 +83,10 @@ describe('TaxiController', () => {
       const result = await controller.callDriver(user, 'driver-uuid-1');
 
       expect(result).toEqual(expected);
-      expect(service.callDriver).toHaveBeenCalledWith('user-uuid-1', 'driver-uuid-1');
+      expect(service.callDriver).toHaveBeenCalledWith(
+        'user-uuid-1',
+        'driver-uuid-1',
+      );
     });
 
     it('service hatası controller üzerinden yayılmalı', async () => {

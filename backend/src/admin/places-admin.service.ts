@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -31,7 +35,11 @@ export class PlacesAdminService {
       id: place.id,
       category_id: place.category_id ?? null,
       category: place.category
-        ? { id: place.category.id, name: place.category.name, icon: place.category.icon ?? null }
+        ? {
+            id: place.category.id,
+            name: place.category.name,
+            icon: place.category.icon ?? null,
+          }
         : null,
       name: place.name,
       description: place.description ?? null,
@@ -47,12 +55,13 @@ export class PlacesAdminService {
       cover_image_id: place.cover_image_id ?? null,
       cover_image_url: (place.cover_image as any)?.url ?? null,
       is_active: place.is_active,
-      images: place.images?.map((img) => ({
-        id: img.id,
-        file_id: img.file_id,
-        url: (img.file as any)?.url ?? null,
-        display_order: img.display_order,
-      })) ?? [],
+      images:
+        place.images?.map((img) => ({
+          id: img.id,
+          file_id: img.file_id,
+          url: (img.file as any)?.url ?? null,
+          display_order: img.display_order,
+        })) ?? [],
       created_at: place.created_at,
       updated_at: place.updated_at,
     };
@@ -102,11 +111,16 @@ export class PlacesAdminService {
   }
 
   async updatePlaceCategory(id: string, dto: UpdatePlaceCategoryDto) {
-    const category = await this.placeCategoryRepository.findOne({ where: { id } });
+    const category = await this.placeCategoryRepository.findOne({
+      where: { id },
+    });
     if (!category) throw new NotFoundException('Kategori bulunamadı');
 
     const fields: (keyof UpdatePlaceCategoryDto)[] = [
-      'name', 'icon', 'display_order', 'is_active',
+      'name',
+      'icon',
+      'display_order',
+      'is_active',
     ];
 
     for (const field of fields) {
@@ -136,7 +150,14 @@ export class PlacesAdminService {
   }
 
   async getAdminPlaces(dto: QueryAdminPlacesDto) {
-    const { search, category_id, is_active, is_free, page = 1, limit = 20 } = dto;
+    const {
+      search,
+      category_id,
+      is_active,
+      is_free,
+      page = 1,
+      limit = 20,
+    } = dto;
 
     const qb = this.placeRepository
       .createQueryBuilder('p')
@@ -144,10 +165,9 @@ export class PlacesAdminService {
       .leftJoinAndSelect('p.cover_image', 'cover_image');
 
     if (search) {
-      qb.andWhere(
-        '(p.name ILIKE :search OR p.address ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      qb.andWhere('(p.name ILIKE :search OR p.address ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
     if (category_id) {
@@ -234,9 +254,20 @@ export class PlacesAdminService {
     }
 
     const fields: (keyof UpdatePlaceDto)[] = [
-      'category_id', 'name', 'description', 'address', 'latitude', 'longitude',
-      'entrance_fee', 'is_free', 'opening_hours', 'best_season',
-      'how_to_get_there', 'distance_from_center', 'cover_image_id', 'is_active',
+      'category_id',
+      'name',
+      'description',
+      'address',
+      'latitude',
+      'longitude',
+      'entrance_fee',
+      'is_free',
+      'opening_hours',
+      'best_season',
+      'how_to_get_there',
+      'distance_from_center',
+      'cover_image_id',
+      'is_active',
     ];
 
     for (const field of fields) {
@@ -269,7 +300,10 @@ export class PlacesAdminService {
     if (!place) throw new NotFoundException('Mekan bulunamadı');
 
     const maxOrder =
-      place.images?.reduce((max, img) => Math.max(max, img.display_order), -1) ?? -1;
+      place.images?.reduce(
+        (max, img) => Math.max(max, img.display_order),
+        -1,
+      ) ?? -1;
 
     const newImages = dto.file_ids.map((file_id, idx) =>
       this.placeImageRepository.create({
@@ -297,7 +331,9 @@ export class PlacesAdminService {
     if (!image) throw new NotFoundException('Fotoğraf bulunamadı');
 
     if (image.place?.cover_image_id === image.file_id) {
-      await this.placeRepository.update(image.place_id, { cover_image_id: null as any });
+      await this.placeRepository.update(image.place_id, {
+        cover_image_id: null as any,
+      });
     }
 
     await this.placeImageRepository.delete(imageId);
@@ -310,7 +346,9 @@ export class PlacesAdminService {
     });
     if (!image) throw new NotFoundException('Fotoğraf bulunamadı');
 
-    await this.placeRepository.update(image.place_id, { cover_image_id: image.file_id });
+    await this.placeRepository.update(image.place_id, {
+      cover_image_id: image.file_id,
+    });
 
     const updated = await this.placeRepository.findOne({
       where: { id: image.place_id },

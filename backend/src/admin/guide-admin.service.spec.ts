@@ -35,7 +35,10 @@ describe('GuideAdminService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GuideAdminService,
-        { provide: getRepositoryToken(GuideCategory), useValue: categoryRepository },
+        {
+          provide: getRepositoryToken(GuideCategory),
+          useValue: categoryRepository,
+        },
         { provide: getRepositoryToken(GuideItem), useValue: itemRepository },
       ],
     }).compile();
@@ -60,7 +63,16 @@ describe('GuideAdminService', () => {
           parent_id: null,
           parent: null,
           children: [
-            { id: 'cat-2', name: 'Child', slug: 'child', icon: '📌', color: '#fff', display_order: 1, is_active: true, created_at: new Date() },
+            {
+              id: 'cat-2',
+              name: 'Child',
+              slug: 'child',
+              icon: '📌',
+              color: '#fff',
+              display_order: 1,
+              is_active: true,
+              created_at: new Date(),
+            },
           ],
           icon: '🏠',
           color: '#000',
@@ -85,9 +97,29 @@ describe('GuideAdminService', () => {
 
     it('should filter only root categories', async () => {
       const mockCategories = [
-        { id: 'cat-1', name: 'Root 1', slug: 'root1', parent_id: null, parent: null, children: [] },
-        { id: 'cat-2', name: 'Child', slug: 'child', parent_id: 'cat-1', parent: { id: 'cat-1' } },
-        { id: 'cat-3', name: 'Root 2', slug: 'root2', parent_id: null, parent: null, children: [] },
+        {
+          id: 'cat-1',
+          name: 'Root 1',
+          slug: 'root1',
+          parent_id: null,
+          parent: null,
+          children: [],
+        },
+        {
+          id: 'cat-2',
+          name: 'Child',
+          slug: 'child',
+          parent_id: 'cat-1',
+          parent: { id: 'cat-1' },
+        },
+        {
+          id: 'cat-3',
+          name: 'Root 2',
+          slug: 'root2',
+          parent_id: null,
+          parent: null,
+          children: [],
+        },
       ];
 
       categoryRepository.find.mockResolvedValue(mockCategories);
@@ -105,24 +137,36 @@ describe('GuideAdminService', () => {
   // ============================================================================
   describe('createGuideCategory', () => {
     it('should create root category with unique slug', async () => {
-      const dto = { name: 'Root Category', icon: '🏠', color: '#000', display_order: 1, is_active: true };
-
-      categoryRepository.findOne.mockResolvedValue(null); // No duplicate slug
-      categoryRepository.create.mockReturnValue(dto);
-      categoryRepository.save.mockResolvedValue({ id: 'cat-1', ...dto, slug: 'root-category' });
-      categoryRepository.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({
-        id: 'cat-1',
+      const dto = {
         name: 'Root Category',
-        slug: 'root-category',
-        parent_id: null,
-        parent: null,
-        children: [],
         icon: '🏠',
         color: '#000',
         display_order: 1,
         is_active: true,
-        created_at: new Date(),
+      };
+
+      categoryRepository.findOne.mockResolvedValue(null); // No duplicate slug
+      categoryRepository.create.mockReturnValue(dto);
+      categoryRepository.save.mockResolvedValue({
+        id: 'cat-1',
+        ...dto,
+        slug: 'root-category',
       });
+      categoryRepository.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          id: 'cat-1',
+          name: 'Root Category',
+          slug: 'root-category',
+          parent_id: null,
+          parent: null,
+          children: [],
+          icon: '🏠',
+          color: '#000',
+          display_order: 1,
+          is_active: true,
+          created_at: new Date(),
+        });
 
       const result = await service.createGuideCategory(dto);
 
@@ -132,7 +176,11 @@ describe('GuideAdminService', () => {
     });
 
     it('should create subcategory with parent_id', async () => {
-      const parentCategory = { id: 'parent-1', parent_id: null, name: 'Parent' };
+      const parentCategory = {
+        id: 'parent-1',
+        parent_id: null,
+        name: 'Parent',
+      };
       const dto = { name: 'Sub Category', parent_id: 'parent-1' };
 
       categoryRepository.findOne
@@ -151,7 +199,11 @@ describe('GuideAdminService', () => {
         });
 
       categoryRepository.create.mockReturnValue(dto);
-      categoryRepository.save.mockResolvedValue({ id: 'cat-2', ...dto, slug: 'sub-category' });
+      categoryRepository.save.mockResolvedValue({
+        id: 'cat-2',
+        ...dto,
+        slug: 'sub-category',
+      });
 
       const result = await service.createGuideCategory(dto as any);
 
@@ -169,7 +221,11 @@ describe('GuideAdminService', () => {
     });
 
     it('should throw BadRequestException when parent has parent (max 2 levels)', async () => {
-      const grandparentCategory = { id: 'gp-1', parent_id: 'gp-2', name: 'Grandparent' };
+      const grandparentCategory = {
+        id: 'gp-1',
+        parent_id: 'gp-2',
+        name: 'Grandparent',
+      };
       const dto = { name: 'Test', parent_id: 'gp-1' };
 
       categoryRepository.findOne.mockResolvedValueOnce(grandparentCategory);
@@ -185,7 +241,15 @@ describe('GuideAdminService', () => {
   // ============================================================================
   describe('updateGuideCategory', () => {
     it('should update category with partial fields', async () => {
-      const category = { id: 'cat-1', name: 'Old Name', parent_id: null, icon: null, color: null, display_order: 1, is_active: true };
+      const category = {
+        id: 'cat-1',
+        name: 'Old Name',
+        parent_id: null,
+        icon: null,
+        color: null,
+        display_order: 1,
+        is_active: true,
+      };
       const dto = { name: 'New Name', icon: '🆕' };
 
       categoryRepository.findOne
@@ -221,7 +285,9 @@ describe('GuideAdminService', () => {
 
       categoryRepository.findOne.mockResolvedValueOnce(category);
 
-      await expect(service.updateGuideCategory('cat-1', { parent_id: 'cat-1' })).rejects.toThrow(
+      await expect(
+        service.updateGuideCategory('cat-1', { parent_id: 'cat-1' }),
+      ).rejects.toThrow(
         new BadRequestException('Kategori kendisinin üst kategorisi olamaz'),
       );
     });
@@ -229,20 +295,30 @@ describe('GuideAdminService', () => {
     it('should throw BadRequestException when new parent not found', async () => {
       const category = { id: 'cat-1', name: 'Test', parent_id: null };
 
-      categoryRepository.findOne.mockResolvedValueOnce(category).mockResolvedValueOnce(null);
+      categoryRepository.findOne
+        .mockResolvedValueOnce(category)
+        .mockResolvedValueOnce(null);
 
-      await expect(service.updateGuideCategory('cat-1', { parent_id: 'invalid-parent' })).rejects.toThrow(
-        new BadRequestException('Üst kategori bulunamadı'),
-      );
+      await expect(
+        service.updateGuideCategory('cat-1', { parent_id: 'invalid-parent' }),
+      ).rejects.toThrow(new BadRequestException('Üst kategori bulunamadı'));
     });
 
     it('should throw BadRequestException when new parent has parent (max 2 levels)', async () => {
       const category = { id: 'cat-1', name: 'Test', parent_id: null };
-      const grandparent = { id: 'gp-1', parent_id: 'gp-2', name: 'Grandparent' };
+      const grandparent = {
+        id: 'gp-1',
+        parent_id: 'gp-2',
+        name: 'Grandparent',
+      };
 
-      categoryRepository.findOne.mockResolvedValueOnce(category).mockResolvedValueOnce(grandparent);
+      categoryRepository.findOne
+        .mockResolvedValueOnce(category)
+        .mockResolvedValueOnce(grandparent);
 
-      await expect(service.updateGuideCategory('cat-1', { parent_id: 'gp-1' })).rejects.toThrow(
+      await expect(
+        service.updateGuideCategory('cat-1', { parent_id: 'gp-1' }),
+      ).rejects.toThrow(
         new BadRequestException('Maksimum 2 seviye hiyerarşi desteklenir'),
       );
     });
@@ -250,18 +326,20 @@ describe('GuideAdminService', () => {
     it('should allow unsetting parent_id', async () => {
       const category = { id: 'cat-1', name: 'Test', parent_id: 'parent-1' };
 
-      categoryRepository.findOne.mockResolvedValueOnce(category).mockResolvedValueOnce({
-        id: 'cat-1',
-        name: 'Test',
-        parent_id: null,
-        icon: null,
-        color: null,
-        display_order: 0,
-        is_active: true,
-        parent: null,
-        children: [],
-        created_at: new Date(),
-      });
+      categoryRepository.findOne
+        .mockResolvedValueOnce(category)
+        .mockResolvedValueOnce({
+          id: 'cat-1',
+          name: 'Test',
+          parent_id: null,
+          icon: null,
+          color: null,
+          display_order: 0,
+          is_active: true,
+          parent: null,
+          children: [],
+          created_at: new Date(),
+        });
 
       await service.updateGuideCategory('cat-1', { parent_id: null });
 
@@ -284,12 +362,18 @@ describe('GuideAdminService', () => {
     });
 
     it('should throw BadRequestException when category has children', async () => {
-      const category = { id: 'cat-1', children: [{ id: 'child-1' }], items: [] };
+      const category = {
+        id: 'cat-1',
+        children: [{ id: 'child-1' }],
+        items: [],
+      };
 
       categoryRepository.findOne.mockResolvedValueOnce(category);
 
       await expect(service.deleteGuideCategory('cat-1')).rejects.toThrow(
-        new BadRequestException('Alt kategorileri olan bir kategori silinemez. Önce alt kategorileri silin.'),
+        new BadRequestException(
+          'Alt kategorileri olan bir kategori silinemez. Önce alt kategorileri silin.',
+        ),
       );
     });
 
@@ -299,7 +383,9 @@ describe('GuideAdminService', () => {
       categoryRepository.findOne.mockResolvedValueOnce(category);
 
       await expect(service.deleteGuideCategory('cat-1')).rejects.toThrow(
-        new BadRequestException('İçerik bulunan kategori silinemez. Önce içerikleri silin veya taşıyın.'),
+        new BadRequestException(
+          'İçerik bulunan kategori silinemez. Önce içerikleri silin veya taşıyın.',
+        ),
       );
     });
 
@@ -318,7 +404,24 @@ describe('GuideAdminService', () => {
   describe('getGuideItems', () => {
     it('should return items with pagination', async () => {
       const mockItems = [
-        { id: 'item-1', name: 'Item 1', category_id: 'cat-1', category: { id: 'cat-1', name: 'Category', parent: null }, is_active: true, created_at: new Date(), updated_at: new Date(), phone: '555-1234', address: 'Test', email: null, website_url: null, working_hours: null, latitude: null, longitude: null, logo_file_id: null, description: null },
+        {
+          id: 'item-1',
+          name: 'Item 1',
+          category_id: 'cat-1',
+          category: { id: 'cat-1', name: 'Category', parent: null },
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date(),
+          phone: '555-1234',
+          address: 'Test',
+          email: null,
+          website_url: null,
+          working_hours: null,
+          latitude: null,
+          longitude: null,
+          logo_file_id: null,
+          description: null,
+        },
       ];
 
       itemRepository.getManyAndCount.mockResolvedValueOnce([mockItems, 10]);
@@ -347,7 +450,10 @@ describe('GuideAdminService', () => {
 
       await service.getGuideItems({ category_id: 'cat-1', page: 1, limit: 20 });
 
-      expect(itemRepository.andWhere).toHaveBeenCalledWith('gi.category_id = :category_id', { category_id: 'cat-1' });
+      expect(itemRepository.andWhere).toHaveBeenCalledWith(
+        'gi.category_id = :category_id',
+        { category_id: 'cat-1' },
+      );
     });
 
     it('should apply is_active filter', async () => {
@@ -355,7 +461,10 @@ describe('GuideAdminService', () => {
 
       await service.getGuideItems({ is_active: true, page: 1, limit: 20 });
 
-      expect(itemRepository.andWhere).toHaveBeenCalledWith('gi.is_active = :is_active', { is_active: true });
+      expect(itemRepository.andWhere).toHaveBeenCalledWith(
+        'gi.is_active = :is_active',
+        { is_active: true },
+      );
     });
 
     it('should skip is_active filter when undefined', async () => {
@@ -365,14 +474,22 @@ describe('GuideAdminService', () => {
 
       // Verify andWhere was not called with is_active
       const calls = itemRepository.andWhere.mock.calls;
-      const hasIsActiveFilter = calls.some((call) => call[0]?.includes('is_active'));
+      const hasIsActiveFilter = calls.some((call) =>
+        call[0]?.includes('is_active'),
+      );
       expect(hasIsActiveFilter).toBe(false);
     });
 
     it('should apply multiple filters together', async () => {
       itemRepository.getManyAndCount.mockResolvedValueOnce([[], 0]);
 
-      await service.getGuideItems({ search: 'test', category_id: 'cat-1', is_active: false, page: 2, limit: 50 });
+      await service.getGuideItems({
+        search: 'test',
+        category_id: 'cat-1',
+        is_active: false,
+        page: 2,
+        limit: 50,
+      });
 
       expect(itemRepository.andWhere).toHaveBeenCalledTimes(3);
       expect(itemRepository.skip).toHaveBeenCalledWith(50); // (2-1)*50
@@ -466,7 +583,12 @@ describe('GuideAdminService', () => {
   // ============================================================================
   describe('updateGuideItem', () => {
     it('should update item with partial fields', async () => {
-      const item = { id: 'item-1', name: 'Old Name', phone: '111-1111', is_active: true };
+      const item = {
+        id: 'item-1',
+        name: 'Old Name',
+        phone: '111-1111',
+        is_active: true,
+      };
       const dto = { name: 'New Name', phone: '222-2222' };
 
       itemRepository.findOne.mockResolvedValueOnce(item).mockResolvedValueOnce({
@@ -504,11 +626,13 @@ describe('GuideAdminService', () => {
     it('should validate category when category_id is changed', async () => {
       const item = { id: 'item-1', category_id: 'cat-1', name: 'Test' };
 
-      itemRepository.findOne.mockResolvedValueOnce(item).mockResolvedValueOnce(null);
+      itemRepository.findOne
+        .mockResolvedValueOnce(item)
+        .mockResolvedValueOnce(null);
 
-      await expect(service.updateGuideItem('item-1', { category_id: 'invalid' })).rejects.toThrow(
-        new BadRequestException('Kategori bulunamadı'),
-      );
+      await expect(
+        service.updateGuideItem('item-1', { category_id: 'invalid' }),
+      ).rejects.toThrow(new BadRequestException('Kategori bulunamadı'));
     });
 
     it('should accept valid category_id change', async () => {
@@ -582,7 +706,18 @@ describe('GuideAdminService', () => {
         slug: 'test',
         parent_id: 'parent-1',
         parent: { id: 'parent-1', name: 'Parent' },
-        children: [{ id: 'child-1', name: 'Child', slug: 'child', icon: '📌', color: '#fff', display_order: 1, is_active: true, created_at: new Date() }],
+        children: [
+          {
+            id: 'child-1',
+            name: 'Child',
+            slug: 'child',
+            icon: '📌',
+            color: '#fff',
+            display_order: 1,
+            is_active: true,
+            created_at: new Date(),
+          },
+        ],
         icon: '🏠',
         color: '#000',
         display_order: 1,
@@ -660,8 +795,14 @@ describe('GuideAdminService', () => {
     });
 
     it('should generate unique slug with counter for duplicates', async () => {
-      categoryRepository.findOne.mockResolvedValueOnce({ id: 'cat-1', slug: 'test' });
-      categoryRepository.findOne.mockResolvedValueOnce({ id: 'cat-2', slug: 'test-1' });
+      categoryRepository.findOne.mockResolvedValueOnce({
+        id: 'cat-1',
+        slug: 'test',
+      });
+      categoryRepository.findOne.mockResolvedValueOnce({
+        id: 'cat-2',
+        slug: 'test-1',
+      });
       categoryRepository.findOne.mockResolvedValueOnce(null); // test-2 is unique
 
       const slug = await service['generateGuideSlug']('test');
@@ -686,7 +827,9 @@ describe('GuideAdminService', () => {
     it('should clean special characters from slug', async () => {
       categoryRepository.findOne.mockResolvedValueOnce(null);
 
-      const slug = await service['generateGuideSlug']('Test!@#$%^&*()_+={}|:";<>?,./');
+      const slug = await service['generateGuideSlug'](
+        'Test!@#$%^&*()_+={}|:";<>?,./',
+      );
 
       expect(slug).toMatch(/^[a-z0-9-]+$/);
       expect(slug).not.toContain('-');

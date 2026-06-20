@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Pharmacy, PharmacySchedule } from '../database/entities/pharmacy.entity';
+import {
+  Pharmacy,
+  PharmacySchedule,
+} from '../database/entities/pharmacy.entity';
 import { PharmacyService } from './pharmacy.service';
 import { PharmacyController } from './pharmacy.controller';
 

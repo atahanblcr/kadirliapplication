@@ -1,9 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import {
   Campaign,
@@ -16,8 +13,12 @@ import {
 function makeListQb(data: any[] = [], total = 0) {
   const qb: any = {};
   const chain = [
-    'leftJoinAndSelect', 'where', 'andWhere',
-    'orderBy', 'skip', 'take',
+    'leftJoinAndSelect',
+    'where',
+    'andWhere',
+    'orderBy',
+    'skip',
+    'take',
   ];
   chain.forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
   qb.getManyAndCount = jest.fn().mockResolvedValue([data, total]);
@@ -27,7 +28,9 @@ function makeListQb(data: any[] = [], total = 0) {
 
 function makeUpdateQb() {
   const qb: any = {};
-  ['update', 'set', 'where'].forEach((m) => (qb[m] = jest.fn().mockReturnValue(qb)));
+  ['update', 'set', 'where'].forEach(
+    (m) => (qb[m] = jest.fn().mockReturnValue(qb)),
+  );
   qb.execute = jest.fn().mockResolvedValue({ affected: 1 });
   return qb;
 }
@@ -54,14 +57,13 @@ const makeCampaign = (overrides: Partial<Campaign> = {}): Campaign =>
     code_view_count: 10,
     created_at: new Date('2026-02-10'),
     ...overrides,
-  } as Campaign);
+  }) as Campaign;
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
 describe('CampaignsService', () => {
   let service: CampaignsService;
   let campaignRepo: any;
-  let campaignImageRepo: any;
   let codeViewRepo: any;
 
   beforeEach(async () => {
@@ -84,7 +86,6 @@ describe('CampaignsService', () => {
 
     service = module.get<CampaignsService>(CampaignsService);
     campaignRepo = module.get(getRepositoryToken(Campaign));
-    campaignImageRepo = module.get(getRepositoryToken(CampaignImage));
     codeViewRepo = module.get(getRepositoryToken(CampaignCodeView));
   });
 
@@ -110,7 +111,9 @@ describe('CampaignsService', () => {
 
       await service.findAll({});
 
-      expect(qb.where).toHaveBeenCalledWith('c.status = :status', { status: 'approved' });
+      expect(qb.where).toHaveBeenCalledWith('c.status = :status', {
+        status: 'approved',
+      });
     });
 
     it('deleted_at IS NULL filtresi uygulanmalı', async () => {
@@ -129,7 +132,9 @@ describe('CampaignsService', () => {
       await service.findAll({});
 
       const today = new Date().toISOString().slice(0, 10);
-      expect(qb.andWhere).toHaveBeenCalledWith('c.start_date <= :today', { today });
+      expect(qb.andWhere).toHaveBeenCalledWith('c.start_date <= :today', {
+        today,
+      });
     });
 
     it('varsayılan olarak aktif tarih filtresi uygulanmalı (end_date >= TODAY)', async () => {
@@ -139,7 +144,9 @@ describe('CampaignsService', () => {
       await service.findAll({});
 
       const today = new Date().toISOString().slice(0, 10);
-      expect(qb.andWhere).toHaveBeenCalledWith('c.end_date >= :today', { today });
+      expect(qb.andWhere).toHaveBeenCalledWith('c.end_date >= :today', {
+        today,
+      });
     });
 
     it('active_only=false olduğunda tarih filtreleri uygulanmamalı', async () => {
@@ -212,7 +219,9 @@ describe('CampaignsService', () => {
     it('kampanya bulunamazsa NotFoundException fırlatmalı', async () => {
       campaignRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -260,7 +269,9 @@ describe('CampaignsService', () => {
       expect(updateQb.set).toHaveBeenCalledWith({
         code_view_count: expect.any(Function),
       });
-      expect(updateQb.where).toHaveBeenCalledWith('id = :id', { id: 'camp-uuid-1' });
+      expect(updateQb.where).toHaveBeenCalledWith('id = :id', {
+        id: 'camp-uuid-1',
+      });
       expect(updateQb.execute).toHaveBeenCalled();
     });
 
@@ -274,5 +285,4 @@ describe('CampaignsService', () => {
   });
 
   // ── create ────────────────────────────────────────────────────────────────
-
 });
