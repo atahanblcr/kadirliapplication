@@ -8,7 +8,7 @@ KadirliApp, mahalle sakinleri arasında haber, ilan, etkinlik ve toplum hizmetle
 
 | Bileşen | Durum | Detay |
 |---------|-------|-------|
-| **Backend (NestJS 11)** | ✅ Çalışır durumda | 15 iş modülü + admin (11 alt-servis), 1045 unit test (58 suite) + 3 E2E spec dosyası, hepsi geçiyor |
+| **Backend (NestJS 11)** | ✅ Çalışır durumda | 15 iş modülü + admin (11 alt-servis), 1070 unit test (58 suite) + 3 E2E spec dosyası, hepsi geçiyor |
 | **Admin Panel (Next.js 16)** | ⚠️ Fonksiyonel, küçük temizlik gerekiyor | 16 modül implemente, ancak 4 ESLint hatası var ve otomatik test altyapısı yok |
 | **Flutter Mobile** | ✅ 14/14 modül tamamlandı | Auth, Home, Announcements, Ads, Deaths, Events, Campaigns, Pharmacy, Guide, Places, Taxi, Transport, Notifications, Profile — Favoriler sekmesi placeholder |
 
@@ -115,7 +115,7 @@ flutter run
 ### Backend
 ```bash
 cd backend
-npm test          # 58 suite, 1045 unit test
+npm test          # 58 suite, 1070 unit test
 npm run test:e2e   # 3 E2E spec dosyası, gerçek PostgreSQL kullanır
 npm run test:cov   # Coverage raporu (hedef: %75)
 ```
@@ -241,4 +241,4 @@ Development workflow, code style, testing strategy ve mimari kararlar için: **[
 
 ---
 
-**Son Güncelleme:** 18 Haziran 2026 — Backend: 1045 unit + 3 E2E test ✅ | Admin: TypeScript temiz, 4 lint hatası açık ⚠️ | Flutter: 14/14 modül tamamlandı, 57 test dosyası ✅
+**Son Güncelleme:** 21 Haziran 2026 — Backend: 1070 unit + 3 E2E test ✅ | Admin: TypeScript temiz, 4 lint hatası açık ⚠️ | Flutter: 14/14 modül tamamlandı, 57 test dosyası ✅

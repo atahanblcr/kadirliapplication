@@ -144,7 +144,7 @@ Seçim `Platform.isIOS` / `Platform.isAndroid` ile otomatik yapılır, environme
 2. `POST /auth/request-otp` ile OTP istenir
 3. `POST /auth/verify-otp` ile doğrulanır → temp token döner
 4. `POST /auth/register` ile kayıt tamamlanır → `access_token` + `refresh_token`
-5. Token'lar SharedPreferences'ta saklanır, JWT süresi dolunca otomatik refresh denenir
+5. Token'lar SharedPreferences'ta saklanır, JWT süresi dolunca otomatik refresh denenir; refresh de başarısız olursa `SessionExpiryNotifier` üzerinden `_AuthGate` tetiklenir ve kullanıcı otomatik olarak login ekranına döner
 
 **Development:** `OTP_DEV_MODE=true` iken backend her zaman `123456` kodunu kabul eder.
 

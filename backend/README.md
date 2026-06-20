@@ -71,7 +71,7 @@ npm run test:debug       # Node inspector ile debug
 npm test -- auth.service # Belirli bir dosyayı test et
 ```
 
-**Mevcut durum:** 58 test suite, 1045 test — hepsi geçiyor (`npx jest`).
+**Mevcut durum:** 58 test suite, 1070 test — hepsi geçiyor (`npx jest`).
 
 ### E2E Tests
 ```bash

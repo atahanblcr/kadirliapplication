@@ -1,6 +1,6 @@
 # decisions.md - Proje Kararları
 
-**Son Güncelleme:** 2 Mart 2026 16:30
+**Son Güncelleme:** 21 Haziran 2026
 
 ---
 
@@ -177,5 +177,12 @@ id: json['id']?.toString() ?? '',
 ## 🔄 Bekleyen Kararlar
 
 - [ ] Monitoring: Prometheus vs DataDog vs Sentry
-- [ ] Push: FCM vs OneSignal
+- [x] ~~Push: FCM vs OneSignal~~ → **Karar verildi ve uygulandı: Firebase Cloud Messaging.** Flutter tarafında foreground/background handler'lar, token kaydı ve backend senkronizasyonu tamamlandı (bkz. flutter-app/README.md → "Firebase Cloud Messaging").
 - [ ] Analytics: Plausible vs Mixpanel
+
+---
+
+### 14. Auth Session Expiry: ChangeNotifier yerine go_router kullanılmadı
+**Karar:** Token refresh başarısız olduğunda `_AuthGate`'i tetiklemek için basit bir `ChangeNotifier` singleton (`SessionExpiryNotifier`) kullanıldı, go_router/Navigator tabanlı bir çözüm değil.
+**Tarih:** 21 Haziran 2026
+**Neden:** Proje go_router kullanmıyor — `app.dart`'taki `_AuthGate` zaten auth state'e göre Splash/Login/Home arasında deklaratif geçiş yapıyor. `AuthInterceptor` düz bir Dio `Interceptor` olduğu için Riverpod `ref`'ine veya navigasyona erişimi yok; en az invaziv çözüm, interceptor'ın sadece "oturum bitti" sinyalini yayması, asıl state değişikliğini zaten var olan `_AuthGate`/`authProvider` mekanizmasının yapmasıydı.

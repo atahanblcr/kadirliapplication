@@ -8,15 +8,14 @@
 
 | Dosya | Amaç | Güncelleme Sıklığı |
 |-------|------|-------------------|
-| `activeContext.md` | Şu an ne üzerinde çalışıyorsun | Her 30 dakika |
-| `progress.md` | Proje ilerlemesi | Her modül bitiminde |
-| `decisions.md` | Önemli kararlar | Her karar sonrası |
-| `issues.md` | Sorunlar ve çözümler | Her sorun/çözüm |
-| `modules.md` | Backend + Admin + Flutter modüllerinin detaylı dokümantasyonu | Her modül bitiminde |
-| `deployment.md` | Deployment & DevOps checklist (Docker, CI/CD, production) | Deployment süreci değiştiğinde |
-| `API_RESPONSE_KEYS_REFERENCE.md` | Gerçek API testleriyle doğrulanmış response key/format referansı | Endpoint response formatı değiştiğinde |
+| `activeContext.md` | Şu an ne üzerinde çalışıyorsun | Her oturumda / her 30 dakika |
+| `progress.md` | Proje ilerlemesi | Her modül/faz bitiminde |
+| `decisions.md` | Önemli mimari kararlar | Her karar sonrası |
+| `issues.md` | Sorunlar ve çözümler | Her sorun/çözüm sonrası |
 
 > Bu dosyalardaki tarih/durum bilgileri zaman içinde eskir — güncel proje durumu için önce `git log` ve kodun kendisine bakın, Memory Bank dosyalarını "o tarihte doğruydu" kaydı olarak değerlendirin.
+>
+> **21 Haziran 2026 temizliği:** `modules.md`, `deployment.md` ve `API_RESPONSE_KEYS_REFERENCE.md` silindi. Üçü de artık var olmayan modüllerden bahsediyordu (backend'de "Jobs", admin'de "Scrapers") veya zaten daha güncel/kapsamlı bir kaynakla tam örtüşüyordu (`docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md`, `docs/04_API_ENDPOINTS_MASTER.md`, ve kök/backend/admin/flutter-app `README.md` dosyaları). Modül listesi, response key formatı veya deployment adımları için önce bu dosyalara bakın — Memory Bank artık bunları tekrar etmiyor.
 
 ---
 
