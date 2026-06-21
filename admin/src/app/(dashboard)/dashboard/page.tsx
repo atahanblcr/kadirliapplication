@@ -53,10 +53,10 @@ const mockActivities: RecentActivity[] = [
 ];
 
 const mockPending: PendingApproval[] = [
-  { id: '1', type: 'ad', title: 'Satılık Arsa - Akdam Mah.', created_at: '2026-02-21T14:00:00Z', user: { id: 'u1', full_name: 'Ali Demir' } },
-  { id: '2', type: 'ad', title: 'Kiralık Dükkan - Merkez', created_at: '2026-02-21T13:30:00Z', user: { id: 'u2', full_name: 'Fatma Yılmaz' } },
-  { id: '3', type: 'death', title: 'Vefat: Hasan Öztürk', created_at: '2026-02-21T12:00:00Z', user: { id: 'u3', full_name: 'Veli Öztürk' } },
-  { id: '4', type: 'campaign', title: 'Kış İndirimi Kampanyası', created_at: '2026-02-21T11:00:00Z', user: { id: 'u4', full_name: 'Café Merkez' } },
+  { id: '1', type: 'ad', title: 'Satılık Arsa - Akdam Mah.', created_at: '2026-02-21T14:00:00Z', user: { id: 'u1', username: 'ali.demir', phone: '05551112233' } },
+  { id: '2', type: 'ad', title: 'Kiralık Dükkan - Merkez', created_at: '2026-02-21T13:30:00Z', user: { id: 'u2', username: 'fatma.yilmaz', phone: '05551112234' } },
+  { id: '3', type: 'death', title: 'Vefat: Hasan Öztürk', created_at: '2026-02-21T12:00:00Z', user: { id: 'u3', username: 'veli.ozturk', phone: '05551112235' } },
+  { id: '4', type: 'campaign', title: 'Kış İndirimi Kampanyası', created_at: '2026-02-21T11:00:00Z', user: { id: 'u4', username: 'cafe.merkez', phone: '05551112236' } },
 ];
 
 export default function DashboardPage() {
@@ -147,7 +147,7 @@ export default function DashboardPage() {
           type: a.type,
           title: a.content.title,
           created_at: a.created_at,
-          user: { id: a.content.user?.id ?? '', full_name: a.content.user?.username ?? 'Bilinmiyor' },
+          user: a.content.user,
         }));
       } catch {
         return mockPending;

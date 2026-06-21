@@ -15,5 +15,17 @@ void main() {
       expect(model.name, 'Ali');
       expect(model.totalCalls, 10);
     });
+
+    test('TaxiDriverModel.fromJson - plaka null geldiğinde hata fırlatmaz', () {
+      final json = {
+        'id': '1',
+        'name': 'Ali',
+        'phone': '123',
+        'plaka': null,
+        'total_calls': 10,
+      };
+      final model = TaxiDriverModel.fromJson(json);
+      expect(model.plaka, isNull);
+    });
   });
 }

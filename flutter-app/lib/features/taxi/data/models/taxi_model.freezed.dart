@@ -23,7 +23,7 @@ mixin _$TaxiDriverModel {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get phone => throw _privateConstructorUsedError;
-  String get plaka => throw _privateConstructorUsedError;
+  String? get plaka => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_info')
   String? get vehicleInfo => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_calls')
@@ -45,7 +45,7 @@ abstract class $TaxiDriverModelCopyWith<$Res> {
       {String id,
       String name,
       String phone,
-      String plaka,
+      String? plaka,
       @JsonKey(name: 'vehicle_info') String? vehicleInfo,
       @JsonKey(name: 'total_calls') int totalCalls});
 }
@@ -66,7 +66,7 @@ class _$TaxiDriverModelCopyWithImpl<$Res, $Val extends TaxiDriverModel>
     Object? id = null,
     Object? name = null,
     Object? phone = null,
-    Object? plaka = null,
+    Object? plaka = freezed,
     Object? vehicleInfo = freezed,
     Object? totalCalls = null,
   }) {
@@ -83,10 +83,10 @@ class _$TaxiDriverModelCopyWithImpl<$Res, $Val extends TaxiDriverModel>
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
               as String,
-      plaka: null == plaka
+      plaka: freezed == plaka
           ? _value.plaka
           : plaka // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       vehicleInfo: freezed == vehicleInfo
           ? _value.vehicleInfo
           : vehicleInfo // ignore: cast_nullable_to_non_nullable
@@ -111,7 +111,7 @@ abstract class _$$TaxiDriverModelImplCopyWith<$Res>
       {String id,
       String name,
       String phone,
-      String plaka,
+      String? plaka,
       @JsonKey(name: 'vehicle_info') String? vehicleInfo,
       @JsonKey(name: 'total_calls') int totalCalls});
 }
@@ -130,7 +130,7 @@ class __$$TaxiDriverModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? phone = null,
-    Object? plaka = null,
+    Object? plaka = freezed,
     Object? vehicleInfo = freezed,
     Object? totalCalls = null,
   }) {
@@ -147,10 +147,10 @@ class __$$TaxiDriverModelImplCopyWithImpl<$Res>
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
               as String,
-      plaka: null == plaka
+      plaka: freezed == plaka
           ? _value.plaka
           : plaka // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       vehicleInfo: freezed == vehicleInfo
           ? _value.vehicleInfo
           : vehicleInfo // ignore: cast_nullable_to_non_nullable
@@ -170,7 +170,7 @@ class _$TaxiDriverModelImpl implements _TaxiDriverModel {
       {required this.id,
       required this.name,
       required this.phone,
-      required this.plaka,
+      this.plaka,
       @JsonKey(name: 'vehicle_info') this.vehicleInfo,
       @JsonKey(name: 'total_calls') this.totalCalls = 0});
 
@@ -184,7 +184,7 @@ class _$TaxiDriverModelImpl implements _TaxiDriverModel {
   @override
   final String phone;
   @override
-  final String plaka;
+  final String? plaka;
   @override
   @JsonKey(name: 'vehicle_info')
   final String? vehicleInfo;
@@ -237,7 +237,7 @@ abstract class _TaxiDriverModel implements TaxiDriverModel {
           {required final String id,
           required final String name,
           required final String phone,
-          required final String plaka,
+          final String? plaka,
           @JsonKey(name: 'vehicle_info') final String? vehicleInfo,
           @JsonKey(name: 'total_calls') final int totalCalls}) =
       _$TaxiDriverModelImpl;
@@ -252,7 +252,7 @@ abstract class _TaxiDriverModel implements TaxiDriverModel {
   @override
   String get phone;
   @override
-  String get plaka;
+  String? get plaka;
   @override
   @JsonKey(name: 'vehicle_info')
   String? get vehicleInfo;

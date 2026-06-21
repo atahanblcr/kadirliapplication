@@ -12,7 +12,7 @@ _$TaxiDriverModelImpl _$$TaxiDriverModelImplFromJson(
       id: json['id'] as String,
       name: json['name'] as String,
       phone: json['phone'] as String,
-      plaka: json['plaka'] as String,
+      plaka: json['plaka'] as String?,
       vehicleInfo: json['vehicle_info'] as String?,
       totalCalls: (json['total_calls'] as num?)?.toInt() ?? 0,
     );

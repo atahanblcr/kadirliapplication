@@ -57,10 +57,6 @@ export interface RecentActivity {
   type: 'user_register' | 'ad_created' | 'ad_approved' | 'ad_rejected' | 'announcement_created' | 'death_notice' | 'complaint';
   description: string;
   created_at: string;
-  user?: {
-    id: string;
-    full_name: string;
-  };
 }
 
 export interface PendingApproval {
@@ -70,8 +66,9 @@ export interface PendingApproval {
   created_at: string;
   user: {
     id: string;
-    full_name: string;
-  };
+    username: string;
+    phone: string;
+  } | null;
 }
 
 // Sidebar Navigation
@@ -134,7 +131,6 @@ export interface Announcement {
   creator?: {
     id: string;
     username: string;
-    full_name: string;
     role: string;
   };
   approved_by?: string;
@@ -246,7 +242,6 @@ export interface Ad {
   user?: {
     id: string;
     username: string;
-    full_name: string;
     phone?: string;
     primary_neighborhood?: { id: string; name: string };
   };
@@ -275,7 +270,7 @@ export interface AdListItem {
   price?: number;
   status: AdStatus;
   category: { id: string; name: string; parent?: { name: string } };
-  user?: { id: string; username: string; full_name: string };
+  user?: { id: string; username: string };
   seller_name?: string;
   contact_phone: string;
   images?: AdImage[];
@@ -371,7 +366,7 @@ export interface DeathNotice {
   neighborhood_id?: string;
   neighborhood?: { id: string; name: string };
   added_by: string;
-  adder?: { id: string; username: string; full_name?: string; phone?: string };
+  adder?: { id: string; username: string; phone?: string };
   status: 'pending' | 'approved' | 'rejected';
   approved_by?: string;
   approved_at?: string;

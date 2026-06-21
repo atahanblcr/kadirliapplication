@@ -43,13 +43,8 @@ export class EventAdminController {
 
   // GET /admin/events
   @Get()
-  getEvents(
-    @Query() dto: QueryAdminEventsDto,
-    @Query('is_local') isLocalRaw?: string,
-  ) {
-    const is_local =
-      isLocalRaw === 'true' ? true : isLocalRaw === 'false' ? false : undefined;
-    return this.eventAdminService.getAdminEvents({ ...dto, is_local });
+  getEvents(@Query() dto: QueryAdminEventsDto) {
+    return this.eventAdminService.getAdminEvents(dto);
   }
 
   // GET /admin/events/:id

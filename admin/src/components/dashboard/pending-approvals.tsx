@@ -51,7 +51,7 @@ export function PendingApprovalsList({ approvals }: PendingApprovalsListProps) {
                   <span className="text-sm font-medium">{item.title}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {item.user.full_name} &middot;{' '}
+                  {item.user?.username ?? 'Bilinmiyor'} &middot;{' '}
                   {formatDistanceToNow(new Date(item.created_at), {
                     addSuffix: true,
                     locale: tr,

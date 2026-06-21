@@ -211,7 +211,7 @@ export function AdDetailModal({ item, onClose }: AdDetailModalProps) {
                 <div className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4 text-muted-foreground shrink-0" />
                   <span>
-                    {ad.seller_name ?? ad.user?.full_name ?? ad.user?.username ?? '—'}
+                    {ad.seller_name ?? ad.user?.username ?? '—'}
                     {ad.user?.primary_neighborhood && (
                       <span className="ml-1 text-muted-foreground">
                         · {ad.user.primary_neighborhood.name}

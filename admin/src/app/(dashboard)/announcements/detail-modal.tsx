@@ -202,7 +202,7 @@ export function AnnouncementDetailModal({ item, onClose, onEdit, onDelete }: Det
                 <div className="col-span-2">
                   <p className="text-xs text-muted-foreground">Oluşturan</p>
                   <p className="mt-0.5 font-medium">
-                    {announcement.creator.full_name ?? announcement.creator.username}
+                    {announcement.creator.username}
                     <span className="ml-1 text-xs text-muted-foreground">
                       ({announcement.creator.role})
                     </span>

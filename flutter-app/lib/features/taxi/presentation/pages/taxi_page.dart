@@ -138,23 +138,26 @@ class _TaxiCard extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      border: Border.all(color: Colors.blue[200]!),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      driver.plaka,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Colors.blue[800],
-                        letterSpacing: 1,
+                  if (driver.plaka != null && driver.plaka!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        border: Border.all(color: Colors.blue[200]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        driver.plaka!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.blue[800],
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                   if (driver.vehicleInfo != null && driver.vehicleInfo!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(

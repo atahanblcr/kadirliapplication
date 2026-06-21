@@ -9,7 +9,7 @@ class TaxiDriverModel with _$TaxiDriverModel {
     required String id,
     required String name,
     required String phone,
-    required String plaka,
+    String? plaka,
     @JsonKey(name: 'vehicle_info') String? vehicleInfo,
     @JsonKey(name: 'total_calls') @Default(0) int totalCalls,
   }) = _TaxiDriverModel;

@@ -160,7 +160,7 @@ function AdRow({
 
       {/* Seller */}
       <TableCell className="w-[130px] text-sm text-muted-foreground">
-        {ad.seller_name ?? ad.user?.full_name ?? ad.user?.username ?? '—'}
+        {ad.seller_name ?? ad.user?.username ?? '—'}
       </TableCell>
 
       {/* Views */}
