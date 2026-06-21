@@ -50,11 +50,11 @@ npx tsc --noEmit        # TypeScript tip kontrolü
 npm run build           # Build testi
 ```
 
-**Mevcut durum (doğrulandı):**
+**Mevcut durum (doğrulandı, 22 Haziran 2026):**
 - TypeScript: 0 hata ✅
-- ESLint: **4 hata + 38 uyarı** — `0 lint error` iddiası şu an doğru değil.
-  - Hatalar: `src/components/transport/intercity-form.tsx` ve `intracity-form.tsx` içinde açık `any` tipi kullanımı.
+- ESLint: **0 hata + 38 uyarı** ✅
   - Uyarılar: kullanılmayan import'lar, `next/image` önerisi yerine `<img>` kullanımı (places, pharmacy, settings).
+- Build: `npm run build` → başarılı (21 route, tümü static).
 - **Otomatik test altyapısı yok** — Jest/Vitest/Playwright kurulu değil, hiçbir `*.test.tsx`/`*.spec.tsx` dosyası yok.
 
 ---
@@ -155,7 +155,7 @@ docker run -p 3001:3000 --env-file .env.local kadirliapp-admin:1.0
 ### Production Checklist
 - [ ] `.env.local` production `NEXT_PUBLIC_API_URL` ile güncellendi
 - [ ] `npm run build` başarılı
-- [ ] `npm run lint` — mevcut 4 hatayı düzeltmeden production'a almayın
+- [ ] `npm run lint` — 0 hata
 - [ ] `npx tsc --noEmit` hatasız
 
 ---

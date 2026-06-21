@@ -1,7 +1,7 @@
 # Progress Tracker - Proje İlerlemesi
 
 **Proje Başlangıcı:** 20 Şubat 2026
-**Son Güncelleme:** 21 Haziran 2026
+**Son Güncelleme:** 22 Haziran 2026
 
 > Bu dosyadaki sayılar `npm test` / `flutter test` / `npm run lint` çalıştırılarak doğrudan doğrulanmıştır. Eski versiyonlarda (9 Mart 2026) birbiriyle çelişen rakamlar vardı (1045 vs 1073 test) — bu artık düzeltildi.
 
@@ -11,7 +11,7 @@
 
 ```
 Backend:      [██████████] 100% ✅ (1070 unit + 3 E2E PASS, lint 0 hata)
-Admin Panel:  [█████████░]  95% ⚠️ (TypeScript temiz, 4 lint hatası açık — intercity/intracity-form.tsx)
+Admin Panel:  [██████████] 100% ✅ (TypeScript temiz, lint 0 hata, build başarılı)
 Flutter App:  [██████████] 100% ✅ (14/14 modül, 272 test PASS) — Favoriler sekmesi placeholder
 Testing:      [██████████] 100% ✅ (Backend coverage %95.33 stmt, hedef %75 — fazlasıyla geçiyor)
 Deployment:   [██░░░░░░░░]  20% (Docker + CI/CD dosyaları hazır, henüz hiçbir ortama deploy edilmedi)
@@ -29,10 +29,11 @@ Deployment:   [██░░░░░░░░]  20% (Docker + CI/CD dosyaları h
 - **Sonuç:** ✅ Backend mantığı ve CI pipeline'ı tam çalışır durumda.
 
 ### 2. Admin Panel Kontrolleri
-- **Lint:** `npm run lint` → **4 hata + 38 uyarı**. Hatalar: `intercity-form.tsx:148` ve `intracity-form.tsx:132`'de açık `any` tipi. Uyarılar: kullanılmayan import'lar, `next/image` önerisi.
+- **Lint:** `npm run lint` → **0 hata + 38 uyarı** (22 Haziran 2026'da düzeltildi — bkz. Phase 12). Uyarılar: kullanılmayan import'lar, `next/image` önerisi.
 - **Type Check:** `tsc --noEmit` → 0 hata.
+- **Build:** `npm run build` → başarılı, 21 route, tümü static.
 - **Otomatik test:** Yok — Jest/Vitest/Playwright kurulu değil.
-- **Sonuç:** ⚠️ Fonksiyonel ve type-safe, ama "0 lint hatası" iddiası doğru değil — küçük bir temizlik gerekiyor.
+- **Sonuç:** ✅ Fonksiyonel, type-safe ve lint-temiz.
 
 ### 3. Flutter App Testleri
 - **Test Kapsamı:** 57 test dosyası — data model, repository, datasource, provider katmanları.
@@ -50,12 +51,12 @@ Deployment:   [██░░░░░░░░]  20% (Docker + CI/CD dosyaları h
 - **Phase 9 (Cleanup):** E2E testleri onarıldı, admin panel lint hataları büyük ölçüde sıfırlandı (4 tanesi hâlâ açık).
 - **Phase 10 (Final Flutter Features):** Transport ve Notifications tamamlandı (9 Mart 2026).
 - **Phase 11 (Bug-fix / CI sağlamlaştırma, 20-21 Haziran 2026):** CI lint gate (3315→0 hata) ve coverage gate ölçüm hatası düzeltildi; admin alan adı uyumsuzlukları (username/full_name, ad approval response tipi) giderildi; Flutter'da mimari denetimden çıkan gerçek bug'lar (Ad.price nullable, DioException Türkçeleştirme eksikliği, auth session-expiry yönlendirmesi) düzeltildi; tüm README'ler ve Memory Bank gerçek koda senkronize edildi.
+- **Phase 12 (Admin lint temizliği, 22 Haziran 2026):** Admin panelde kalan 4 lint hatası (`event-form-dialog.tsx`'te 2, `intercity-form.tsx`/`intracity-form.tsx`'te 1'er — hepsi açık `any` kullanımı) giderildi. `payload as any` cast'leri kaldırıldı, ilgili mutation hook'larının zaten beklediği tiplerle (`Partial<AdminEvent>`, `Omit<IntercityRoute,...>`, `Omit<IntracityRoute,...>`) eşleştirildi. `npm run lint` → 0 hata, `tsc --noEmit` → 0 hata, `npm run build` → başarılı.
 
 ---
 
 ## 🔴 Bekleyen Görevler (Öncelik Sırasıyla)
 
-1. **Admin lint temizliği:** `intercity-form.tsx` / `intracity-form.tsx`'teki 2 açık `any` kullanımını düzelt (küçük, izole bir iş).
-2. **🚀 Production deployment:** `docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md` adımları (NGINX + PM2 + SSL) henüz hiçbir ortamda uygulanmadı.
-3. **📱 Store Hazırlıkları:** İkon, App Store/Play Store meta verileri, gerçek bir build/release henüz yapılmadı.
-4. **Flutter eksikleri:** Favoriler sekmesi hâlâ placeholder; backend'de var olan `complaints` modülü için Flutter UI'ı yok.
+1. **🚀 Production deployment:** `docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md` adımları (NGINX + PM2 + SSL) henüz hiçbir ortamda uygulanmadı.
+2. **📱 Store Hazırlıkları:** İkon, App Store/Play Store meta verileri, gerçek bir build/release henüz yapılmadı.
+3. **Flutter eksikleri:** Favoriler sekmesi hâlâ placeholder; backend'de var olan `complaints` modülü için Flutter UI'ı yok.

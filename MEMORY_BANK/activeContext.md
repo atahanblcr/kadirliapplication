@@ -1,11 +1,21 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
-**Son Güncelleme:** 21 Haziran 2026
-**Durum:** ✅ Backend: 1070 unit + 3 E2E test PASS, lint 0 hata (2180 uyarı) — ⚠️ Admin: TypeScript temiz, 4 lint hatası açık — 📱 Flutter: 14/14 modül, 272 test PASS
+**Son Güncelleme:** 22 Haziran 2026
+**Durum:** ✅ Backend: 1070 unit + 3 E2E test PASS, lint 0 hata (2180 uyarı) — ✅ Admin: TypeScript temiz, lint 0 hata (38 uyarı) — 📱 Flutter: 14/14 modül, 272 test PASS
 
 ---
 
-## 🎯 SON YAPILAN İŞ: Bug-fix / production-hazırlık turu (20-21 Haziran 2026)
+## 🎯 SON YAPILAN İŞ: Admin lint temizliği (22 Haziran 2026)
+
+`progress.md`'de bekleyen görev olarak işaretli admin panel lint hataları giderildi:
+- Gerçek hata sayısı ve konumu memory bank'ın yazdığından farklı çıktı — sadece `intercity-form.tsx:148` ve `intracity-form.tsx:132` değil, `event-form-dialog.tsx:160,163`'te de açık `any` kullanımı vardı (toplam 4 hata, 3 dosya).
+- `intercity-form.tsx` ve `intracity-form.tsx`: `payload as any` cast'leri kaldırıldı — `payload` zaten ilgili `useCreateXRoute` mutation'ının beklediği `Omit<Route, 'id'|'created_at'|...>` tipiyle birebir eşleşiyordu, cast hiç gerekmiyordu.
+- `event-form-dialog.tsx`: `payload`'ın tipi `Record<string, unknown>`'dan `Partial<AdminEvent>`'a değiştirildi, `mutateAsync(... as any)` cast'leri kaldırıldı. `form.status` (Select'ten gelen serbest `string`) için tek bir dar tip cast'i (`as AdminEvent['status']`) gerekti — Select'in seçenekleri zaten sadece 4 literal değeri ürettiği için güvenli.
+- Doğrulama: `npm run lint` → 0 hata/38 uyarı, `npx tsc --noEmit` → 0 hata, `npm run build` → başarılı (21 route, tümü static).
+
+---
+
+## 🎯 ÖNCEKİ İŞ: Bug-fix / production-hazırlık turu (20-21 Haziran 2026)
 
 Proje üç platformda da "tamamlandı" aşamasını geçmiş durumda; şu anki çalışma modu yeni modül eklemek değil, mimari denetimden çıkan somut hataları düzeltmek ve dokümantasyonu gerçek koda senkronize tutmak.
 
@@ -31,15 +41,16 @@ Bir mimari denetim raporundaki iddialar tek tek koda bakılarak doğrulandı; ba
 
 ---
 
-## 📊 GÜNCEL TEST DURUMU (21 Haziran 2026, doğrudan çalıştırılarak doğrulandı)
+## 📊 GÜNCEL TEST DURUMU (22 Haziran 2026, doğrudan çalıştırılarak doğrulandı)
 
 | Platform | Test Tipi | Durum | Başarı | Ekstra Bilgi |
 |----------|-----------|-------|--------|--------------|
 | Backend  | Unit      | ✅ PASS | 1070 / 1070 (58 suite) | Coverage: %95.33 stmt / %80.59 branch |
 | Backend  | E2E       | — | 3 spec dosyası | `app.e2e-spec.ts`, `auth.e2e-spec.ts`, `admin-neighborhoods.e2e-spec.ts` |
 | Backend  | Lint      | ✅ 0 hata | 2180 uyarı | `no-unsafe-*` kuralları spec dosyalarında warn/disable |
-| Admin    | Lint      | ⚠️ 4 hata | 38 uyarı | `intercity-form.tsx:148`, `intracity-form.tsx:132` — açık `any` kullanımı |
+| Admin    | Lint      | ✅ 0 hata | 38 uyarı | 22 Haziran'da düzeltildi — bkz. yukarı |
 | Admin    | TypeCheck | ✅ 0 hata | `tsc --noEmit` | |
+| Admin    | Build     | ✅ Başarılı | 21 route, tümü static | `npm run build` |
 | Flutter  | Unit      | ✅ PASS | 272 / 272 (57 dosya) | |
 | Flutter  | Analyze   | ✅ 0 hata | 112 uyarı / 43 bilgi | Hepsi önceden var, deprecated API + JsonKey annotation uyarıları |
 
@@ -48,6 +59,6 @@ Bir mimari denetim raporundaki iddialar tek tek koda bakılarak doğrulandı; ba
 ---
 
 ## 🔴 SONRAKİ ADIMLAR
-1. **Admin lint:** `intercity-form.tsx`/`intracity-form.tsx`'teki 2 açık `any` hatası düzeltilebilir (CI'ı bloklamıyor ama README'de "küçük temizlik gerekiyor" olarak işaretli).
-2. **🚀 Üretim Hazırlığı:** NGINX, PM2, SSL — `docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md` adımları henüz uygulanmadı (proje hâlâ local/dev ortamda çalışıyor, canlı bir deployment kanıtı yok).
-3. **📱 Uygulama Yayını:** App Store & Play Store hazırlıkları (simge, splash screen vb.) — flutter-app/README.md'deki build komutları hazır ama mağaza süreci başlamadı.
+1. **🚀 Üretim Hazırlığı:** NGINX, PM2, SSL — `docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md` adımları henüz uygulanmadı (proje hâlâ local/dev ortamda çalışıyor, canlı bir deployment kanıtı yok).
+2. **📱 Uygulama Yayını:** App Store & Play Store hazırlıkları (simge, splash screen vb.) — flutter-app/README.md'deki build komutları hazır ama mağaza süreci başlamadı.
+3. **📱 Flutter eksikleri:** Favoriler sekmesi hâlâ placeholder; backend'de var olan `complaints` modülü için Flutter UI'ı yok.

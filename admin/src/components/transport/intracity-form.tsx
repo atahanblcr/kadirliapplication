@@ -129,7 +129,7 @@ export function IntracityForm({ open, onClose, editRoute }: IntracityFormProps) 
         await updateRoute.mutateAsync({ id: editRoute.id, ...payload });
         toast.success('Hat güncellendi');
       } else {
-        await createRoute.mutateAsync(payload as any);
+        await createRoute.mutateAsync(payload);
         toast.success('Hat oluşturuldu');
       }
       onClose();

@@ -133,7 +133,7 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
       return;
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: Partial<AdminEvent> = {
       title: form.title.trim(),
       description: form.description.trim() || undefined,
       category_id: form.category_id || undefined,
@@ -152,15 +152,17 @@ export function EventFormDialog({ open, onClose, editing }: Props) {
       capacity: form.capacity ? parseInt(form.capacity) : undefined,
       website_url: form.website_url.trim() || undefined,
       ticket_url: form.ticket_url.trim() || undefined,
-      status: form.status,
+      status: form.status as AdminEvent['status'],
     };
 
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, ...payload } as any);
+        await updateMutation.mutateAsync({ id: editing.id, ...payload });
         toast({ title: `"${form.title}" güncellendi.` });
       } else {
-        await createMutation.mutateAsync(payload as any);
+        await createMutation.mutateAsync(
+          payload as Partial<AdminEvent> & { title: string; event_date: string; event_time: string }
+        );
         toast({ title: `"${form.title}" etkinliği eklendi.` });
       }
       onClose();
