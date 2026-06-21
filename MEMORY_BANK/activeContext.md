@@ -1,11 +1,36 @@
 # Active Context - Şu An Ne Üzerinde Çalışıyorum?
 
 **Son Güncelleme:** 22 Haziran 2026
-**Durum:** ✅ Backend: 1070 unit + 3 E2E test PASS, lint 0 hata (2180 uyarı) — ✅ Admin: TypeScript temiz, lint 0 hata (38 uyarı) — 📱 Flutter: 14/14 modül, 272 test PASS
+**Durum:** ✅ Backend: 1070 unit + 3 E2E test PASS, lint 0 hata (2180 uyarı) — ✅ Admin: TypeScript temiz, lint 0 hata (38 uyarı) — 📱 Flutter: 14/14 modül, 273 test PASS
 
 ---
 
-## 🎯 SON YAPILAN İŞ: Admin lint temizliği (22 Haziran 2026)
+## 🎯 SON YAPILAN İŞ: Gemini denetim raporu doğrulaması (22 Haziran 2026)
+
+Gemini'nin proje üzerine yaptığı bir mimari denetim raporundaki 4 iddia tek tek koda bakılarak doğrulandı — bazıları tam doğru çıktı, biri yanlış çıktı ama incelemesi başka gerçek bir soruna işaret etti, full_name iddiası ise Gemini'nin belirttiğinden daha geniş kapsamlıydı:
+
+### ✅ COMPLETED: Flutter — Taksi `plaka` null-crash (kritik, Ad.price hatasının ikizi)
+- `taxi-driver.entity.ts`'de `plaka` nullable (`varchar(20) nullable: true`) ve `TaxiService.findAll()` hiç fallback uygulamadan ham değeri dönüyordu. Flutter'da `TaxiDriverModel.plaka` `required String` idi → plakası girilmemiş bir şoför geldiğinde JSON parse hatası fırlatıp taksi sayfasını çökertiyordu.
+- `String? plaka` yapıldı; `taxi_page.dart`'ta plaka yoksa rozet tamamen gizleniyor (mevcut `vehicleInfo` deseniyle aynı mantık). `taxi_model_test.dart`'a null-plaka regresyon testi eklendi. `dart run build_runner build` ile freezed/json kodu yeniden üretildi.
+
+### ✅ COMPLETED: Admin — Var olmayan `full_name` alanına dayanan tip yalanları
+- Backend `User` entity'sinde `full_name` kolonu hiç yok, sadece `username` var. Gemini 3 satır işaret etmişti (62, 137, 249) ama gerçek kapsam daha genişti:
+  - **Gerçek UI bug'ı (Gemini'nin atladığı):** `PendingApproval.user.full_name` — `/admin/approvals` backend'de `{id, username, phone}` dönüyor, `pending-approvals.tsx` dashboard widget'ı hiç fallback'siz `item.user.full_name` okuyordu → bekleyen onaylarda kullanıcı adı **boş** görünüyordu. `item.user?.username ?? 'Bilinmiyor'` yapıldı, tip `{id, username, phone} | null` olarak düzeltildi.
+  - **Tip yalanı ama çökmüyordu:** `Ad.user.full_name`, `AdListItem.user.full_name`, `Announcement.creator.full_name`, `DeathNotice.adder.full_name` — ilgili komponentler zaten `?? username` fallback'i kullanıyordu, görünür bug yoktu. Tipler düzeltildi, artık var olmayan alana referans veren ölü fallback kodu temizlendi.
+  - **Dokunulmadı:** `Complaint.reporter/reviewer/resolver.full_name` — backend (`complaints-admin.service.ts`) burada gerçekten `full_name` adıyla bir alan dolduruyor (içine `username` değerini koyarak, isim kafa karıştırıcı ama çalışıyor). Kırık olmayan bir şeyi değiştirmedik.
+
+### ✅ COMPLETED: Admin — Kullanılmayan `RecentActivity.user` alanı kaldırıldı
+- `getRecentActivities()` hiçbir zaman `user` objesi eklemiyor (kullanıcı adı `description` metnine gömülü). `RecentActivityFeed` komponenti de `user` alanını hiç okumuyordu — gerçek bir bug değil, API ile tip arasında tutarsız ama ölü bir alan. Backend'e tüketilmeyecek bir alan eklemek yerine tipten kaldırıldı.
+
+### ✅ COMPLETED: Backend — `event-admin.controller.ts` gereksiz `is_local` re-parse
+- Gemini'nin önerdiği senaryo (admin'in boolean query param göndermesi) zaten çalışıyordu (`use-events.ts` `String(filters.is_local)` ile doğru çeviriyordu) — asıl iddia hatalıydı. Ama incelemede gerçek bir kod kokusu bulundu: `QueryAdminEventsDto` zaten kendi `@Transform`'uyla `is_local`'i boolean'a çeviriyordu (global `ValidationPipe({transform:true})` sayesinde), controller bunu **tekrar manuel parse edip üzerine yazıyordu**. Controller artık doğrudan `dto.is_local`'i kullanıyor, redundant kod silindi.
+
+### Doğrulama
+Backend `npm test` → 1070/1070 PASS, `npm run lint` → 0 hata, `npm run build` → başarılı. Admin `tsc --noEmit` → 0 hata, `npm run lint` → 0 hata, `npm run build` → başarılı. Flutter `flutter test` → 273/273 PASS (272→273, yeni regresyon testi), `flutter analyze` → yeni hata/uyarı yok (155 toplam, öncekiyle aynı).
+
+---
+
+## 🎯 ÖNCEKİ İŞ: Admin lint temizliği (22 Haziran 2026)
 
 `progress.md`'de bekleyen görev olarak işaretli admin panel lint hataları giderildi:
 - Gerçek hata sayısı ve konumu memory bank'ın yazdığından farklı çıktı — sadece `intercity-form.tsx:148` ve `intracity-form.tsx:132` değil, `event-form-dialog.tsx:160,163`'te de açık `any` kullanımı vardı (toplam 4 hata, 3 dosya).
@@ -51,7 +76,7 @@ Bir mimari denetim raporundaki iddialar tek tek koda bakılarak doğrulandı; ba
 | Admin    | Lint      | ✅ 0 hata | 38 uyarı | 22 Haziran'da düzeltildi — bkz. yukarı |
 | Admin    | TypeCheck | ✅ 0 hata | `tsc --noEmit` | |
 | Admin    | Build     | ✅ Başarılı | 21 route, tümü static | `npm run build` |
-| Flutter  | Unit      | ✅ PASS | 272 / 272 (57 dosya) | |
+| Flutter  | Unit      | ✅ PASS | 273 / 273 (57 dosya) | 22 Haziran'da taxi null-plaka regresyon testi eklendi |
 | Flutter  | Analyze   | ✅ 0 hata | 112 uyarı / 43 bilgi | Hepsi önceden var, deprecated API + JsonKey annotation uyarıları |
 
 > Not: 28 E2E test / 492 test gibi eski Memory Bank rakamları artık geçersiz — bu satır gerçek `npm test`/`flutter test` çıktısından alınmıştır.
