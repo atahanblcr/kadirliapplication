@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kadirliapp/core/constants/app_colors.dart';
 import 'package:kadirliapp/core/constants/app_spacing.dart';
@@ -128,7 +129,7 @@ class _HomeTab extends StatelessWidget {
             itemCount: modules.length,
             itemBuilder: (context, index) {
               final module = modules[index];
-              return ModuleCard(
+              final card = ModuleCard(
                 module: module,
                 onTap: () {
                   switch (module.key) {
@@ -220,14 +221,24 @@ class _HomeTab extends StatelessWidget {
                         ),
                       );
                       break;
-                    default:                      ScaffoldMessenger.of(context).showSnackBar(
+                    default:
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('${module.title} sayfası yakında açılacak.'),
+                          content:
+                              Text('${module.title} sayfası yakında açılacak.'),
                         ),
                       );
                   }
                 },
               );
+              return card
+                  .animate(delay: Duration(milliseconds: 40 * index))
+                  .fadeIn(duration: 350.ms, curve: Curves.easeOut)
+                  .slideY(
+                      begin: 0.15,
+                      end: 0,
+                      duration: 350.ms,
+                      curve: Curves.easeOutCubic);
             },
           ),
         ),

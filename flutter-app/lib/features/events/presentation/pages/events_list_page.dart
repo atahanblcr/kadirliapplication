@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/events_list_provider.dart';
 import '../widgets/event_card.dart';
@@ -54,7 +55,10 @@ class _EventsListPageState extends ConsumerState<EventsListPage> {
                               child: Center(child: CircularProgressIndicator()),
                             );
                           }
-                          return EventCard(event: state.events[index]);
+                          return EventCard(event: state.events[index])
+                              .animate(delay: Duration(milliseconds: 40 * (index % 10)))
+                              .fadeIn(duration: 300.ms)
+                              .slideY(begin: 0.08, end: 0, duration: 300.ms, curve: Curves.easeOutCubic);
                         },
                       ),
       ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/guide_model.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
 
 class GuideItemCard extends StatelessWidget {
   final GuideItemModel item;
@@ -17,7 +19,8 @@ class GuideItemCard extends StatelessWidget {
 
   Future<void> _launchMap() async {
     if (item.latitude != null && item.longitude != null) {
-      final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}');
+      final url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}');
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
       }
@@ -26,10 +29,9 @@ class GuideItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      radius: AppSpacing.radiusLg,
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: item.logoUrl != null
@@ -59,7 +61,6 @@ class GuideItemCard extends StatelessWidget {
             Text(item.description!, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 12),
           ],
-          
           InkWell(
             onTap: _launchPhone,
             child: Padding(
@@ -70,13 +71,13 @@ class GuideItemCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Text(
                     item.phone,
-                    style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
           ),
-          
           if (item.address != null && item.address!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -94,7 +95,6 @@ class GuideItemCard extends StatelessWidget {
                 ],
               ),
             ),
-
           if (item.workingHours != null && item.workingHours!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -106,7 +106,6 @@ class GuideItemCard extends StatelessWidget {
                 ],
               ),
             ),
-
           if (item.latitude != null && item.longitude != null) ...[
             const SizedBox(height: 12),
             SizedBox(

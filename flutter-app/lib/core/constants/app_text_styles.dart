@@ -1,131 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// App Text Style Constants
 /// Consistent typography definitions for the application
 
 class AppTextStyles {
   // Display styles (Large headlines)
-  static const TextStyle displayLarge = TextStyle(
+  static final TextStyle displayLarge = GoogleFonts.poppins(
     fontSize: 32,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.25,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle displayMedium = TextStyle(
+  static final TextStyle displayMedium = GoogleFonts.poppins(
     fontSize: 28,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.29,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle displaySmall = TextStyle(
+  static final TextStyle displaySmall = GoogleFonts.poppins(
     fontSize: 24,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.33,
-    fontFamily: 'Poppins',
   );
 
   // Headline styles
-  static const TextStyle headlineLarge = TextStyle(
+  static final TextStyle headlineLarge = GoogleFonts.poppins(
     fontSize: 20,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.4,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle headlineMedium = TextStyle(
+  static final TextStyle headlineMedium = GoogleFonts.poppins(
     fontSize: 18,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.44,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle headlineSmall = TextStyle(
+  static final TextStyle headlineSmall = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.5,
-    fontFamily: 'Poppins',
   );
 
   // Title styles
-  static const TextStyle titleLarge = TextStyle(
+  static final TextStyle titleLarge = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.15,
     height: 1.5,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle titleMedium = TextStyle(
+  static final TextStyle titleMedium = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.57,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle titleSmall = TextStyle(
+  static final TextStyle titleSmall = GoogleFonts.poppins(
     fontSize: 12,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.67,
-    fontFamily: 'Poppins',
   );
 
   // Body styles
-  static const TextStyle bodyLarge = TextStyle(
+  static final TextStyle bodyLarge = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
     height: 1.5,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  static final TextStyle bodyMedium = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.25,
     height: 1.57,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static final TextStyle bodySmall = GoogleFonts.poppins(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.4,
     height: 1.67,
-    fontFamily: 'Poppins',
   );
 
   // Label styles
-  static const TextStyle labelLarge = TextStyle(
+  static final TextStyle labelLarge = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
     height: 1.43,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle labelMedium = TextStyle(
+  static final TextStyle labelMedium = GoogleFonts.poppins(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
     height: 1.67,
-    fontFamily: 'Poppins',
   );
 
-  static const TextStyle labelSmall = TextStyle(
+  static final TextStyle labelSmall = GoogleFonts.poppins(
     fontSize: 11,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
     height: 1.64,
-    fontFamily: 'Poppins',
   );
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/deaths_provider.dart';
+import '../widgets/death_card.dart';
 
 class DeathDetailPage extends ConsumerWidget {
   final String id;
@@ -27,13 +28,16 @@ class DeathDetailPage extends ConsumerWidget {
                 // Photo
                 if (notice.photo != null)
                   Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        notice.photo!.url,
-                        height: 250,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                    child: Hero(
+                      tag: DeathCard.heroTag(notice.id),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          notice.photo!.url,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   )

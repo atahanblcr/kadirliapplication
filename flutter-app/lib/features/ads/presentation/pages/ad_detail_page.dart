@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/ads_provider.dart';
 import '../widgets/image_carousel.dart';
+import '../widgets/ad_card.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../data/models/ad_model.dart';
 import 'ad_edit_page.dart';
@@ -177,7 +178,10 @@ class AdDetailPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageCarousel(images: ad.images ?? []),
+              ImageCarousel(
+                images: ad.images ?? [],
+                heroTag: AdCard.heroTag(ad.id),
+              ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(

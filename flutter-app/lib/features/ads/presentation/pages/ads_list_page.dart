@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/ads_provider.dart';
 import '../widgets/ad_card.dart';
@@ -247,7 +248,7 @@ class _AdsListPageState extends ConsumerState<AdsListPage> {
                               onFavoriteTap: () {
                                 ref.read(favoritesProvider.notifier).toggleFavorite(ad.id, ad.isFavorite);
                               },
-                            );
+                            ).animate(delay: Duration(milliseconds: 40 * (index % 10))).fadeIn(duration: 300.ms).slideY(begin: 0.08, end: 0, duration: 300.ms, curve: Curves.easeOutCubic);
                           },
                         ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/deaths_list_provider.dart';
 import '../widgets/death_card.dart';
@@ -62,7 +63,10 @@ class _DeathsListPageState extends ConsumerState<DeathsListPage> {
                               child: Center(child: CircularProgressIndicator()),
                             );
                           }
-                          return DeathCard(notice: state.notices[index]);
+                          return DeathCard(notice: state.notices[index])
+                              .animate(delay: Duration(milliseconds: 40 * (index % 10)))
+                              .fadeIn(duration: 300.ms)
+                              .slideY(begin: 0.08, end: 0, duration: 300.ms, curve: Curves.easeOutCubic);
                         },
                       ),
       ),

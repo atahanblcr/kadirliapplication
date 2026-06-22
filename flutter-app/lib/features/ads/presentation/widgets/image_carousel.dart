@@ -6,7 +6,12 @@ import '../../../../core/constants/app_spacing.dart';
 class ImageCarousel extends StatefulWidget {
   final List<ImageModel> images;
 
-  const ImageCarousel({required this.images, super.key});
+  /// Liste kartındaki kapak resmiyle eşleşen Hero etiketi. Verilirse sadece
+  /// ilk sayfadaki resim sarmalanır (carousel kaydırılınca diğer resimlerde
+  /// Hero geçişi olmaz, çünkü o resimler liste kartında gösterilmiyordu).
+  final String? heroTag;
+
+  const ImageCarousel({required this.images, this.heroTag, super.key});
 
   @override
   State<ImageCarousel> createState() => _ImageCarouselState();
@@ -43,7 +48,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             },
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
-              return CachedNetworkImage(
+              final image = CachedNetworkImage(
                 imageUrl: widget.images[index].url,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
@@ -55,6 +60,10 @@ class _ImageCarouselState extends State<ImageCarousel> {
                   child: const Center(child: Icon(Icons.error_outline)),
                 ),
               );
+              if (index == 0 && widget.heroTag != null) {
+                return Hero(tag: widget.heroTag!, child: image);
+              }
+              return image;
             },
           ),
         ),
