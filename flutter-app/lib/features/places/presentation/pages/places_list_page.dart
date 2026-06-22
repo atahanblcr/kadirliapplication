@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/places_provider.dart';
 import '../widgets/place_card.dart';
-import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/widgets/app_shimmer.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 class PlacesListPage extends ConsumerStatefulWidget {
   const PlacesListPage({Key? key}) : super(key: key);
@@ -85,18 +87,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
             child: placesAsync.when(
               data: (places) {
                 if (places.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.place_outlined, size: 64, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text(
-                          'Mekan bulunamadı.',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ],
-                    ),
+                  return const AppEmptyState(
+                    icon: Icons.place_rounded,
+                    title: 'Mekan bulunamadı',
+                    subtitle: 'Farklı bir filtre deneyebilirsiniz.',
                   );
                 }
 
@@ -116,34 +110,18 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) {
-                String message = 'Bir hata oluştu.';
-                if (error is AppException) {
-                  message = error.message;
-                }
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                      const SizedBox(height: 16),
-                      Text(message, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // ignore: unused_result
-                          ref.refresh(placesProvider(PlacesFilter(
-                            sort: _sort,
-                            isFree: _isFree,
-                          )));
-                        },
-                        child: const Text('Tekrar Dene'),
-                      ),
-                    ],
-                  ),
-                );
-              },
+              loading: () =>
+                  const ShimmerList(style: ShimmerCardStyle.cover),
+              error: (error, stack) => AppErrorState(
+                error: error,
+                onRetry: () {
+                  // ignore: unused_result
+                  ref.refresh(placesProvider(PlacesFilter(
+                    sort: _sort,
+                    isFree: _isFree,
+                  )));
+                },
+              ),
             ),
           ),
         ],

@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart';
 import '../../data/models/campaign_model.dart';
 import '../pages/campaign_detail_page.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class CampaignCard extends StatelessWidget {
   final CampaignModel campaign;
 
-  const CampaignCard({Key? key, required this.campaign}) : super(key: key);
+  const CampaignCard({super.key, required this.campaign});
 
   @override
   Widget build(BuildContext context) {
-    // Parse dates to calculate remaining days
+    final cs = Theme.of(context).colorScheme;
+
+    // Kalan gün hesabı
     String remainingDays = '';
     if (campaign.endDate != null) {
       final endDate = DateTime.tryParse(campaign.endDate!);
       if (endDate != null) {
-        final now = DateTime.now();
-        final diff = endDate.difference(now).inDays;
+        final diff = endDate.difference(DateTime.now()).inDays;
         if (diff < 0) {
           remainingDays = 'Süresi Doldu';
         } else if (diff == 0) {
@@ -31,8 +33,13 @@ class CampaignCard extends StatelessWidget {
     }
 
     return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      radius: AppSpacing.radiusLg,
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      radius: AppSpacing.radiusXxl,
+      padding: EdgeInsets.zero,
+      glowColor: AppColors.gCampaigns.first,
       onTap: () {
         Navigator.push(
           context,
@@ -44,37 +51,38 @@ class CampaignCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
-          if (campaign.coverImageUrl != null)
-            SizedBox(
-              height: 160,
-              width: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: campaign.coverImageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image,
-                      color: Colors.grey, size: 50),
-                ),
-              ),
-            )
-          else
-            Container(
-              height: 160,
-              width: double.infinity,
-              color: Colors.grey[300],
-              child:
-                  const Icon(Icons.local_offer, size: 50, color: Colors.white),
-            ),
+          // Kapak görseli
+          SizedBox(
+            height: 158,
+            width: double.infinity,
+            child: campaign.coverImageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: campaign.coverImageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Container(color: cs.surfaceContainerHighest),
+                    errorWidget: (context, url, error) => Container(
+                      color: cs.surfaceContainerHighest,
+                      child: const Icon(Icons.broken_image_outlined,
+                          color: AppColors.textHint, size: 44),
+                    ),
+                  )
+                : const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gCampaigns,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Icon(Icons.local_offer_rounded,
+                        size: 52, color: Colors.white),
+                  ),
+          ),
 
-          // Content
+          // İçerik
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -84,78 +92,92 @@ class CampaignCard extends StatelessWidget {
                     if (campaign.business != null)
                       Expanded(
                         child: Text(
-                          campaign.business!.name,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                          campaign.business!.name.toUpperCase(),
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.primary,
+                            letterSpacing: 0.6,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    if (remainingDays.isNotEmpty)
+                    if (remainingDays.isNotEmpty) ...[
+                      const SizedBox(width: AppSpacing.sm),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppColors.error.withValues(alpha: 0.12),
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusFull),
                         ),
                         child: Text(
                           remainingDays,
-                          style: TextStyle(
-                            color: Colors.red[700],
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.error,
                           ),
                         ),
                       ),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   campaign.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
-                if (campaign.description != null)
+                if (campaign.description != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     campaign.description!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                const SizedBox(height: 12),
+                ],
+                const SizedBox(height: AppSpacing.smLg),
                 Row(
                   children: [
                     if (campaign.discountPercentage != null) ...[
-                      Icon(Icons.percent, size: 16, color: Colors.green[700]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '%${campaign.discountPercentage} İndirim',
-                        style: TextStyle(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.12),
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusFull),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.percent_rounded,
+                                size: 13, color: AppColors.success),
+                            const SizedBox(width: 3),
+                            Text(
+                              '%${campaign.discountPercentage} İndirim',
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                     const Spacer(),
-                    Icon(Icons.visibility, size: 14, color: Colors.grey[500]),
+                    Icon(Icons.visibility_rounded,
+                        size: 13, color: cs.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
-                      '${campaign.codeViewCount ?? 0} görüntüleme',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
+                      '${campaign.codeViewCount ?? 0}',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ],

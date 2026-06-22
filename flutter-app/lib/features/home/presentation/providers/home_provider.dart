@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_colors.dart';
 
-/// Module item model
+/// Module item model — premium bento tile'ları besler.
 class ModuleItem {
   final String key;
   final String title;
+
+  /// Kısa açıklama (hero / geniş tile'larda alt metin).
+  final String subtitle;
   final IconData icon;
-  final Color color;
+
+  /// Tile'ın canlı çift renk gradyanı.
+  final List<Color> gradient;
 
   ModuleItem({
     required this.key,
     required this.title,
+    required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.gradient,
   });
+
+  /// Birincil marka rengi (glow / icon chip).
+  Color get color => gradient.first;
 }
 
 /// Static module list provider
@@ -22,68 +32,79 @@ final moduleListProvider = Provider<List<ModuleItem>>((ref) {
     ModuleItem(
       key: 'announcements',
       title: 'Duyurular',
-      icon: Icons.campaign,
-      color: const Color(0xFF2196F3), // Mavi
+      subtitle: 'Şehrinden son haberler ve resmi duyurular',
+      icon: Icons.campaign_rounded,
+      gradient: AppColors.gAnnouncements,
     ),
     ModuleItem(
       key: 'ads',
       title: 'İlanlar',
-      icon: Icons.shopping_bag,
-      color: const Color(0xFF1976D2), // Primary
+      subtitle: 'Al, sat, kirala',
+      icon: Icons.storefront_rounded,
+      gradient: AppColors.gAds,
     ),
     ModuleItem(
       key: 'deaths',
       title: 'Vefat İlanları',
-      icon: Icons.sentiment_very_dissatisfied,
-      color: const Color(0xFF424242), // Gri
+      subtitle: 'Başınız sağ olsun',
+      icon: Icons.local_florist_rounded,
+      gradient: AppColors.gDeaths,
     ),
     ModuleItem(
       key: 'campaigns',
       title: 'Kampanyalar',
-      icon: Icons.local_offer,
-      color: const Color(0xFFE91E63), // Pembe
+      subtitle: 'Fırsatları kaçırma',
+      icon: Icons.local_offer_rounded,
+      gradient: AppColors.gCampaigns,
     ),
     ModuleItem(
       key: 'events',
       title: 'Etkinlikler',
-      icon: Icons.event,
-      color: const Color(0xFF4CAF50), // Yeşil
+      subtitle: 'Şehirde bugün ne var?',
+      icon: Icons.celebration_rounded,
+      gradient: AppColors.gEvents,
     ),
     ModuleItem(
       key: 'guide',
       title: 'Rehber',
-      icon: Icons.menu_book,
-      color: const Color(0xFFFF9800), // Turuncu
+      subtitle: 'Önemli numaralar',
+      icon: Icons.menu_book_rounded,
+      gradient: AppColors.gGuide,
     ),
     ModuleItem(
       key: 'places',
       title: 'Mekanlar',
-      icon: Icons.place,
-      color: const Color(0xFF00BCD4), // Cyan
+      subtitle: 'Gezilecek yerler',
+      icon: Icons.place_rounded,
+      gradient: AppColors.gPlaces,
     ),
     ModuleItem(
       key: 'pharmacy',
       title: 'Nöbetçi Eczane',
-      icon: Icons.local_pharmacy,
-      color: const Color(0xFF43A047), // Koyu Yeşil
+      subtitle: 'Bu gece açık',
+      icon: Icons.local_pharmacy_rounded,
+      gradient: AppColors.gPharmacy,
     ),
     ModuleItem(
       key: 'transport',
       title: 'Ulaşım',
-      icon: Icons.directions_bus,
-      color: const Color(0xFF5C6BC0), // İndigo
+      subtitle: 'Otobüs & saatler',
+      icon: Icons.directions_bus_rounded,
+      gradient: AppColors.gTransport,
     ),
     ModuleItem(
       key: 'taxi',
       title: 'Taksi',
-      icon: Icons.local_taxi,
-      color: const Color(0xFFFBC02D), // Sarı
+      subtitle: 'Hemen çağır',
+      icon: Icons.local_taxi_rounded,
+      gradient: AppColors.gTaxi,
     ),
     ModuleItem(
       key: 'notifications',
       title: 'Bildirimler',
-      icon: Icons.notifications,
-      color: const Color(0xFF29B6F6), // Info Blue
+      subtitle: 'Sana özel güncellemeler',
+      icon: Icons.notifications_active_rounded,
+      gradient: AppColors.gNotifications,
     ),
   ];
 });

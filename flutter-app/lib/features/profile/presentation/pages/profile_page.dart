@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -68,16 +69,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              // Profil Fotoğrafı
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                backgroundImage: user.profilePhotoUrl != null
-                    ? NetworkImage(user.profilePhotoUrl!)
-                    : null,
-                child: user.profilePhotoUrl == null
-                    ? Icon(Icons.person, size: 50, color: Theme.of(context).primaryColor)
-                    : null,
+              // Profil fotoğrafı — gradyan halka
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: AppColors.primaryGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: AppColors.glow(AppColors.primary, strength: 0.35),
+                ),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor:
+                      AppColors.primary.withValues(alpha: 0.12),
+                  backgroundImage: user.profilePhotoUrl != null
+                      ? NetworkImage(user.profilePhotoUrl!)
+                      : null,
+                  child: user.profilePhotoUrl == null
+                      ? const Icon(Icons.person_rounded,
+                          size: 50, color: AppColors.primary)
+                      : null,
+                ),
               ),
               const SizedBox(height: 24),
               
@@ -139,10 +154,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       const SnackBar(content: Text('Profil güncellendi')),
                     );
                   },
-                  child: const Text(
-                    'Kaydet',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  child: const Text('Kaydet'),
                 ),
               ),
             ],

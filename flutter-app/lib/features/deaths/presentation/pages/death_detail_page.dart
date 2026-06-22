@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/deaths_provider.dart';
 import '../widgets/death_card.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class DeathDetailPage extends ConsumerWidget {
   final String id;
@@ -15,52 +19,30 @@ class DeathDetailPage extends ConsumerWidget {
     final detailAsync = ref.watch(deathDetailProvider(id));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vefat İlanı Detayı'),
-      ),
       body: detailAsync.when(
         data: (notice) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Photo
-                if (notice.photo != null)
-                  Center(
-                    child: Hero(
-                      tag: DeathCard.heroTag(notice.id),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          notice.photo!.url,
-                          height: 250,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Center(
-                    child: Container(
-                      height: 150,
-                      width: 150,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.person, size: 80, color: Colors.grey),
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                // Name & Age
+          return CustomScrollView(
+            slivers: [
+              SliverParallaxCover(
+                title: 'Vefat İlanı',
+                placeholderIcon: Icons.local_florist_rounded,
+                imageUrls:
+                    notice.photo != null ? [notice.photo!.url] : const [],
+                heroTag: DeathCard.heroTag(notice.id),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                const SizedBox(height: 8),
+                // İsim & yaş
                 Center(
                   child: Text(
                     notice.deceasedName,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    style: AppTextStyles.displaySmall.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -69,31 +51,26 @@ class DeathDetailPage extends ConsumerWidget {
                   Center(
                     child: Text(
                       '${notice.age} yaşında',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                const SizedBox(height: 32),
-                // Details
-                Text(
-                  'Cenaze Bilgileri',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const Divider(),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.xl),
+                // Detaylar
+                _sectionTitle(context, 'Cenaze Bilgileri'),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                const SizedBox(height: AppSpacing.sm),
                 _buildInfoRow(
                   context: context,
-                  icon: Icons.event,
+                  icon: Icons.event_rounded,
                   title: 'Tarih & Saat',
                   value: '${_formatDate(notice.funeralDate)} - ${notice.funeralTime}',
                 ),
                 if (notice.mosque != null)
                   _buildInfoRow(
                     context: context,
-                    icon: Icons.location_city,
+                    icon: Icons.location_city_rounded,
                     title: 'Camii',
                     value: notice.mosque!.name,
                     actionIcon: (notice.mosque!.latitude != null && notice.mosque!.longitude != null) 
@@ -106,7 +83,7 @@ class DeathDetailPage extends ConsumerWidget {
                 if (notice.cemetery != null)
                   _buildInfoRow(
                     context: context,
-                    icon: Icons.account_balance,
+                    icon: Icons.account_balance_rounded,
                     title: 'Mezarlık',
                     value: notice.cemetery!.name,
                     actionIcon: (notice.cemetery!.latitude != null && notice.cemetery!.longitude != null) 
@@ -117,26 +94,22 @@ class DeathDetailPage extends ConsumerWidget {
                         : null,
                   ),
                 if (notice.condolenceAddress != null && notice.condolenceAddress!.isNotEmpty) ...[
-                  const SizedBox(height: 24),
-                  Text(
-                    'Taziye Adresi',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.lg),
+                  _sectionTitle(context, 'Taziye Adresi'),
+                  Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                  const SizedBox(height: AppSpacing.sm),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.location_on, color: Colors.grey),
-                      const SizedBox(width: 12),
+                      Icon(Icons.location_on_rounded,
+                          color: AppColors.primary, size: 22),
+                      const SizedBox(width: AppSpacing.smLg),
                       Expanded(
                         child: Text(
                           notice.condolenceAddress!,
-                          style: const TextStyle(fontSize: 16),
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -144,10 +117,19 @@ class DeathDetailPage extends ConsumerWidget {
                 ],
               ],
             ),
+                ),
+              ),
+            ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Hata: $error')),
+        loading: () => const DetailStateView(
+          title: 'Vefat İlanı',
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stack) => DetailStateView(
+          title: 'Vefat İlanı',
+          child: Text('Hata: $error'),
+        ),
       ),
     );
   }
@@ -160,35 +142,53 @@ class DeathDetailPage extends ConsumerWidget {
     VoidCallback? onActionTap,
     IconData? actionIcon,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.grey, size: 24),
-          const SizedBox(width: 12),
+          Icon(icon, color: AppColors.primary, size: 22),
+          const SizedBox(width: AppSpacing.smLg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  style: AppTextStyles.labelMedium
+                      .copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
           ),
           if (onActionTap != null && actionIcon != null)
             IconButton(
-              icon: Icon(actionIcon, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(actionIcon, color: AppColors.primary),
               onPressed: onActionTap,
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Text(
+        text,
+        style: AppTextStyles.headlineSmall.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }

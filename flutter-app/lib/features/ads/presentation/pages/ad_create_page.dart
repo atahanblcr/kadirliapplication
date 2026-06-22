@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../providers/ads_provider.dart';
 import '../../data/models/category_model.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class AdCreatePage extends ConsumerStatefulWidget {
   const AdCreatePage({super.key});
@@ -227,7 +228,7 @@ class _AdCreatePageState extends ConsumerState<AdCreatePage> {
           return ListTile(
             title: Text(category.name),
             trailing: _selectedCategory?.id == category.id
-                ? const Icon(Icons.check_circle, color: Colors.green)
+                ? const Icon(Icons.check_circle_rounded, color: AppColors.success)
                 : const Icon(Icons.chevron_right),
             onTap: () {
               setState(() => _selectedCategory = category);
@@ -337,7 +338,7 @@ class _AdCreatePageState extends ConsumerState<AdCreatePage> {
                     top: 0,
                     right: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.cancel, color: Colors.red),
+                      icon: const Icon(Icons.cancel, color: AppColors.error),
                       onPressed: () => setState(() => _selectedImages.removeAt(index)),
                     ),
                   ),

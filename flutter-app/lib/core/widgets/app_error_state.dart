@@ -19,21 +19,31 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: AppSpacing.xxl, color: AppColors.error),
-            const SizedBox(height: AppSpacing.md),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(AppSpacing.radius2xl),
+              ),
+              child: const Icon(Icons.error_outline_rounded,
+                  size: 44, color: AppColors.error),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               appErrorMessage(error),
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMedium.copyWith(color: cs.onSurface),
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.lg),
               ElevatedButton(onPressed: onRetry, child: const Text('Tekrar Dene')),
             ],
           ],

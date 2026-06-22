@@ -5,6 +5,10 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:kadirliapp/features/pharmacy/presentation/providers/pharmacy_provider.dart';
 import 'package:kadirliapp/features/pharmacy/data/models/pharmacy_model.dart';
+import 'package:kadirliapp/core/constants/app_spacing.dart';
+import 'package:kadirliapp/core/constants/app_colors.dart';
+import 'package:kadirliapp/core/constants/app_text_styles.dart';
+import 'package:kadirliapp/core/widgets/app_card.dart';
 
 class PharmacyPage extends ConsumerStatefulWidget {
   const PharmacyPage({super.key});
@@ -112,7 +116,7 @@ class _PharmacyPageState extends ConsumerState<PharmacyPage> {
                   child: Container(
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.green,
+                      color: AppColors.success,
                     ),
                     width: 6.0,
                     height: 6.0,
@@ -157,130 +161,132 @@ class _PharmacyPageState extends ConsumerState<PharmacyPage> {
   }
 
   Widget _buildPharmacyCard(PharmacyModel pharmacy, {required bool isCurrent}) {
-    return Card(
-      elevation: isCurrent ? 4 : 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+    return Builder(builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return AppCard(
+        radius: AppSpacing.radiusXxl,
+        elevated: isCurrent,
+        glowColor: AppColors.success,
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           children: [
-            Icon(
-              Icons.local_pharmacy,
-              size: isCurrent ? 64 : 48,
-              color: Colors.green,
+            // Gradyan eczane ikonu
+            Container(
+              width: isCurrent ? 84 : 64,
+              height: isCurrent ? 84 : 64,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: AppColors.gPharmacy,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radius2xl),
+                boxShadow:
+                    AppColors.glow(AppColors.gPharmacy.first, strength: 0.32),
+              ),
+              child: Icon(Icons.local_pharmacy_rounded,
+                  size: isCurrent ? 42 : 32, color: Colors.white),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             if (isCurrent)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.success.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                 ),
-                child: const Text(
+                child: Text(
                   'BUGÜN NÖBETÇİ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.success,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               pharmacy.name,
-              style: TextStyle(
-                fontSize: isCurrent ? 22 : 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: (isCurrent
+                      ? AppTextStyles.headlineMedium
+                      : AppTextStyles.headlineSmall)
+                  .copyWith(color: cs.onSurface),
               textAlign: TextAlign.center,
             ),
             if (pharmacy.pharmacistName != null) ...[
               const SizedBox(height: 4),
               Text(
                 pharmacy.pharmacistName!,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: cs.onSurfaceVariant),
               ),
             ],
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.location_on, size: 20, color: Colors.grey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    pharmacy.address,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
+            const SizedBox(height: AppSpacing.md),
+            _infoRow(context, Icons.location_on_rounded, pharmacy.address),
             if (pharmacy.phone.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.phone, size: 20, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text(
-                    pharmacy.phone,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
+              const SizedBox(height: AppSpacing.sm),
+              _infoRow(context, Icons.phone_rounded, pharmacy.phone),
             ],
             if (pharmacy.dutyHours != null) ...[
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.access_time, size: 20, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Nöbet Saatleri: ${pharmacy.dutyHours}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
+              const SizedBox(height: AppSpacing.sm),
+              _infoRow(context, Icons.access_time_rounded,
+                  'Nöbet Saatleri: ${pharmacy.dutyHours}'),
             ],
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.lg),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (pharmacy.phone.isNotEmpty)
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.phone),
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.phone_rounded, size: 18),
                       label: const Text('Ara'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        backgroundColor: Colors.blue.shade50,
-                        foregroundColor: Colors.blue.shade700,
-                      ),
                       onPressed: () => _callPhone(pharmacy.phone),
                     ),
                   ),
                 if (pharmacy.phone.isNotEmpty && pharmacy.latitude != null)
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.smLg),
                 if (pharmacy.latitude != null && pharmacy.longitude != null)
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.map),
-                      label: const Text('Haritada Gör'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        backgroundColor: Colors.green.shade50,
-                        foregroundColor: Colors.green.shade700,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.map_rounded, size: 18),
+                      label: const Text('Harita'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.4)),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusXl),
+                        ),
                       ),
-                      onPressed: () => _openMap(pharmacy.latitude!, pharmacy.longitude!, pharmacy.name),
+                      onPressed: () => _openMap(pharmacy.latitude!,
+                          pharmacy.longitude!, pharmacy.name),
                     ),
                   ),
               ],
             ),
           ],
         ),
-      ),
+      );
+    });
+  }
+
+  Widget _infoRow(BuildContext context, IconData icon, String text) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 19, color: AppColors.primary),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(color: cs.onSurface),
+          ),
+        ),
+      ],
     );
   }
 

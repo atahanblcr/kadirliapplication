@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
-/// Priority badge widget
-/// Shows emergency/high/normal/low with color
+/// Öncelik rozeti — acil/önemli/normal/düşük. Acil dışındakiler yumuşak
+/// (renkli zemin + renkli metin) pill; acil dikkat çekmesi için dolu.
 class PriorityBadge extends StatelessWidget {
   final String priority; // emergency | high | normal | low
   final bool small;
@@ -13,7 +15,6 @@ class PriorityBadge extends StatelessWidget {
     super.key,
   });
 
-  /// Get label text in Turkish
   String get _label {
     switch (priority.toLowerCase()) {
       case 'emergency':
@@ -29,8 +30,7 @@ class PriorityBadge extends StatelessWidget {
     }
   }
 
-  /// Get background color
-  Color get _backgroundColor {
+  Color get _color {
     switch (priority.toLowerCase()) {
       case 'emergency':
         return AppColors.error;
@@ -47,21 +47,23 @@ class PriorityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final emergency = priority.toLowerCase() == 'emergency';
+    final color = _color;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: small ? 8 : 12,
-        vertical: small ? 4 : 6,
+        vertical: small ? 3 : 5,
       ),
       decoration: BoxDecoration(
-        color: _backgroundColor,
-        borderRadius: BorderRadius.circular(4),
+        color: emergency ? color : color.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
       ),
       child: Text(
         _label,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: small ? 11 : 12,
-          fontWeight: FontWeight.w600,
+        style: (small ? AppTextStyles.labelSmall : AppTextStyles.labelMedium)
+            .copyWith(
+          color: emergency ? Colors.white : color,
+          letterSpacing: 0.3,
         ),
       ),
     );

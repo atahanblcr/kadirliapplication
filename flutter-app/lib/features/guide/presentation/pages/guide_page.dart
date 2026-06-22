@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/guide_provider.dart';
 import '../widgets/guide_item_card.dart';
-import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
+import '../../../../core/widgets/app_shimmer.dart';
 
 class GuidePage extends ConsumerStatefulWidget {
   const GuidePage({Key? key}) : super(key: key);
@@ -131,18 +133,10 @@ class _GuidePageState extends ConsumerState<GuidePage> {
             child: itemsAsync.when(
               data: (items) {
                 if (items.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off, size: 64, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text(
-                          'Sonuç bulunamadı.',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ],
-                    ),
+                  return const AppEmptyState(
+                    icon: Icons.search_off_rounded,
+                    title: 'Sonuç bulunamadı',
+                    subtitle: 'Farklı bir arama veya kategori deneyin.',
                   );
                 }
 
@@ -162,32 +156,17 @@ class _GuidePageState extends ConsumerState<GuidePage> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ShimmerList(),
               error: (error, stack) {
-                String message = 'Bir hata oluştu.';
-                if (error is AppException) {
-                  message = error.message;
-                }
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                      const SizedBox(height: 16),
-                      Text(message, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // ignore: unused_result
-                          ref.refresh(guideItemsProvider(GuideFilter(
-                            categoryId: _selectedCategoryId,
-                            search: _searchQuery.isEmpty ? null : _searchQuery,
-                          )));
-                        },
-                        child: const Text('Tekrar Dene'),
-                      ),
-                    ],
-                  ),
+                return AppErrorState(
+                  error: error,
+                  onRetry: () {
+                    // ignore: unused_result
+                    ref.refresh(guideItemsProvider(GuideFilter(
+                      categoryId: _selectedCategoryId,
+                      search: _searchQuery.isEmpty ? null : _searchQuery,
+                    )));
+                  },
                 );
               },
             ),

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/models/announcement_model.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 import 'priority_badge.dart';
 
-/// Announcement list item card
-/// Shows: icon, type, title, body preview, date, view count
+/// Duyuru liste kartı — ikon, tür, başlık, önizleme, tarih, görüntülenme.
 class AnnouncementCard extends StatelessWidget {
   final AnnouncementModel announcement;
   final VoidCallback onTap;
@@ -17,7 +18,6 @@ class AnnouncementCard extends StatelessWidget {
     super.key,
   });
 
-  /// Format date to Turkish format (e.g., "10 Şub 2026")
   String _formatDate(DateTime date) {
     try {
       return DateFormat('d MMM yyyy', 'tr_TR').format(date);
@@ -26,7 +26,6 @@ class AnnouncementCard extends StatelessWidget {
     }
   }
 
-  /// Format view count (1234 → "1.2K")
   String _formatViewCount(int count) {
     if (count < 1000) return count.toString();
     if (count < 1000000) {
@@ -37,51 +36,60 @@ class AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Reduce opacity if viewed
-    final opacity = announcement.isViewed ? 0.65 : 1.0;
+    final cs = Theme.of(context).colorScheme;
+    final accent = announcement.type?.typeColor ?? AppColors.gAnnouncements.first;
 
     return Opacity(
-      opacity: opacity,
+      opacity: announcement.isViewed ? 0.6 : 1.0,
       child: AppCard(
         margin: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
+        radius: AppSpacing.radiusXl,
+        glowColor: accent,
         onTap: onTap,
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Left icon container
+            // İkon chip — tür renginde yumuşak gradyan
             Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: announcement.type?.typeColor ?? Colors.blue,
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [accent, accent.withValues(alpha: 0.7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                boxShadow: AppColors.glow(accent, strength: 0.3),
               ),
               child: Center(
                 child: Icon(
-                  announcement.type?.iconData ?? Icons.campaign,
+                  announcement.type?.iconData ?? Icons.campaign_rounded,
                   color: Colors.white,
                   size: 24,
                 ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Type name + priority badge row
                   Row(
                     children: [
-                      Text(
-                        announcement.type?.name ?? 'Duyuru',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
+                      Flexible(
+                        child: Text(
+                          announcement.type?.name ?? 'Duyuru',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: accent,
+                            letterSpacing: 0.4,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -91,57 +99,45 @@ class AnnouncementCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  // Title
+                  const SizedBox(height: 6),
                   Text(
                     announcement.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Body preview
                   Text(
                     announcement.body,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  // Meta: date + view count
+                  const SizedBox(height: AppSpacing.smLg),
                   Row(
                     children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 14,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 4),
+                      Icon(Icons.calendar_today_rounded,
+                          size: 13, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 5),
                       Text(
                         _formatDate(announcement.createdAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: cs.onSurfaceVariant,
                         ),
                       ),
                       const Spacer(),
-                      Icon(
-                        Icons.visibility,
-                        size: 14,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 4),
+                      Icon(Icons.visibility_rounded,
+                          size: 13, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 5),
                       Text(
                         _formatViewCount(announcement.viewCount),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: cs.onSurfaceVariant,
                         ),
                       ),
                     ],

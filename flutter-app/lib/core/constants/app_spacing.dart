@@ -31,6 +31,9 @@ class AppSpacing {
   static const double radiusLg = 12.0;
   static const double radiusXl = 16.0;
   static const double radiusXxl = 24.0;
+  static const double radius2xl = 28.0;
+  static const double radius3xl = 32.0;
+  static const double radiusFull = 999.0;
 
   // Icon sizes
   static const double iconXs = 16.0;

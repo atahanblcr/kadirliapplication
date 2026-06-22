@@ -5,6 +5,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/announcements_provider.dart';
 import '../widgets/priority_badge.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 /// Announcement detail page
 /// Shows full announcement details with PDF/link buttons
@@ -49,166 +52,169 @@ class AnnouncementDetailPage extends ConsumerWidget {
         elevation: 0,
       ),
       body: asyncAnnouncement.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Duyuru yüklenemedi',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[500]),
-              ),
-            ],
-          ),
-        ),
-        data: (announcement) => SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Priority badge + type row
-              Row(
-                children: [
-                  PriorityBadge(priority: announcement.priority),
-                  const SizedBox(width: AppSpacing.md),
-                  if (announcement.type != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        announcement.type!.name,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Title
-              Text(
-                announcement.title,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-
-              // Date + view count
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatDate(announcement.createdAt),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.visibility,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${announcement.viewCount} görüntüleme',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Divider
-              const Divider(),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Body (selectable text for copy)
-              SelectableText(
-                announcement.body,
-                style: const TextStyle(
-                  fontSize: 16,
-                  height: 1.6,
-                ),
-              ),
-
-              // Target neighborhoods (if exists)
-              if (announcement.targetNeighborhoods != null &&
-                  announcement.targetNeighborhoods!.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  'Hedef Mahalleler',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: announcement.targetNeighborhoods!
-                      .map(
-                        (neighborhood) => Chip(
-                          label: Text(neighborhood),
-                          avatar: const Icon(Icons.location_on, size: 16),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => AppErrorState(error: error),
+        data: (announcement) {
+          final cs = Theme.of(context).colorScheme;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Öncelik rozeti + tür
+                Row(
+                  children: [
+                    PriorityBadge(priority: announcement.priority),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (announcement.type != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
                         ),
-                      )
-                      .toList(),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusFull),
+                        ),
+                        child: Text(
+                          announcement.type!.name,
+                          style: AppTextStyles.labelSmall
+                              .copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                  ],
                 ),
-              ],
+                const SizedBox(height: AppSpacing.lg),
 
-              const SizedBox(height: AppSpacing.lg),
-
-              // Action buttons
-              if (announcement.hasPdf && announcement.pdfUrl != null) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.picture_as_pdf),
-                    label: const Text('PDF Görüntüle'),
-                    onPressed: () => _launchUrl(announcement.pdfUrl!),
+                // Başlık
+                Text(
+                  announcement.title,
+                  style: AppTextStyles.headlineLarge.copyWith(
+                    color: cs.onSurface,
                   ),
+                ),
+                const SizedBox(height: AppSpacing.smLg),
+
+                // Tarih + görüntülenme
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded,
+                        size: 15, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 5),
+                    Text(
+                      _formatDate(announcement.createdAt),
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const Spacer(),
+                    Icon(Icons.visibility_rounded,
+                        size: 15, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 5),
+                    Text(
+                      '${announcement.viewCount}',
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: cs.onSurfaceVariant),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
-              ],
+                Divider(color: cs.outlineVariant),
+                const SizedBox(height: AppSpacing.md),
 
-              if (announcement.hasLink && announcement.externalLink != null) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Daha Fazla Bilgi'),
-                    onPressed: () => _launchUrl(announcement.externalLink!),
+                // Gövde
+                SelectableText(
+                  announcement.body,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: cs.onSurface,
+                    height: 1.65,
                   ),
                 ),
+
+                // Hedef mahalleler
+                if (announcement.targetNeighborhoods != null &&
+                    announcement.targetNeighborhoods!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    'Hedef Mahalleler',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: announcement.targetNeighborhoods!
+                        .map(
+                          (neighborhood) => Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 7),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.10),
+                              borderRadius:
+                                  BorderRadius.circular(AppSpacing.radiusFull),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.location_on_rounded,
+                                    size: 14, color: AppColors.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  neighborhood,
+                                  style: AppTextStyles.labelMedium
+                                      .copyWith(color: AppColors.primary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Aksiyon butonları
+                if (announcement.hasPdf && announcement.pdfUrl != null) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                      label: const Text('PDF Görüntüle'),
+                      onPressed: () => _launchUrl(announcement.pdfUrl!),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+
+                if (announcement.hasLink &&
+                    announcement.externalLink != null) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                      label: const Text('Daha Fazla Bilgi'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.4)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusXl),
+                        ),
+                      ),
+                      onPressed: () => _launchUrl(announcement.externalLink!),
+                    ),
+                  ),
+                ],
               ],
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

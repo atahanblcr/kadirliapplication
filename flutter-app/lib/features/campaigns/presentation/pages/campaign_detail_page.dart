@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/campaigns_provider.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class CampaignDetailPage extends ConsumerStatefulWidget {
   final String campaignId;
@@ -71,16 +73,40 @@ class _CampaignDetailPageState extends ConsumerState<CampaignDetailPage> {
     }
   }
 
+  Widget _sectionTitle(BuildContext context, String text) {
+    return Text(
+      text,
+      style: AppTextStyles.headlineSmall.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
+  Widget _kvRow(BuildContext context, IconData icon, String text) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Icon(icon, size: 19, color: AppColors.primary),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(color: cs.onSurface),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final campaignAsync = ref.watch(campaignDetailProvider(widget.campaignId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kampanya Detayı'),
-      ),
       body: campaignAsync.when(
         data: (campaign) {
+          final cs = Theme.of(context).colorScheme;
           // Kalan gün hesaplama
           String remainingDays = '';
           if (campaign.endDate != null) {
@@ -98,366 +124,360 @@ class _CampaignDetailPageState extends ConsumerState<CampaignDetailPage> {
             }
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Resimler
-                if (campaign.images.isNotEmpty)
-                  SizedBox(
-                    height: 250,
-                    child: PageView.builder(
-                      itemCount: campaign.images.length,
-                      itemBuilder: (context, index) {
-                        return CachedNetworkImage(
-                          imageUrl: campaign.images[index].imageUrl ?? '',
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                        );
-                      },
-                    ),
-                  )
-                else if (campaign.coverImageUrl != null)
-                  SizedBox(
-                    height: 250,
-                    width: double.infinity,
-                    child: CachedNetworkImage(
-                      imageUrl: campaign.coverImageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                    ),
-                  )
-                else
-                  Container(
-                    height: 250,
-                    width: double.infinity,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.local_offer, size: 80, color: Colors.grey),
-                  ),
-
-                Padding(
+          return CustomScrollView(
+            slivers: [
+              SliverParallaxCover(
+                title: 'Kampanya Detayı',
+                placeholderIcon: Icons.local_offer_rounded,
+                imageUrls: campaign.images.isNotEmpty
+                    ? campaign.images.map((e) => e.imageUrl ?? '').toList()
+                    : (campaign.coverImageUrl != null
+                        ? [campaign.coverImageUrl!]
+                        : const <String>[]),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // İşletme ve Süre
+                      // İşletme ve süre
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (campaign.business != null)
                             Expanded(
                               child: Text(
-                                campaign.business!.name,
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                campaign.business!.name.toUpperCase(),
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  color: AppColors.primary,
+                                  letterSpacing: 0.6,
                                 ),
                               ),
                             ),
                           if (remainingDays.isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.red[50],
-                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.error.withValues(alpha: 0.12),
+                                borderRadius:
+                                    BorderRadius.circular(AppSpacing.radiusFull),
                               ),
                               child: Text(
                                 remainingDays,
-                                style: TextStyle(
-                                  color: Colors.red[700],
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTextStyles.labelSmall
+                                    .copyWith(color: AppColors.error),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.smLg),
 
                       // Başlık
                       Text(
                         campaign.title,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppTextStyles.headlineLarge
+                            .copyWith(color: cs.onSurface),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
 
-                      // İndirim Bilgisi ve Görüntülenme
+                      // İndirim ve görüntülenme
                       Row(
                         children: [
                           if (campaign.discountPercentage != null) ...[
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 7),
                               decoration: BoxDecoration(
-                                color: Colors.green[50],
-                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    AppColors.success.withValues(alpha: 0.12),
+                                borderRadius:
+                                    BorderRadius.circular(AppSpacing.radiusFull),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.percent, size: 18, color: Colors.green[700]),
+                                  const Icon(Icons.percent_rounded,
+                                      size: 16, color: AppColors.success),
                                   const SizedBox(width: 4),
                                   Text(
                                     '%${campaign.discountPercentage} İndirim',
-                                    style: TextStyle(
-                                      color: Colors.green[700],
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                    style: AppTextStyles.labelLarge
+                                        .copyWith(color: AppColors.success),
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.smLg),
                           ],
-                          Row(
-                            children: [
-                              const Icon(Icons.visibility, size: 16, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${campaign.codeViewCount ?? 0} defa görüntülendi',
-                                style: const TextStyle(color: Colors.grey),
-                              ),
-                            ],
+                          Icon(Icons.visibility_rounded,
+                              size: 15, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${campaign.codeViewCount ?? 0} görüntülenme',
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: cs.onSurfaceVariant),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.lg),
 
                       // Açıklama
-                      if (campaign.description != null && campaign.description!.isNotEmpty) ...[
-                        const Text(
-                          'Kampanya Detayı',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                      if (campaign.description != null &&
+                          campaign.description!.isNotEmpty) ...[
+                        _sectionTitle(context, 'Kampanya Detayı'),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           campaign.description!,
-                          style: const TextStyle(fontSize: 15, height: 1.5),
+                          style: AppTextStyles.bodyLarge
+                              .copyWith(color: cs.onSurfaceVariant),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: AppSpacing.lg),
                       ],
 
-                      // Minimum Tutar ve Stok Limiti
-                      if (campaign.minimumAmount != null || campaign.stockLimit != null) ...[
+                      // Minimum tutar ve stok limiti
+                      if (campaign.minimumAmount != null ||
+                          campaign.stockLimit != null) ...[
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(12),
+                            color: cs.surfaceContainerHighest,
+                            borderRadius:
+                                BorderRadius.circular(AppSpacing.radiusXl),
                           ),
                           child: Column(
                             children: [
                               if (campaign.minimumAmount != null) ...[
-                                Row(
-                                  children: [
-                                    Icon(Icons.shopping_cart, size: 20, color: Colors.blue[700]),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Minimum Tutar: ₺${campaign.minimumAmount!.toStringAsFixed(2)}',
-                                      style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
+                                _kvRow(
+                                  context,
+                                  Icons.shopping_cart_rounded,
+                                  'Minimum Tutar: ₺${campaign.minimumAmount!.toStringAsFixed(2)}',
                                 ),
-                                if (campaign.stockLimit != null) const SizedBox(height: 8),
+                                if (campaign.stockLimit != null)
+                                  const SizedBox(height: AppSpacing.smLg),
                               ],
                               if (campaign.stockLimit != null)
-                                Row(
-                                  children: [
-                                    Icon(Icons.inventory, size: 20, color: Colors.blue[700]),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Stok Sınırı: ${campaign.stockLimit} adet',
-                                      style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
+                                _kvRow(
+                                  context,
+                                  Icons.inventory_2_rounded,
+                                  'Stok Sınırı: ${campaign.stockLimit} adet',
                                 ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: AppSpacing.lg),
                       ],
 
-                      // İşletme Bilgileri
+                      // İşletme bilgileri
                       if (campaign.business != null) ...[
-                        const Text(
-                          'İşletme Bilgileri',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        _sectionTitle(context, 'İşletme Bilgileri'),
+                        const SizedBox(height: AppSpacing.smLg),
+                        Container(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerHighest,
+                            borderRadius:
+                                BorderRadius.circular(AppSpacing.radiusXl),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Card(
-                          elevation: 0,
-                          color: Colors.grey[100],
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  campaign.business!.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                campaign.business!.name,
+                                style: AppTextStyles.titleLarge.copyWith(
+                                  color: cs.onSurface,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                                const SizedBox(height: 12),
-                                if (campaign.business!.phone != null)
-                                  InkWell(
-                                    onTap: () => _launchPhone(campaign.business!.phone!),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.phone, size: 18, color: Colors.blue),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            campaign.business!.phone!,
-                                            style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: AppSpacing.smLg),
+                              if (campaign.business!.phone != null)
+                                InkWell(
+                                  onTap: () =>
+                                      _launchPhone(campaign.business!.phone!),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.phone_rounded,
+                                            size: 18, color: AppColors.primary),
+                                        const SizedBox(width: AppSpacing.sm),
+                                        Text(
+                                          campaign.business!.phone!,
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                if (campaign.business!.address != null) ...[
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Icon(Icons.location_on, size: 18, color: Colors.grey),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          campaign.business!.address!,
-                                          style: const TextStyle(color: Colors.black87),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                                if (campaign.business!.latitude != null && campaign.business!.longitude != null) ...[
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => _launchMap(campaign.business!.latitude!, campaign.business!.longitude!),
-                                      icon: const Icon(Icons.map),
-                                      label: const Text('Haritada Gör'),
+                                      ],
                                     ),
                                   ),
-                                ]
+                                ),
+                              if (campaign.business!.address != null) ...[
+                                const SizedBox(height: AppSpacing.sm),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.location_on_rounded,
+                                        size: 18, color: cs.onSurfaceVariant),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Expanded(
+                                      child: Text(
+                                        campaign.business!.address!,
+                                        style: AppTextStyles.bodyMedium
+                                            .copyWith(color: cs.onSurface),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
-                            ),
+                              if (campaign.business!.latitude != null &&
+                                  campaign.business!.longitude != null) ...[
+                                const SizedBox(height: AppSpacing.smLg),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _launchMap(
+                                        campaign.business!.latitude!,
+                                        campaign.business!.longitude!),
+                                    icon: const Icon(Icons.map_rounded,
+                                        size: 18),
+                                    label: const Text('Haritada Gör'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.primary,
+                                      side: BorderSide(
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.4)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            AppSpacing.radiusLg),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: AppSpacing.lg),
                       ],
 
-                      // İndirim Kodu Alanı
-                      const Divider(height: 32),
-                      if (_discountCode != null || campaign.discountCode != null) ...[
-                        // Kod zaten görünür veya yeni alındı
+                      // İndirim kodu alanı
+                      Divider(height: AppSpacing.xl, color: cs.outlineVariant),
+                      if (_discountCode != null ||
+                          campaign.discountCode != null) ...[
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(AppSpacing.lg),
                           decoration: BoxDecoration(
-                            color: Colors.green[50],
-                            border: Border.all(color: Colors.green[200]!),
-                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.success.withValues(alpha: 0.10),
+                            border: Border.all(
+                              color: AppColors.success.withValues(alpha: 0.30),
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(AppSpacing.radiusXxl),
                           ),
                           child: Column(
                             children: [
-                              const Text(
+                              Text(
                                 'İndirim Kodunuz',
-                                style: TextStyle(fontSize: 16, color: Colors.green),
+                                style: AppTextStyles.titleMedium
+                                    .copyWith(color: AppColors.success),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: AppSpacing.sm),
                               Text(
                                 _discountCode ?? campaign.discountCode!,
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green[800],
-                                  letterSpacing: 2,
+                                style: AppTextStyles.displayMedium.copyWith(
+                                  color: AppColors.success,
+                                  letterSpacing: 3,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              const Text(
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
                                 'Bu kodu işletmeye göstererek indirimden faydalanabilirsiniz.',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.black54, fontSize: 13),
+                                style: AppTextStyles.bodySmall
+                                    .copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
                           ),
                         ),
                         if (_terms != null || campaign.terms != null) ...[
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Kullanım Koşulları',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.md),
+                          _sectionTitle(context, 'Kullanım Koşulları'),
+                          const SizedBox(height: AppSpacing.sm),
                           Text(
                             _terms ?? campaign.terms!,
-                            style: const TextStyle(fontSize: 14, color: Colors.black87),
+                            style: AppTextStyles.bodyMedium
+                                .copyWith(color: cs.onSurfaceVariant),
                           ),
                         ],
                       ] else ...[
-                        // İndirim kodu alma butonu
                         SizedBox(
                           width: double.infinity,
                           height: 56,
-                          child: ElevatedButton.icon(
+                          child: FilledButton.icon(
                             onPressed: _isLoadingCode ? null : _viewCode,
-                            icon: _isLoadingCode 
-                                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                : const Icon(Icons.local_activity, size: 24),
+                            icon: _isLoadingCode
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white))
+                                : const Icon(Icons.local_activity_rounded,
+                                    size: 22),
                             label: Text(
-                              _isLoadingCode ? 'Kod Alınıyor...' : 'İndirim Kodunu Gör',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              _isLoadingCode
+                                  ? 'Kod Alınıyor...'
+                                  : 'İndirim Kodunu Gör',
+                              style: AppTextStyles.titleLarge
+                                  .copyWith(color: Colors.white),
                             ),
                           ),
                         ),
                       ],
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.xl),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
+        loading: () => const DetailStateView(
+          title: 'Kampanya Detayı',
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stack) => DetailStateView(
+          title: 'Kampanya Detayı',
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                const Text('Kampanya detayları yüklenemedi.'),
-                const SizedBox(height: 16),
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(AppSpacing.radius2xl),
+                  ),
+                  child: const Icon(Icons.error_outline_rounded,
+                      size: 44, color: AppColors.error),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'Kampanya detayları yüklenemedi.',
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
                 ElevatedButton(
-                  onPressed: () => ref.refresh(campaignDetailProvider(widget.campaignId)),
+                  onPressed: () =>
+                      ref.refresh(campaignDetailProvider(widget.campaignId)),
                   child: const Text('Tekrar Dene'),
                 ),
               ],

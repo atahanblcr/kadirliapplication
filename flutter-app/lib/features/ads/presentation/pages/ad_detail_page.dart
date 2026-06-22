@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/ads_provider.dart';
-import '../widgets/image_carousel.dart';
 import '../widgets/ad_card.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/sliver_parallax_cover.dart';
 import '../../data/models/ad_model.dart';
 import 'ad_edit_page.dart';
 
@@ -115,7 +117,7 @@ class AdDetailPage extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Hayır')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Evet, Sil'),
           ),
         ],
@@ -137,107 +139,95 @@ class AdDetailPage extends ConsumerWidget {
     final isFavorited = favoriteList.contains(adId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('İlan Detayı'),
-        actions: adAsync.when(
-          data: (ad) => [
-            if (ad.isOwn) ...[
-              IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AdEditPage(ad: ad)),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () => _deleteAd(context, ref, adId),
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_time),
-                onPressed: () => _showExtensionDialog(context, ref, adId),
-                tooltip: 'Süreyi Uzat',
-              ),
-            ],
-            IconButton(
-              icon: Icon(
-                isFavorited ? Icons.favorite : Icons.favorite_border,
-                color: isFavorited ? Colors.red : null,
-              ),
-              onPressed: () {
-                ref.read(favoritesProvider.notifier).toggleFavorite(adId, isFavorited);
-              },
-            ),
-          ],
-          loading: () => [],
-          error: (_, __) => [],
-        ),
-      ),
       body: adAsync.when(
-        data: (ad) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ImageCarousel(
-                images: ad.images ?? [],
-                heroTag: AdCard.heroTag(ad.id),
-              ),
-              Padding(
+        data: (ad) => CustomScrollView(
+          slivers: [
+            SliverParallaxCover(
+              title: 'İlan Detayı',
+              placeholderIcon: Icons.shopping_bag_rounded,
+              imageUrls: (ad.images ?? []).map((e) => e.url).toList(),
+              heroTag: AdCard.heroTag(ad.id),
+              actions: [
+                if (ad.isOwn) ...[
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => AdEditPage(ad: ad)),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline,
+                        color: Color(0xFFFB5870)),
+                    onPressed: () => _deleteAd(context, ref, adId),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_time, color: Colors.white),
+                    onPressed: () => _showExtensionDialog(context, ref, adId),
+                    tooltip: 'Süreyi Uzat',
+                  ),
+                ],
+                IconButton(
+                  icon: Icon(
+                    isFavorited ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorited ? const Color(0xFFFB5870) : Colors.white,
+                  ),
+                  onPressed: () {
+                    ref
+                        .read(favoritesProvider.notifier)
+                        .toggleFavorite(adId, isFavorited);
+                  },
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       ad.title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
                       _formatPrice(ad.price),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+                      style: AppTextStyles.displaySmall.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Row(
                       children: [
-                        _buildInfoChip(context, Icons.category_outlined, ad.category.name),
+                        _buildInfoChip(context, Icons.category_rounded, ad.category.name),
                         if (ad.neighborhood != null) ...[
                           const SizedBox(width: AppSpacing.sm),
                           _buildInfoChip(
                             context,
-                            Icons.location_on_outlined,
+                            Icons.location_on_rounded,
                             ad.neighborhood!['name'] as String? ?? '',
                           ),
                         ],
                       ],
                     ),
                     const Divider(height: AppSpacing.xl),
-                    Text(
-                      'Açıklama',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
+                    _sectionTitle(context, 'Açıklama'),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       ad.description,
-                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     if (ad.properties != null && ad.properties!.isNotEmpty) ...[
-                      Text(
-                        'Özellikler',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
+                      _sectionTitle(context, 'Özellikler'),
                       const SizedBox(height: AppSpacing.sm),
-                      _buildPropertiesGrid(ad.properties!),
+                      _buildPropertiesGrid(context, ad.properties!),
                       const SizedBox(height: AppSpacing.xl),
                     ],
                     _buildSellerCard(context, ad),
@@ -245,11 +235,17 @@ class AdDetailPage extends ConsumerWidget {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Hata: $error')),
+        loading: () => const DetailStateView(
+          title: 'İlan Detayı',
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, _) => DetailStateView(
+          title: 'İlan Detayı',
+          child: Text('Hata: $error'),
+        ),
       ),
       bottomSheet: adAsync.when(
         data: (ad) => _buildBottomActions(context, ad),
@@ -259,52 +255,71 @@ class AdDetailPage extends ConsumerWidget {
     );
   }
 
+  Widget _sectionTitle(BuildContext context, String text) {
+    return Text(
+      text,
+      style: AppTextStyles.headlineSmall.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
   Widget _buildInfoChip(BuildContext context, IconData icon, String label) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(20),
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.grey[700]),
+          Icon(icon, size: 15, color: AppColors.primary),
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: Colors.grey[700], fontWeight: FontWeight.w500),
+            style: AppTextStyles.labelMedium.copyWith(color: cs.onSurface),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPropertiesGrid(List<Map<String, dynamic>> properties) {
+  Widget _buildPropertiesGrid(
+      BuildContext context, List<Map<String, dynamic>> properties) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[200]!),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
       ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: properties.length,
-        separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey[200]),
+        separatorBuilder: (context, index) =>
+            Divider(height: 1, color: cs.outlineVariant),
         itemBuilder: (context, index) {
           final prop = properties[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: 13),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   prop['name'] as String? ?? '',
-                  style: const TextStyle(color: Colors.grey, fontSize: 15),
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: cs.onSurfaceVariant),
                 ),
                 Text(
                   prop['value'] as String? ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -315,18 +330,27 @@ class AdDetailPage extends ConsumerWidget {
   }
 
   Widget _buildSellerCard(BuildContext context, AdModel ad) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: Colors.grey[200]!),
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: Icon(Icons.person, color: Theme.of(context).primaryColor),
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: AppColors.primaryGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+            ),
+            child: const Icon(Icons.person_rounded, color: Colors.white),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -335,11 +359,15 @@ class AdDetailPage extends ConsumerWidget {
               children: [
                 Text(
                   ad.seller?['username'] as String? ?? 'Kullanıcı',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const Text(
+                Text(
                   'İlan Sahibi',
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ),
@@ -350,46 +378,43 @@ class AdDetailPage extends ConsumerWidget {
   }
 
   Widget _buildBottomActions(BuildContext context, AdModel ad) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md + MediaQuery.of(context).padding.bottom * 0.5,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () => _launchPhone(ad.contactPhone ?? ''),
-              icon: const Icon(Icons.phone),
-              label: const Text('Ara'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        border: Border(top: BorderSide(color: cs.outlineVariant, width: 0.5)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () => _launchPhone(ad.contactPhone ?? ''),
+                icon: const Icon(Icons.phone_rounded, size: 18),
+                label: const Text('Ara'),
               ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () => _launchWhatsApp(ad.whatsappUrl),
-              icon: const Icon(Icons.chat_bubble_outline),
-              label: const Text('WhatsApp'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () => _launchWhatsApp(ad.whatsappUrl),
+                icon: const Icon(Icons.chat_bubble_rounded, size: 18),
+                label: const Text('WhatsApp'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

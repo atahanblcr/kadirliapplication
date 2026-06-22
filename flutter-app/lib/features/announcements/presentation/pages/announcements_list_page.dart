@@ -4,6 +4,8 @@ import '../providers/announcements_provider.dart';
 import '../widgets/announcement_card.dart';
 import '../widgets/announcement_shimmer.dart';
 import 'announcement_detail_page.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 /// Announcements list page
 /// Features: pull-to-refresh, infinite scroll, error handling
@@ -116,64 +118,18 @@ class _AnnouncementsListPageState extends ConsumerState<AnnouncementsListPage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Henüz duyuru yok',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Yakında eklenecek 📭',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
-      ),
+    return const AppEmptyState(
+      icon: Icons.campaign_rounded,
+      title: 'Henüz duyuru yok',
+      subtitle: 'Yeni duyurular burada görünecek 📭',
     );
   }
 
   Widget _buildErrorState(String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Bir hata oluştu',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              error,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500]),
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.refresh),
-            label: const Text('Tekrar Dene'),
-            onPressed: () {
-              ref.read(announcementsProvider.notifier).loadAnnouncements();
-            },
-          ),
-        ],
-      ),
+    return AppErrorState(
+      error: error,
+      onRetry: () =>
+          ref.read(announcementsProvider.notifier).loadAnnouncements(),
     );
   }
 }

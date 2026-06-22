@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/events_list_provider.dart';
 import '../widgets/event_card.dart';
+import '../../../../core/widgets/app_shimmer.dart';
 
 class EventsListPage extends ConsumerStatefulWidget {
   const EventsListPage({super.key});
@@ -39,7 +40,7 @@ class _EventsListPageState extends ConsumerState<EventsListPage> {
       body: RefreshIndicator(
         onRefresh: () => ref.read(eventsListNotifierProvider.notifier).refresh(),
         child: state.events.isEmpty && state.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const ShimmerList()
             : state.events.isEmpty && state.error != null
                 ? Center(child: Text('Hata: ${state.error}'))
                 : state.events.isEmpty

@@ -24,29 +24,39 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: AppSpacing.xxl, color: AppColors.grey400),
-            const SizedBox(height: AppSpacing.md),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(AppSpacing.radius2xl),
+              ),
+              child: Icon(icon, size: 44, color: AppColors.primary),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.titleLarge.copyWith(color: cs.onSurface),
             ),
             if (subtitle != null) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: cs.onSurfaceVariant),
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.lg),
               ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],

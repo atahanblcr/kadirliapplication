@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/models/event_model.dart';
 import '../pages/event_detail_page.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class EventCard extends StatelessWidget {
@@ -12,33 +13,28 @@ class EventCard extends StatelessWidget {
 
   String _getMonthName(int month) {
     const months = [
-      '',
-      'Oca',
-      'Şub',
-      'Mar',
-      'Nis',
-      'May',
-      'Haz',
-      'Tem',
-      'Ağu',
-      'Eyl',
-      'Eki',
-      'Kas',
-      'Ara'
+      '', 'OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ',
+      'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'
     ];
     return months[month];
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     DateTime? parsedDate;
     try {
       parsedDate = DateTime.parse(event.eventDate);
     } catch (_) {}
 
     return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      radius: AppSpacing.radiusLg,
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      radius: AppSpacing.radiusXl,
+      padding: const EdgeInsets.all(AppSpacing.smLg),
+      glowColor: AppColors.gEvents.first,
       onTap: () {
         Navigator.push(
           context,
@@ -50,112 +46,119 @@ class EventCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Gradyan tarih rozeti
           if (parsedDate != null)
             Container(
-              width: 70,
-              constraints: const BoxConstraints(minHeight: 100),
+              width: 60,
+              height: 68,
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                gradient: const LinearGradient(
+                  colors: AppColors.gEvents,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                boxShadow: AppColors.glow(AppColors.gEvents.first,
+                    strength: 0.32),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     '${parsedDate.day}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    style: AppTextStyles.headlineMedium.copyWith(
                       color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     _getMonthName(parsedDate.month),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      letterSpacing: 1,
                     ),
                   ),
                 ],
               ),
             ),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (event.category != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        event.category!.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (event.category != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                    ),
+                    child: Text(
+                      event.category!.name,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.primary,
                       ),
                     ),
-                  Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time,
-                          size: 16, color: Colors.grey),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                Text(
+                  event.title,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Icon(Icons.access_time_rounded,
+                        size: 15, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Text(
+                      event.eventTime,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    if (event.isFree) ...[
+                      const SizedBox(width: AppSpacing.smLg),
+                      const Icon(Icons.sell_rounded,
+                          size: 14, color: AppColors.success),
                       const SizedBox(width: 4),
                       Text(
-                        event.eventTime,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 13),
-                      ),
-                      const SizedBox(width: 12),
-                      if (event.isFree) ...[
-                        const Icon(Icons.money_off,
-                            size: 16, color: Colors.green),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'Ücretsiz',
-                          style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ]
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          '${event.venueName}${event.city != null ? ', ${event.city}' : ''}',
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 13),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        'Ücretsiz',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.success,
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Row(
+                  children: [
+                    Icon(Icons.location_on_rounded,
+                        size: 15, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${event.venueName}${event.city != null ? ', ${event.city}' : ''}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

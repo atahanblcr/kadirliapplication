@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/taxi_provider.dart';
-import '../../../../core/exceptions/app_exception.dart';
 import '../../data/models/taxi_model.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_shimmer.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
 
 class TaxiPage extends ConsumerWidget {
-  const TaxiPage({Key? key}) : super(key: key);
+  const TaxiPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final driversAsync = ref.watch(taxiDriversProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Taksi'),
-      ),
+      appBar: AppBar(title: const Text('Taksi')),
       body: RefreshIndicator(
         onRefresh: () async {
           // ignore: unused_result
@@ -29,58 +33,31 @@ class TaxiPage extends ConsumerWidget {
                 children: [
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.7,
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.local_taxi, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'Şu an aktif taksi bulunmuyor.',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        ],
-                      ),
+                    child: const AppEmptyState(
+                      icon: Icons.local_taxi_rounded,
+                      title: 'Şu an aktif taksi yok',
+                      subtitle: 'Daha sonra tekrar kontrol edebilirsiniz.',
                     ),
                   ),
                 ],
               );
             }
-
             return ListView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               itemCount: drivers.length,
-              itemBuilder: (context, index) {
-                return _TaxiCard(driver: drivers[index]);
-              },
+              itemBuilder: (context, index) =>
+                  _TaxiCard(driver: drivers[index]),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) {
-            String message = 'Bir hata oluştu.';
-            if (error is AppException) {
-              message = error.message;
-            }
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text(message, textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      // ignore: unused_result
-                      ref.refresh(taxiDriversProvider);
-                    },
-                    child: const Text('Tekrar Dene'),
-                  ),
-                ],
-              ),
-            );
-          },
+          loading: () => const ShimmerList(),
+          error: (error, stack) => AppErrorState(
+            error: error,
+            onRetry: () {
+              // ignore: unused_result
+              ref.refresh(taxiDriversProvider);
+            },
+          ),
         ),
       ),
     );
@@ -90,7 +67,7 @@ class TaxiPage extends ConsumerWidget {
 class _TaxiCard extends ConsumerWidget {
   final TaxiDriverModel driver;
 
-  const _TaxiCard({Key? key, required this.driver}) : super(key: key);
+  const _TaxiCard({required this.driver});
 
   Future<void> _callDriver(BuildContext context, WidgetRef ref) async {
     try {
@@ -98,7 +75,6 @@ class _TaxiCard extends ConsumerWidget {
       await repository.callDriver(driver.id);
     } catch (e) {
       debugPrint('Taksi çağrısı kaydedilemedi: $e');
-      // Kullanıcıya hata göstermeyebiliriz çünkü telefon araması asıl amaç
     }
 
     final url = Uri.parse('tel:${driver.phone}');
@@ -109,78 +85,101 @@ class _TaxiCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            // İkon
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.yellow[100],
-                shape: BoxShape.circle,
+    final cs = Theme.of(context).colorScheme;
+    final hasPlaka = driver.plaka != null && driver.plaka!.isNotEmpty;
+
+    return AppCard(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      radius: AppSpacing.radiusXl,
+      glowColor: AppColors.gTaxi.first,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          // Gradyan taksi ikonu
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: AppColors.gTaxi,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: const Icon(Icons.local_taxi, color: Colors.orange, size: 32),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+              boxShadow: AppColors.glow(AppColors.gTaxi.first, strength: 0.3),
             ),
-            const SizedBox(width: 16),
-            
-            // Bilgiler
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    driver.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            child: const Icon(Icons.local_taxi_rounded,
+                color: Colors.white, size: 28),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  driver.name,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: 4),
-                  if (driver.plaka != null && driver.plaka!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        border: Border.all(color: Colors.blue[200]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        driver.plaka!,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.blue[800],
-                          letterSpacing: 1,
-                        ),
+                ),
+                if (hasPlaka) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      border: Border.all(color: cs.outlineVariant),
+                    ),
+                    child: Text(
+                      driver.plaka!,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: cs.onSurface,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ],
-                  if (driver.vehicleInfo != null && driver.vehicleInfo!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      driver.vehicleInfo!,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                    ),
-                  ],
+                  ),
                 ],
-              ),
+                if (driver.vehicleInfo != null &&
+                    driver.vehicleInfo!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    driver.vehicleInfo!,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
             ),
-            
-            // Ara Butonu
-            IconButton(
-              onPressed: () => _callDriver(context, ref),
-              icon: const Icon(Icons.phone),
-              color: Colors.white,
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.all(12),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          // Ara butonu — yeşil gradyan
+          GestureDetector(
+            onTap: () => _callDriver(context, ref),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.success, Color(0xFF15803D)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                boxShadow: AppColors.glow(AppColors.success, strength: 0.35),
               ),
+              child: const Icon(Icons.phone_rounded,
+                  color: Colors.white, size: 22),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

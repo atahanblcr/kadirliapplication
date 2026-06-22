@@ -3,18 +3,29 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/models/place_model.dart';
 import '../pages/place_detail_page.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class PlaceCard extends StatelessWidget {
   final PlaceModel place;
 
-  const PlaceCard({Key? key, required this.place}) : super(key: key);
+  const PlaceCard({super.key, required this.place});
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final free = place.isFree;
+    final feeColor = free ? AppColors.success : AppColors.warning;
+
     return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      radius: AppSpacing.radiusLg,
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      radius: AppSpacing.radiusXxl,
+      padding: EdgeInsets.zero,
+      glowColor: AppColors.gPlaces.first,
       onTap: () {
         Navigator.push(
           context,
@@ -26,36 +37,38 @@ class PlaceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Resim
-          if (place.coverImageUrl != null)
-            SizedBox(
-              height: 160,
-              width: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: place.coverImageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image,
-                      color: Colors.grey, size: 50),
-                ),
-              ),
-            )
-          else
-            Container(
-              height: 160,
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: const Icon(Icons.place, size: 50, color: Colors.white),
-            ),
+          // Kapak görseli
+          SizedBox(
+            height: 158,
+            width: double.infinity,
+            child: place.coverImageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: place.coverImageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Container(color: cs.surfaceContainerHighest),
+                    errorWidget: (context, url, error) => Container(
+                      color: cs.surfaceContainerHighest,
+                      child: const Icon(Icons.broken_image_outlined,
+                          color: AppColors.textHint, size: 44),
+                    ),
+                  )
+                : DecoratedBox(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gPlaces,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Icon(Icons.place_rounded,
+                        size: 52, color: Colors.white),
+                  ),
+          ),
 
           // İçerik
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -63,65 +76,64 @@ class PlaceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     if (place.category != null)
-                      Text(
-                        place.category!.name,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      Expanded(
+                        child: Text(
+                          place.category!.name.toUpperCase(),
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.primary,
+                            letterSpacing: 0.6,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       )
                     else
-                      const SizedBox.shrink(),
-
-                    // Ücret bilgisi
+                      const Spacer(),
+                    const SizedBox(width: AppSpacing.sm),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color:
-                            place.isFree ? Colors.green[50] : Colors.orange[50],
-                        borderRadius: BorderRadius.circular(12),
+                        color: feeColor.withValues(alpha: 0.12),
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.radiusFull),
                       ),
                       child: Text(
-                        place.isFree
+                        free
                             ? 'Ücretsiz'
                             : (place.entranceFee != null
                                 ? '₺${place.entranceFee!.toStringAsFixed(0)}'
                                 : 'Ücretli'),
-                        style: TextStyle(
-                          color: place.isFree
-                              ? Colors.green[700]
-                              : Colors.orange[800],
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: feeColor,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   place.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (place.address != null) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Row(
                     children: [
-                      const Icon(Icons.location_on,
-                          size: 14, color: Colors.grey),
+                      Icon(Icons.location_on_rounded,
+                          size: 14, color: cs.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           place.address!,
-                          style:
-                              TextStyle(color: Colors.grey[600], fontSize: 13),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -130,15 +142,14 @@ class PlaceCard extends StatelessWidget {
                   ),
                 ],
                 if (place.distanceFromCenter != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     'Merkeze ${place.distanceFromCenter} km',
-                    style: TextStyle(
-                        color: Colors.blueGrey[700],
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.accent,
+                    ),
                   ),
-                ]
+                ],
               ],
             ),
           ),
