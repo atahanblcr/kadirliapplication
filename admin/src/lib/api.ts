@@ -31,6 +31,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // Login isteğinde 401 alırsak refresh deneme veya sayfayı yenileme, hatayı direkt fırlat
+      if (originalRequest.url?.includes('/login')) {
+        return Promise.reject(error);
+      }
+
       const refreshToken = Cookies.get('refreshToken');
       if (refreshToken) {
         try {
@@ -46,12 +51,12 @@ api.interceptors.response.use(
         } catch {
           Cookies.remove('accessToken');
           Cookies.remove('refreshToken');
-          window.location.href = '/login';
+          if (typeof window !== 'undefined') window.location.href = '/login';
           return Promise.reject(error);
         }
       }
 
-      window.location.href = '/login';
+      if (typeof window !== 'undefined') window.location.href = '/login';
     }
 
     return Promise.reject(error);

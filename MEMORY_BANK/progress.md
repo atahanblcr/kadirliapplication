@@ -61,3 +61,32 @@ Deployment:   [██░░░░░░░░]  20% (Docker + CI/CD dosyaları h
 1. **🚀 Production deployment:** `docs/07_DEPLOYMENT_GUIDE_PRODUCTION.md` adımları (NGINX + PM2 + SSL) henüz hiçbir ortamda uygulanmadı.
 2. **📱 Store Hazırlıkları:** İkon, App Store/Play Store meta verileri, gerçek bir build/release henüz yapılmadı.
 3. **Flutter eksikleri:** Favoriler sekmesi hâlâ placeholder; backend'de var olan `complaints` modülü için Flutter UI'ı yok.
+
+---
+
+## 🛠️ Yakın Zamanda Tespit Edilen Kritik Hatalar ve Yapılacaklar (User Raporu - 23 Haziran 2026)
+
+Kullanıcı geri bildirimlerine ve tespitlere dayalı olarak acilen ele alınması gereken iyileştirme kalemleri aşağıdadır:
+
+1. **📱 Mobil UI/UX ve Ana Ekran (Home) Hataları:**
+   - Ana ekranda (Home) ciddi kaymalar, düzensizlikler ve arayüz hataları mevcut.
+   - Bazı bileşenlerde ekrana sığmama veya "Overflow" (kırmızı ekran) / hata mesajları çıkabiliyor. Ekran görüntüleriyle detaylıca tespit edilip düzeltilmeli.
+   - Tasarım ve hissiyat (animasyonlar, modern UI dokunuşları) açısından Master Prompt hazırlanıp Claude/AI destekli bir overhaul planlanıyor.
+
+2. **🗃️ Veri Senkronizasyonu ve API Filtreleme (Data Visibility):**
+   - Admin panelden eksiksiz şekilde veri girildiği halde mobil uygulamada "Veri Yok" mesajı alınan modüller var.
+   - Bu durumun `status` (draft/published), onay akışları, mahalle filtreleri veya hedeflenen kitle kısıtlamalarından kaynaklanıp kaynaklanmadığı detaylıca test edilmeli. Bozuk API sorguları düzeltilmeli.
+
+3. **🔗 Eksik Fonksiyonlar ve UX Zayıflıkları:**
+   - Eczane modülünde "Yol Tarifi Al" (Google Maps yönlendirmesi) gibi son derece elzem butonların unutulması.
+   - Mantıksal olarak bulunması gereken ancak atlanan temel buton/aksiyonların (arama butonu, doğrudan arama linkleri vb.) tüm modüller için taranıp eklenmesi.
+
+4. **🗂️ Veritabanı ve Şema (Schema) Uyuşmazlıkları (Ghost Columns & Leftovers):**
+   - Başlangıçta planlanıp kullanılmayan veya sonradan iptal edilen (ancak entity ve migrationlarda kalıntıları kalmış) veritabanı kolonlarının tespiti.
+   - Backend entity'leri ile PostgreSQL veritabanı şeması ve Swagger dokümantasyonunun tam senkronizasyonunun analizi.
+
+5. **🔍 Tahmini Diğer Eksiklikler (Agent Analizi Beklenen):**
+   - Hata yakalama (Error Handling) kısımlarında son kullanıcıya yansıyan ham backend hata mesajlarının Türkçeleştirilmesi veya kullanıcı dostu hale getirilmesi.
+   - Form/Input sayfalarında eksik validasyonlar (örn. sayılar yerine harf girilmesi, tarih seçiciler).
+   - "Pull to refresh" (sayfayı aşağı çekerek yenileme) işleminin bazı sayfalarda çalışmaması.
+   - Cache (Redis) ve local state mekanizmalarının veriyi anlık güncellemesini engelleyen durumlar.

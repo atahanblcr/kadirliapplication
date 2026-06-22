@@ -33,7 +33,12 @@ export function useAuth() {
   }, []);
 
   const login = useCallback(async (credentials: LoginRequest) => {
-    const { data } = await api.post('/auth/admin/login', credentials);
+    const cleanCredentials = {
+      ...credentials,
+      email: credentials.email?.trim(),
+      password: credentials.password?.trim(),
+    };
+    const { data } = await api.post('/auth/admin/login', cleanCredentials);
     const { access_token, refresh_token, user: userData } = data.data;
 
     Cookies.set('accessToken', access_token, { sameSite: 'strict' });

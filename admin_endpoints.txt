@@ -1,0 +1,13 @@
+admin/src/app/(dashboard)/pharmacy/page.tsx:fetch(
+admin/src/app/(dashboard)/deaths/page.tsx:fetch(
+admin/src/app/(dashboard)/neighborhoods/page.tsx:fetch(
+admin/src/app/(dashboard)/announcements/page.tsx:fetch(
+admin/src/app/(dashboard)/users/page.tsx:fetch(
+admin/src/app/(dashboard)/staff/page.tsx:fetch(
+admin/src/app/(dashboard)/staff/page.tsx:fetch(
+admin/src/app/(dashboard)/staff/page.tsx:fetch(
+admin/src/app/(dashboard)/staff/page.tsx:fetch(
+admin/src/app/(dashboard)/campaigns/page.tsx:fetch(
+admin/src/app/(dashboard)/taxi/page.tsx:fetch(
+admin/src/lib/api.ts:axios.create(
+admin/src/lib/api.ts:axios.post(
