@@ -7,19 +7,13 @@ import '../../data/models/event_model.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class EventDetailPage extends ConsumerWidget {
   final String eventId;
 
   const EventDetailPage({super.key, required this.eventId});
-
-  Future<void> _openMap(double lat, double lng, String name) async {
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
 
   Future<void> _openUrl(String urlString) async {
     final url = Uri.parse(urlString);
@@ -95,13 +89,17 @@ class EventDetailPage extends ConsumerWidget {
                   event.venueName,
                   subtitle: event.venueAddress,
                 ),
-                if (event.latitude != null && event.longitude != null) ...[
+                if (event.latitude != null ||
+                    (event.venueAddress != null &&
+                        event.venueAddress!.isNotEmpty)) ...[
                   const SizedBox(height: AppSpacing.smLg),
                   OutlinedButton.icon(
-                    onPressed: () => _openMap(
-                        event.latitude!, event.longitude!, event.venueName),
-                    icon: const Icon(Icons.map_rounded, size: 18),
-                    label: const Text('Haritada Gör'),
+                    onPressed: () => MapLauncher.openDirections(
+                        lat: event.latitude,
+                        lng: event.longitude,
+                        address: event.venueAddress ?? event.venueName),
+                    icon: const Icon(Icons.directions_rounded, size: 18),
+                    label: const Text('Yol Tarifi'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: BorderSide(

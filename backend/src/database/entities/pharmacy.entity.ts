@@ -63,10 +63,10 @@ export class PharmacySchedule {
   @Column({ type: 'date' })
   duty_date: string;
 
-  @Column({ type: 'time', default: '19:00' })
+  @Column({ type: 'time', default: '19:00:00' })
   start_time: string;
 
-  @Column({ type: 'time', default: '09:00' })
+  @Column({ type: 'time', default: '09:00:00' })
   end_time: string;
 
   @Column({

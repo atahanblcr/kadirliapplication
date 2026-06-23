@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/guide_remote_datasource.dart';
 import '../models/guide_model.dart';
 
@@ -19,8 +20,8 @@ class GuideRepository {
           (c) => GuideCategoryModel.fromJson(c as Map<String, dynamic>),
         ),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse guide categories: $e');
     }
@@ -42,8 +43,8 @@ class GuideRepository {
           (i) => GuideItemModel.fromJson(i as Map<String, dynamic>),
         ),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse guide items: $e');
     }

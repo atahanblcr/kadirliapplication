@@ -138,6 +138,7 @@ class _HomeTab extends StatelessWidget {
       required double height,
       ModuleTileStyle style = ModuleTileStyle.surface,
       bool subtitle = false,
+      bool horizontal = false,
     }) {
       final m = _byKey(key);
       if (m == null) return SizedBox(height: height);
@@ -148,6 +149,7 @@ class _HomeTab extends StatelessWidget {
             module: m,
             style: style,
             showSubtitle: subtitle,
+            horizontal: horizontal,
             onTap: () => _navigate(context, key),
           ),
         ),
@@ -220,12 +222,14 @@ class _HomeTab extends StatelessWidget {
                     tile('deaths', height: square)),
                 const SizedBox(height: gap),
 
-                // Wide banner — Bildirimler
+                // Wide banner — Bildirimler (yatay düzen: kısa yükseklikte
+                // dikey stack overflow yapıyordu)
                 tile(
                   'notifications',
-                  height: 110,
+                  height: 96,
                   style: ModuleTileStyle.filled,
                   subtitle: true,
+                  horizontal: true,
                 ),
               ],
             ),

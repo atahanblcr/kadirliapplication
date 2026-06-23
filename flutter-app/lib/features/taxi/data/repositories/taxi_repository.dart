@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/taxi_remote_datasource.dart';
 import '../models/taxi_model.dart';
 
@@ -19,8 +20,8 @@ class TaxiRepository {
       return List<TaxiDriverModel>.from(
         driversData.map((d) => TaxiDriverModel.fromJson(d as Map<String, dynamic>)),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse taxi drivers: $e');
     }
@@ -29,8 +30,8 @@ class TaxiRepository {
   Future<void> callDriver(String driverId) async {
     try {
       await _datasource.callDriver(driverId);
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to process call response: $e');
     }

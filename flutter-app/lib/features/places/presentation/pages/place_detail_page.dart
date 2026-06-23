@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../providers/places_provider.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class PlaceDetailPage extends ConsumerWidget {
   final String placeId;
 
   const PlaceDetailPage({Key? key, required this.placeId}) : super(key: key);
-
-  Future<void> _launchMap(double lat, double lng) async {
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
 
   Widget _pill(String text, Color color) {
     return Container(
@@ -180,9 +173,11 @@ class PlaceDetailPage extends ConsumerWidget {
                                 SizedBox(
                                   width: double.infinity,
                                   child: FilledButton.icon(
-                                    onPressed: () => _launchMap(
-                                        place.latitude!, place.longitude!),
-                                    icon: const Icon(Icons.map_rounded,
+                                    onPressed: () => MapLauncher.openDirections(
+                                        lat: place.latitude,
+                                        lng: place.longitude,
+                                        address: place.address),
+                                    icon: const Icon(Icons.directions_rounded,
                                         size: 18),
                                     label: const Text('Yol Tarifi Al'),
                                   ),

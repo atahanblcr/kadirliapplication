@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:kadirliapp/core/utils/map_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:kadirliapp/features/pharmacy/presentation/providers/pharmacy_provider.dart';
 import 'package:kadirliapp/features/pharmacy/data/models/pharmacy_model.dart';
@@ -240,16 +240,18 @@ class _PharmacyPageState extends ConsumerState<PharmacyPage> {
                     child: FilledButton.icon(
                       icon: const Icon(Icons.phone_rounded, size: 18),
                       label: const Text('Ara'),
-                      onPressed: () => _callPhone(pharmacy.phone),
+                      onPressed: () => MapLauncher.callPhone(pharmacy.phone),
                     ),
                   ),
-                if (pharmacy.phone.isNotEmpty && pharmacy.latitude != null)
+                // Yol tarifi: koordinat varsa onunla, yoksa adresle çalışır.
+                if (pharmacy.phone.isNotEmpty &&
+                    (pharmacy.latitude != null || pharmacy.address.isNotEmpty))
                   const SizedBox(width: AppSpacing.smLg),
-                if (pharmacy.latitude != null && pharmacy.longitude != null)
+                if (pharmacy.latitude != null || pharmacy.address.isNotEmpty)
                   Expanded(
                     child: OutlinedButton.icon(
-                      icon: const Icon(Icons.map_rounded, size: 18),
-                      label: const Text('Harita'),
+                      icon: const Icon(Icons.directions_rounded, size: 18),
+                      label: const Text('Yol Tarifi'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(
@@ -261,8 +263,11 @@ class _PharmacyPageState extends ConsumerState<PharmacyPage> {
                               BorderRadius.circular(AppSpacing.radiusXl),
                         ),
                       ),
-                      onPressed: () => _openMap(pharmacy.latitude!,
-                          pharmacy.longitude!, pharmacy.name),
+                      onPressed: () => MapLauncher.openDirections(
+                        lat: pharmacy.latitude,
+                        lng: pharmacy.longitude,
+                        address: pharmacy.address,
+                      ),
                     ),
                   ),
               ],
@@ -290,18 +295,4 @@ class _PharmacyPageState extends ConsumerState<PharmacyPage> {
     );
   }
 
-  Future<void> _callPhone(String phone) async {
-    final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    final url = Uri.parse('tel:$cleanPhone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
-
-  Future<void> _openMap(double lat, double lng, String name) async {
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
 }

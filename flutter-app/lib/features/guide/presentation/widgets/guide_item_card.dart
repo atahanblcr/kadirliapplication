@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/guide_model.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class GuideItemCard extends StatelessWidget {
@@ -12,22 +12,13 @@ class GuideItemCard extends StatelessWidget {
 
   const GuideItemCard({super.key, required this.item});
 
-  Future<void> _launchPhone() async {
-    final url = Uri.parse('tel:${item.phone}');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
+  void _launchPhone() => MapLauncher.callPhone(item.phone);
 
-  Future<void> _launchMap() async {
-    if (item.latitude != null && item.longitude != null) {
-      final url = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}');
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url);
-      }
-    }
-  }
+  void _launchDirections() => MapLauncher.openDirections(
+        lat: item.latitude,
+        lng: item.longitude,
+        address: item.address,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +101,15 @@ class GuideItemCard extends StatelessWidget {
                 label: item.workingHours!,
                 color: cs.onSurfaceVariant,
               ),
-            if (item.latitude != null && item.longitude != null) ...[
+            if ((item.latitude != null && item.longitude != null) ||
+                (item.address != null && item.address!.isNotEmpty)) ...[
               const SizedBox(height: AppSpacing.smLg),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: _launchMap,
-                  icon: const Icon(Icons.map_rounded, size: 18),
-                  label: const Text('Haritada Gör'),
+                  onPressed: _launchDirections,
+                  icon: const Icon(Icons.directions_rounded, size: 18),
+                  label: const Text('Yol Tarifi'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(

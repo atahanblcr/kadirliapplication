@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/events_remote_datasource.dart';
 import '../models/event_model.dart';
 
@@ -34,7 +35,7 @@ class EventsRepository {
         'meta': data['meta'] ?? response['meta'] ?? {},
       };
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse events: $e');
     }
   }
@@ -46,7 +47,7 @@ class EventsRepository {
       final eventJson = data['event'] as Map<String, dynamic>;
       return EventDetailModel.fromJson(eventJson);
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse event detail: $e');
     }
   }
@@ -60,7 +61,7 @@ class EventsRepository {
         categoriesJson.map((c) => EventCategoryModel.fromJson(c as Map<String, dynamic>)),
       );
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse event categories: $e');
     }
   }

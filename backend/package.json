@@ -23,7 +23,8 @@
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
-    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts",
+    "seed:mock": "ts-node -r tsconfig-paths/register scripts/create-all-mock.ts"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",

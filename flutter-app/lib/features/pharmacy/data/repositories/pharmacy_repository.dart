@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/pharmacy_remote_datasource.dart';
 import '../models/pharmacy_model.dart';
 
@@ -17,7 +18,7 @@ class PharmacyRepository {
       if (pharmacyJson == null) return null;
       return PharmacyModel.fromJson(pharmacyJson);
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse current pharmacy: $e');
     }
   }
@@ -37,7 +38,7 @@ class PharmacyRepository {
         scheduleJson.map((item) => PharmacyScheduleModel.fromJson(item as Map<String, dynamic>)),
       );
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse pharmacy schedule: $e');
     }
   }
@@ -58,7 +59,7 @@ class PharmacyRepository {
         'meta': data['meta'] ?? response['meta'] ?? {},
       };
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) throw mapDioError(e);
       throw UnknownException(message: 'Failed to parse pharmacies list: $e');
     }
   }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/places_remote_datasource.dart';
 import '../models/place_model.dart';
 
@@ -34,8 +35,8 @@ class PlacesRepository {
           (p) => PlaceModel.fromJson(p as Map<String, dynamic>),
         ),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse places: $e');
     }
@@ -47,8 +48,8 @@ class PlacesRepository {
       final data = response['data'] as Map<String, dynamic>? ?? {};
       final placeJson = data['place'] as Map<String, dynamic>;
       return PlaceDetailModel.fromJson(placeJson);
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse place detail: $e');
     }

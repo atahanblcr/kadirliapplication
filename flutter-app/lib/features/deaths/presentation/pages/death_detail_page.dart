@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../providers/deaths_provider.dart';
 import '../widgets/death_card.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class DeathDetailPage extends ConsumerWidget {
@@ -73,12 +73,11 @@ class DeathDetailPage extends ConsumerWidget {
                     icon: Icons.location_city_rounded,
                     title: 'Camii',
                     value: notice.mosque!.name,
-                    actionIcon: (notice.mosque!.latitude != null && notice.mosque!.longitude != null) 
-                        ? Icons.map 
-                        : null,
-                    onActionTap: (notice.mosque!.latitude != null && notice.mosque!.longitude != null)
-                        ? () => _launchMaps(notice.mosque!.latitude!, notice.mosque!.longitude!, notice.mosque!.name)
-                        : null,
+                    actionIcon: Icons.directions_rounded,
+                    onActionTap: () => _launchDirections(
+                        notice.mosque!.latitude,
+                        notice.mosque!.longitude,
+                        notice.mosque!.address ?? notice.mosque!.name),
                   ),
                 if (notice.cemetery != null)
                   _buildInfoRow(
@@ -86,12 +85,11 @@ class DeathDetailPage extends ConsumerWidget {
                     icon: Icons.account_balance_rounded,
                     title: 'Mezarlık',
                     value: notice.cemetery!.name,
-                    actionIcon: (notice.cemetery!.latitude != null && notice.cemetery!.longitude != null) 
-                        ? Icons.map 
-                        : null,
-                    onActionTap: (notice.cemetery!.latitude != null && notice.cemetery!.longitude != null)
-                        ? () => _launchMaps(notice.cemetery!.latitude!, notice.cemetery!.longitude!, notice.cemetery!.name)
-                        : null,
+                    actionIcon: Icons.directions_rounded,
+                    onActionTap: () => _launchDirections(
+                        notice.cemetery!.latitude,
+                        notice.cemetery!.longitude,
+                        notice.cemetery!.address ?? notice.cemetery!.name),
                   ),
                 if (notice.condolenceAddress != null && notice.condolenceAddress!.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.lg),
@@ -202,10 +200,6 @@ class DeathDetailPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _launchMaps(double lat, double lng, String label) async {
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  void _launchDirections(double? lat, double? lng, String address) =>
+      MapLauncher.openDirections(lat: lat, lng: lng, address: address);
 }

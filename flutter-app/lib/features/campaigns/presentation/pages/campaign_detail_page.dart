@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../providers/campaigns_provider.dart';
 import '../../../../core/exceptions/app_exception.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/widgets/sliver_parallax_cover.dart';
 
 class CampaignDetailPage extends ConsumerStatefulWidget {
@@ -59,19 +59,7 @@ class _CampaignDetailPageState extends ConsumerState<CampaignDetailPage> {
     }
   }
 
-  Future<void> _launchMap(double lat, double lng) async {
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
-
-  Future<void> _launchPhone(String phone) async {
-    final url = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
+  void _launchPhone(String phone) => MapLauncher.callPhone(phone);
 
   Widget _sectionTitle(BuildContext context, String text) {
     return Text(
@@ -332,18 +320,21 @@ class _CampaignDetailPageState extends ConsumerState<CampaignDetailPage> {
                                   ],
                                 ),
                               ],
-                              if (campaign.business!.latitude != null &&
-                                  campaign.business!.longitude != null) ...[
+                              if (campaign.business!.latitude != null ||
+                                  (campaign.business!.address != null &&
+                                      campaign.business!.address!
+                                          .isNotEmpty)) ...[
                                 const SizedBox(height: AppSpacing.smLg),
                                 SizedBox(
                                   width: double.infinity,
                                   child: OutlinedButton.icon(
-                                    onPressed: () => _launchMap(
-                                        campaign.business!.latitude!,
-                                        campaign.business!.longitude!),
-                                    icon: const Icon(Icons.map_rounded,
+                                    onPressed: () => MapLauncher.openDirections(
+                                        lat: campaign.business!.latitude,
+                                        lng: campaign.business!.longitude,
+                                        address: campaign.business!.address),
+                                    icon: const Icon(Icons.directions_rounded,
                                         size: 18),
-                                    label: const Text('Haritada Gör'),
+                                    label: const Text('Yol Tarifi'),
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppColors.primary,
                                       side: BorderSide(

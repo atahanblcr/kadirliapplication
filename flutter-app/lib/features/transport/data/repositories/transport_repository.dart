@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/transport_remote_datasource.dart';
 import '../models/transport_model.dart';
 
@@ -19,8 +20,8 @@ class TransportRepository {
       return List<IntercityRoute>.from(
         routesData.map((d) => IntercityRoute.fromJson(d as Map<String, dynamic>)),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse intercity routes: $e');
     }
@@ -36,8 +37,8 @@ class TransportRepository {
       return List<IntracityRoute>.from(
         routesData.map((d) => IntracityRoute.fromJson(d as Map<String, dynamic>)),
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse intracity routes: $e');
     }

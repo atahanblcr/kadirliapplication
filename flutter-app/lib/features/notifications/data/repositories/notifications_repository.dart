@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../datasources/notifications_remote_datasource.dart';
 import '../models/notification_model.dart';
 
@@ -44,8 +45,8 @@ class NotificationsRepository {
         totalPages: meta['total_pages'] as int? ?? 1,
         hasNext: meta['has_next'] as bool? ?? false,
       );
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to parse notifications: $e');
     }
@@ -54,8 +55,8 @@ class NotificationsRepository {
   Future<void> markAsRead(String id) async {
     try {
       await _datasource.markAsRead(id);
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to mark notification as read: $e');
     }
@@ -64,8 +65,8 @@ class NotificationsRepository {
   Future<void> markAllAsRead() async {
     try {
       await _datasource.markAllAsRead();
-    } on DioException catch (_) {
-      rethrow;
+    } on DioException catch (e) {
+      throw mapDioError(e);
     } catch (e) {
       throw UnknownException(message: 'Failed to mark all notifications as read: $e');
     }

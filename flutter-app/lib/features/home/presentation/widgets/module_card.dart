@@ -24,12 +24,17 @@ class ModuleCard extends StatelessWidget {
   /// Alt başlık göster (hero / geniş tile'lar). Kompaktlarda kapalı.
   final bool showSubtitle;
 
+  /// Kısa + geniş banner'lar için yatay (ikon solda) düzen. Dikey stacked
+  /// düzenin sığmadığı düşük yükseklikli tile'larda overflow'u önler.
+  final bool horizontal;
+
   const ModuleCard({
     super.key,
     required this.module,
     this.onTap,
     this.style = ModuleTileStyle.surface,
     this.showSubtitle = false,
+    this.horizontal = false,
   });
 
   @override
@@ -37,7 +42,11 @@ class ModuleCard extends StatelessWidget {
     return BouncyButton(
       onTap: onTap,
       child: style == ModuleTileStyle.filled
-          ? _FilledTile(module: module, showSubtitle: showSubtitle)
+          ? _FilledTile(
+              module: module,
+              showSubtitle: showSubtitle,
+              horizontal: horizontal,
+            )
           : _SurfaceTile(module: module, showSubtitle: showSubtitle),
     );
   }
@@ -47,7 +56,12 @@ class ModuleCard extends StatelessWidget {
 class _FilledTile extends StatelessWidget {
   final ModuleItem module;
   final bool showSubtitle;
-  const _FilledTile({required this.module, required this.showSubtitle});
+  final bool horizontal;
+  const _FilledTile({
+    required this.module,
+    required this.showSubtitle,
+    this.horizontal = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,41 +91,91 @@ class _FilledTile extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.mdLg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _IconChip(
-                  icon: module.icon,
-                  background: Colors.white.withValues(alpha: 0.22),
-                  iconColor: Colors.white,
-                  size: 52,
+            child: horizontal
+                ? _horizontalContent()
+                : _verticalContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Yatay: ikon solda, metin sağda — kısa/geniş banner'lar için.
+  Widget _horizontalContent() {
+    return Row(
+      children: [
+        _IconChip(
+          icon: module.icon,
+          background: Colors.white.withValues(alpha: 0.22),
+          iconColor: Colors.white,
+          size: 48,
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                module.title,
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
                 ),
-                const Spacer(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (showSubtitle) ...[
+                const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  module.title,
-                  style: AppTextStyles.headlineSmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                  module.subtitle,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Colors.white.withValues(alpha: 0.82),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (showSubtitle) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    module.subtitle,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.82),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
               ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Dikey: ikon üstte, metin altta — hero / tall tile'lar için.
+  Widget _verticalContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _IconChip(
+          icon: module.icon,
+          background: Colors.white.withValues(alpha: 0.22),
+          iconColor: Colors.white,
+          size: 52,
+        ),
+        const Spacer(),
+        Text(
+          module.title,
+          style: AppTextStyles.headlineSmall.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (showSubtitle) ...[
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            module.subtitle,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: Colors.white.withValues(alpha: 0.82),
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
-      ),
+      ],
     );
   }
 }
